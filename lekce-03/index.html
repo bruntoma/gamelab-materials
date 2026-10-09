@@ -1,0 +1,2134 @@
+<title>Jak oživit svět</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: same system as Lessons 1 and 2. One reading column on a 32px "room editor" grid; labs are editor windows. Each concept owns one colour, reused in its canvas overlays. */
+:root {
+  --bg: #eef1f5;
+  --bg-grid: rgba(40, 60, 110, .06);
+  --surface: #ffffff;
+  --surface-2: #f4f6f9;
+  --ink: #172031;
+  --muted: #566173;
+  --line: #d6dce5;
+  --line-strong: #b6c0ce;
+  --c-pos: #2b63d9;
+  --c-sheet: #c2255c;
+  --c-tile: #d27200;
+  --c-level: #2b8a3e;
+  --c-anim: #7048e8;
+  --c-state: #0a8aa3;
+  --c-col: #e03131;
+  --code-bg: #172031;
+  --code-fg: #e4e9f1;
+  --code-com: #8d9ab0;
+  --code-str: #a6e39a;
+  --code-num: #ffc86b;
+  --code-kw: #93b9ff;
+  --code-fn: #f7a8cb;
+  --code-on: rgba(59, 201, 219, .22);
+  --ok: #2b8a3e;
+  --bad: #c92a2a;
+  --warn: #c45f00;
+
+  --f-display: "Pixelify Sans", "Courier New", monospace;
+  --f-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  --step--1: .875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.25rem;
+  --step-2: 1.6rem;
+  --step-3: 2.2rem;
+  --step-4: clamp(2.4rem, 6vw, 3.6rem);
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
+    --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
+    --c-pos: #6e9dff; --c-sheet: #f06595; --c-tile: #ffa94d; --c-level: #5fd06f; --c-anim: #9775fa; --c-state: #3bc9db; --c-col: #ff6b6b;
+    --code-bg: #0b0f15; --ok: #5fd06f; --bad: #ff6b6b; --warn: #ffa94d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
+  --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
+  --c-pos: #6e9dff; --c-sheet: #f06595; --c-tile: #ffa94d; --c-level: #5fd06f; --c-anim: #9775fa; --c-state: #3bc9db; --c-col: #ff6b6b;
+  --code-bg: #0b0f15; --ok: #5fd06f; --bad: #ff6b6b; --warn: #ffa94d; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--bg-grid) 1px, transparent 1px), linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.1; text-wrap: balance; margin: 0; letter-spacing: .01em; }
+h2 { font-size: var(--step-3); }
+h3 { font-size: var(--step-1); }
+p { margin: 0; }
+a { color: var(--c-pos); }
+code { font-family: var(--f-mono); font-size: .88em; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: .05em .35em; }
+:focus-visible { outline: 3px solid var(--c-pos); outline-offset: 2px; }
+
+.k-pos { --kc: var(--c-pos); } .k-sheet { --kc: var(--c-sheet); } .k-tile { --kc: var(--c-tile); } .k-level { --kc: var(--c-level); }
+.k-anim { --kc: var(--c-anim); } .k-state { --kc: var(--c-state); } .k-col { --kc: var(--c-col); }
+.sq { display: inline-block; width: .7em; height: .7em; background: var(--kc); flex: none; }
+
+/* hero */
+.hero { padding-block: clamp(32px, 6vw, 64px) 24px; display: grid; gap: 28px; }
+.eyebrow { font-family: var(--f-mono); font-size: var(--step--1); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.eyebrow a { color: inherit; }
+.hero h1 { font-size: var(--step-4); max-width: 16ch; }
+.lead { font-size: var(--step-1); max-width: 60ch; }
+.lead + .lead { font-size: var(--step-0); color: var(--muted); }
+.goals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.goal { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; color: inherit; }
+.goal:hover { border-color: var(--kc); }
+.goal b { font-family: var(--f-display); font-size: var(--step-1); }
+.goal span:last-child { grid-column: 2; color: var(--muted); font-size: var(--step--1); line-height: 1.45; }
+
+/* toc */
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.toc .wrap { display: flex; gap: 6px; overflow-x: auto; padding-block: 10px; scrollbar-width: thin; }
+.toc a { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 6px 12px; border-radius: 999px; text-decoration: none; color: var(--ink); font-size: var(--step--1); border: 1px solid transparent; }
+.toc a:hover, .toc a.on { border-color: var(--line-strong); background: var(--surface); }
+
+/* sections */
+section.lesson { padding-block: clamp(40px, 7vw, 72px) 8px; display: grid; gap: 22px; scroll-margin-top: 56px; }
+.sec-head { display: grid; gap: 10px; }
+.sec-head .eyebrow { color: var(--kc); font-weight: 600; }
+.prose { display: grid; gap: 14px; max-width: 68ch; }
+.prose ul, .prose ol { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; }
+.term { font-weight: 700; color: var(--kc); }
+.callout { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 14px 18px; background: var(--surface); border: 1px dashed var(--line-strong); border-radius: var(--radius); max-width: 68ch; }
+.callout .ic { font-family: var(--f-display); font-size: var(--step-1); color: var(--kc, var(--ink)); line-height: 1.2; min-width: 1.2em; }
+.callout p { font-size: var(--step--1); line-height: 1.55; }
+.callouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.callouts .callout { max-width: none; }
+.analogy { font-family: var(--f-display); font-size: var(--step-1); line-height: 1.35; max-width: 42ch; color: var(--kc); }
+
+/* lab window */
+.lab { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 12px 32px -18px rgba(10, 20, 40, .35); }
+.lab-bar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-family: var(--f-mono); font-size: .8rem; color: var(--muted); flex-wrap: wrap; }
+.lab-bar .t { color: var(--ink); font-weight: 600; }
+.lab-bar .hint { margin-left: auto; font-family: var(--f-body); }
+.lab-body { padding: 16px; display: grid; gap: 16px; }
+.lab canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; border-radius: 4px; touch-action: none; }
+.lab canvas[tabindex]:focus-visible { outline: 3px solid var(--kc, var(--c-pos)); outline-offset: 2px; }
+.split { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(250px, 1fr); gap: 16px; align-items: start; }
+.split > * { min-width: 0; }
+.panel { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.panel h4 { margin: 0; font-family: var(--f-mono); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.cap { font-size: var(--step--1); color: var(--muted); line-height: 1.45; }
+.ctl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 8px 18px; }
+
+.btn { font: inherit; font-size: var(--step--1); padding: 7px 12px; border-radius: 5px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; line-height: 1.2; }
+.btn:hover { border-color: var(--ink); }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn:disabled { opacity: .45; cursor: default; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line-strong); border-radius: 6px; overflow: hidden; }
+.seg .btn { border: 0; border-radius: 0; font-family: var(--f-mono); font-size: .8rem; }
+.seg .btn + .btn { border-left: 1px solid var(--line-strong); }
+label.ctl { display: grid; gap: 2px; font-size: var(--step--1); }
+label.ctl > span { display: flex; justify-content: space-between; gap: 8px; }
+label.ctl output { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+label.chk { display: flex; gap: 8px; align-items: center; font-size: var(--step--1); cursor: pointer; }
+input[type="range"] { width: 100%; accent-color: var(--kc, var(--ink)); }
+input[type="range"]:disabled { opacity: .4; }
+input[type="checkbox"] { accent-color: var(--kc, var(--ink)); width: 1.05em; height: 1.05em; }
+
+.readout { font-family: var(--f-mono); font-size: .8rem; font-variant-numeric: tabular-nums; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 0; }
+.readout dt { color: var(--muted); }
+.readout dd { margin: 0; overflow-wrap: anywhere; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: .75rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); }
+.pill.on { color: var(--ok); border-color: var(--ok); }
+.pad { display: flex; gap: 8px; flex-wrap: wrap; }
+.pad .btn { min-width: 54px; padding-block: 10px; font-size: 1rem; user-select: none; -webkit-user-select: none; touch-action: none; }
+.kbd { font-family: var(--f-mono); font-size: .75rem; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; }
+.focus-state { font-size: .8rem; color: var(--muted); }
+.focus-state.on { color: var(--ok); }
+.verdict { font-family: var(--f-display); font-size: var(--step-2); line-height: 1.15; }
+.verdict.ok { color: var(--ok); } .verdict.tight { color: var(--warn); } .verdict.bad { color: var(--bad); }
+.bug { font-size: var(--step--1); line-height: 1.45; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--muted); }
+.bug.bad { border-color: var(--bad); color: var(--bad); }
+.bug.ok { border-color: var(--ok); color: var(--ok); }
+
+/* code */
+pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font-family: var(--f-mono); font-size: .8rem; line-height: 1.6; tab-size: 4; }
+pre.code code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit; }
+pre.code.lines code { display: block; min-width: max-content; }
+pre.code.tree { color: var(--code-fg); }
+pre.code .tree-c { color: var(--code-com); }
+.ln { display: block; min-height: 1.6em; padding-left: 9px; margin-left: -12px; border-left: 3px solid transparent; }
+.ln.add { border-left-color: var(--code-fn); }
+.ln.dim { opacity: .5; }
+.ln.on { background: var(--code-on); }
+.tc { color: var(--code-com); font-style: italic; } .ts { color: var(--code-str); } .tn { color: var(--code-num); } .tk { color: var(--code-kw); } .tf { color: var(--code-fn); }
+pre.data { font-size: .74rem; line-height: 1.5; }
+pre.data b { color: var(--code-bg); background: var(--code-num); border-radius: 2px; font-weight: 600; }
+
+/* engine tabs */
+.eng { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.eng-head { display: flex; align-items: center; gap: 12px; padding: 0 0 0 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.eng-head .lbl { font-family: var(--f-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.eng-tabs { display: flex; overflow-x: auto; }
+.eng-tabs button { font: inherit; font-size: var(--step--1); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.eng-tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
+.eng-panel { padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.eng-panel > p { font-size: var(--step--1); line-height: 1.55; max-width: 72ch; }
+
+/* scratch blocks */
+.scratch { display: grid; gap: 3px; justify-items: start; font-size: .82rem; font-weight: 700; }
+.sb { color: #fff; padding: 6px 12px; border-radius: 5px; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18); }
+.sb.ev { background: #c88a00; border-radius: 14px 14px 5px 5px; }
+.sb.mo { background: #3d7fe0; } .sb.co { background: #d98200; } .sb.va { background: #e0661a; } .sb.lo { background: #7b4fd6; } .sb.pe { background: #0e8a68; }
+.sb.i1 { margin-left: 18px; } .sb.i2 { margin-left: 36px; } .sb.i3 { margin-left: 54px; }
+
+/* checks list */
+.checks { display: grid; gap: 4px; font-family: var(--f-mono); font-size: .8rem; font-variant-numeric: tabular-nums; }
+.checks div { display: grid; grid-template-columns: 1.4em 1fr; gap: 6px; padding: 4px 8px; border-radius: 4px; background: var(--surface-2); }
+.checks .y::before { content: "✓"; color: var(--ok); font-weight: 700; }
+.checks .n::before { content: "✗"; color: var(--bad); font-weight: 700; }
+.checks .i::before { content: "·"; color: var(--muted); font-weight: 700; }
+
+/* pipeline */
+ol.pipe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 8px; counter-reset: p; }
+ol.pipe li { counter-increment: p; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--kc); border-radius: 6px; display: grid; gap: 4px; align-content: start; font-size: var(--step--1); line-height: 1.4; }
+ol.pipe li::before { content: counter(p); font-family: var(--f-display); font-size: var(--step-1); color: var(--kc); }
+ol.pipe li b { font-weight: 700; }
+ol.pipe li code { font-size: .78em; }
+ol.pipe li.muted { --kc: var(--line-strong); color: var(--muted); }
+
+/* approaches */
+.ways { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 12px; }
+.way { padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; display: grid; gap: 8px; align-content: start; }
+.way h3 { display: flex; gap: 10px; align-items: baseline; }
+.way h3 .lt { font-family: var(--f-mono); font-size: .8rem; border: 1px solid var(--line-strong); border-radius: 4px; padding: 0 6px; }
+.way p { font-size: var(--step--1); line-height: 1.5; }
+.way .tag { font-family: var(--f-mono); font-size: .75rem; color: var(--muted); }
+.way.best { border-color: var(--c-state); box-shadow: inset 0 3px 0 var(--c-state); }
+
+/* state diagram */
+.sm svg { width: 100%; max-width: 380px; height: auto; display: block; }
+.sm .nd rect { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1.5; }
+.sm .nd text { fill: var(--ink); font: 600 13px var(--f-mono); }
+.sm .nd.on rect { fill: var(--c-state); stroke: var(--c-state); }
+.sm .nd.on text { fill: var(--surface); }
+.sm .ed { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+.sm .ed.on { stroke: var(--c-state); stroke-width: 3.5; }
+.sm .mk { fill: var(--line-strong); }
+.sm .nd.off { opacity: .25; }
+
+/* code generator */
+.opts { display: flex; flex-wrap: wrap; gap: 12px 32px; padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; }
+.wins { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 12px; align-items: start; }
+.win { border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: var(--code-bg); min-width: 0; }
+.win-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 8px 6px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.win-head b { font-family: var(--f-mono); font-size: .85rem; }
+.win-head .cap { margin-left: 8px; }
+.win-head .btn { padding: 4px 10px; }
+.win pre.code { border-radius: 0; }
+
+/* tileset palette */
+.tileset-cv { max-width: 230px; cursor: pointer; }
+
+/* table, quiz, steps */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table.terms { border-collapse: collapse; width: 100%; min-width: 760px; font-size: var(--step--1); }
+table.terms th, table.terms td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.terms thead th { font-family: var(--f-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--surface-2); }
+table.terms tbody th { font-family: var(--f-display); font-size: var(--step-0); white-space: nowrap; }
+table.terms tbody th .sq { margin-right: 8px; }
+table.terms tr:last-child th, table.terms tr:last-child td { border-bottom: 0; }
+.quiz { display: grid; gap: 14px; }
+.q { padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; display: grid; gap: 10px; }
+.q-t { font-weight: 700; }
+.q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.q-opts .btn.ok { background: var(--ok); color: var(--surface); border-color: var(--ok); opacity: 1; }
+.q-opts .btn.no { border-color: var(--bad); color: var(--bad); text-decoration: line-through; opacity: 1; }
+.q-fb { font-size: var(--step--1); color: var(--muted); }
+.score { font-family: var(--f-display); font-size: var(--step-2); }
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; max-width: 72ch; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 2.2em 1fr; gap: 10px; align-items: baseline; }
+ol.steps li::before { content: counter(s); font-family: var(--f-display); font-size: var(--step-1); font-weight: 700; color: var(--muted); }
+footer { padding-block: 48px; color: var(--muted); font-size: var(--step--1); }
+
+@media (max-width: 760px) {
+  .split { grid-template-columns: 1fr; }
+}
+</style>
+
+<nav class="toc" aria-label="Obsah lekce">
+  <div class="wrap">
+    <a href="#spritesheet" class="k-sheet"><span class="sq"></span>Spritesheet</a>
+    <a href="#tilemapa" class="k-tile"><span class="sq"></span>Tilemapa</a>
+    <a href="#level" class="k-level"><span class="sq"></span>Level design</a>
+    <a href="#animace" class="k-anim"><span class="sq"></span>Animace</a>
+    <a href="#ovladani" class="k-state"><span class="sq"></span>Ovládání animací</a>
+    <a href="#dilna" class="k-level"><span class="sq"></span>Dílna</a>
+    <a href="#enginy">Názvy v enginech</a>
+    <a href="#kviz">Kvíz</a>
+    <a href="#ukol">Úkol</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="hero">
+    <div class="eyebrow"><span>Herní dílna</span><span>Lekce 3</span><a href="https://claude.ai/artifact/HHUC85kTJvmUUyxXuXhjNE">← Lekce 2: Jak se věci hýbou</a></div>
+    <h1>Jak oživit svět</h1>
+    <p class="lead">Postava z minulé lekce už běhá a skáče, jenže pořád jen klouže v jedné póze po šedých kostkách. Teď z jednoho obrázku plného dlaždic postavíš celý level a z jednoho obrázku plného póz rozhýbeš postavu.</p>
+    <p class="lead">Nejdůležitější část je v kroku 5: jak připojit animace k pohybovému skriptu z lekce 2, aby se kód nezamotal. Ukázky kódu jsou v GameMakeru, přepínač nabízí i Godot, Unity a Scratch.</p>
+    <div class="goals">
+      <a class="goal k-sheet" href="#spritesheet"><span class="sq"></span><b>Spritesheet</b><span>Všechny pózy postavy v jednom obrázku. Engine ho rozřeže podle mřížky.</span></a>
+      <a class="goal k-tile" href="#tilemapa"><span class="sq"></span><b>Tileset a tilemapa</b><span>Level jako tabulka čísel. Každé číslo je jedna dlaždice.</span></a>
+      <a class="goal k-level" href="#level"><span class="sq"></span><b>Level design</b><span>Jak velké mezery postava přeskočí a jak hráče učit bez návodu.</span></a>
+      <a class="goal k-anim" href="#animace"><span class="sq"></span><b>Animace</b><span>Snímky, rychlost, smyčka a co se stane, když animace skončí.</span></a>
+      <a class="goal k-state" href="#ovladani"><span class="sq"></span><b>Ovládání animací</b><span>Pohyb rozhoduje, animace se jen dívá. Tři způsoby a proč vyhrává ten oddělený.</span></a>
+      <a class="goal k-level" href="#dilna"><span class="sq"></span><b>Dílna</b><span>Nakresli vlastní level z dlaždic a hned si ho zahraj.</span></a>
+    </div>
+  </header>
+
+  <!-- ================= 1 SPRITESHEET ================= -->
+  <section class="lesson k-sheet" id="spritesheet">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 1 · Spritesheet</div>
+      <h2>Všechny pózy na jednom archu</h2>
+    </div>
+    <div class="prose">
+      <p>V lekci 1 měl sprite několik snímků. Grafici je ale většinou nekreslí do samostatných souborů. Všechny pózy postavy dají do jednoho obrázku a rozmístí je v pravidelné mřížce. Takovému obrázku se říká <span class="term">spritesheet</span> (arch spritů).</p>
+      <p>Engine pak potřebuje vědět, jak arch rozřezat: jak velký je jeden snímek, kde mřížka začíná (<strong>odsazení</strong>, offset) a jak široká je mezera mezi snímky (<strong>separace</strong>). Mezery grafici dělají schválně, aby se při zvětšení nepřelévaly barvy ze sousedních snímků.</p>
+      <p>Každý řádek archu bývá jedna animace. V GameMakeru z každého řádku uděláš samostatný sprite: <code>spr_hrac_stoji</code>, <code>spr_hrac_beh</code>, <code>spr_hrac_skok</code> a tak dál. Ty použijeme v celé lekci.</p>
+    </div>
+
+    <div class="lab k-sheet">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Import Strip Image</span><span>hrac_sheet.png · 40 × 48 px</span><span class="hint">Najdi hodnoty, při kterých řezy sedí na postavičky</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="shCv" width="720" height="430" aria-label="Zvětšený spritesheet s mřížkou řezů a náhledem animace"></canvas>
+            <p class="cap">Vlevo arch zvětšený 8×. Barevné rámečky ukazují, jak ho engine rozřeže při zvolených hodnotách. Vpravo je animace složená z vyříznutých kousků.</p>
+          </div>
+          <div class="panel">
+            <h4>Který řádek</h4>
+            <div class="seg" role="group" aria-label="Řádek archu" id="shRow">
+              <button class="btn" data-r="0" aria-pressed="false">stoji</button><button class="btn" data-r="1" aria-pressed="true">beh</button><button class="btn" data-r="2" aria-pressed="false">skok+pad</button><button class="btn" data-r="3" aria-pressed="false">dopad</button>
+            </div>
+            <label class="ctl"><span>Šířka snímku (px) <output id="shWV"></output></span><input type="range" id="shW" min="4" max="16" step="1" value="10"></label>
+            <label class="ctl"><span>Výška snímku (px) <output id="shHV"></output></span><input type="range" id="shH" min="4" max="16" step="1" value="10"></label>
+            <label class="ctl"><span>Odsazení od okraje <output id="shOffV"></output></span><input type="range" id="shOff" min="0" max="4" step="1" value="0"></label>
+            <label class="ctl"><span>Mezera mezi snímky <output id="shSepV"></output></span><input type="range" id="shSep" min="0" max="4" step="1" value="0"></label>
+            <label class="ctl"><span>Počet snímků <output id="shNV"></output></span><input type="range" id="shN" min="1" max="4" step="1" value="4"></label>
+            <div class="checks" id="shChecks" aria-live="polite"></div>
+            <div class="row"><button class="btn" id="shSolve">Ukázat správné hodnoty</button></div>
+            <pre class="code"><code id="shCode"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-sheet">
+      <div class="ic">▦</div>
+      <p><strong>Pixel art je rozmazaný?</strong> Engine obrázky při zvětšení vyhlazuje. U pixelové grafiky to vypni. GameMaker: <em>Game Options → Graphics → Interpolate colours between pixels</em> odškrtnout. Godot: <em>Project Settings → Rendering → Textures → Default Texture Filter: Nearest</em>. Unity: u obrázku <em>Filter Mode: Point</em> a <em>Compression: None</em>.</p>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>V Sprite Editoru: <em>Image → Import Strip Image</em>. Nastavíš počet snímků, velikost snímku, odsazení (Pixel Offset) a mezery (Separation), stejně jako v ukázce. Řádek vybereš přes <em>Vertical Cell Offset</em>. Z každého řádku udělej vlastní sprite a všem dej <strong>stejnou velikost plátna a stejný origin</strong> (Bottom Centre), jinak bude postava při přepnutí animace poskakovat.</p>
+        <pre class="code"><code data-lang="gml">// v kódu se na snímky ptáš takhle:
+var pocet = sprite_get_number(spr_hrac_beh);   // 4 snímky
+var sirka = sprite_get_width(spr_hrac_beh);    // 8 px
+
+// pás snímků se dá načíst i za běhu (třeba pro módy):
+var s = sprite_add("hrac_beh.png", 4, false, false, 4, 10);</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Animace má uzel <code>AnimatedSprite2D</code> v sadě <em>SpriteFrames</em>. Tlačítko s mřížkou <em>Add frames from sprite sheet</em> arch rozřeže: nastavíš počet snímků vodorovně a svisle, velikost, separaci a offset a pak klikáním vybereš snímky, které patří do animace. Na jednoduché věci stačí i <code>Sprite2D</code>:</p>
+        <pre class="code"><code data-lang="gd">$Sprite2D.hframes = 4   # sloupců v archu
+$Sprite2D.vframes = 4   # řádků
+$Sprite2D.frame = 5     # 2. řádek, 2. snímek (počítá se od 0)</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>U obrázku nastav <em>Sprite Mode: Multiple</em>, otevři <em>Sprite Editor</em> a zvol <em>Slice → Grid By Cell Size</em>: velikost snímku, <em>Offset</em> a <em>Padding</em> (mezera). Unity vytvoří samostatný sprite pro každý snímek. Když jich víc označíš a přetáhneš do scény, rovnou z nich udělá animační klip.</p>
+        <pre class="code"><code data-lang="cs">// všechny rozřezané snímky (obrázek musí být ve složce Resources)
+Sprite[] snimky = Resources.LoadAll&lt;Sprite&gt;("hrac_sheet");</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Scratch archy neumí. Každý snímek nahraj jako samostatný kostým (<em>Nahrát kostým</em> umí vybrat víc souborů najednou). Arch rozřežeš třeba v online editoru Piskel. Kostýmy pojmenuj podle animace: <em>beh1</em>, <em>beh2</em>…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2 TILEMAPA ================= -->
+  <section class="lesson k-tile" id="tilemapa">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 2 · Tileset a tilemapa</div>
+      <h2>Level jako tabulka čísel</h2>
+    </div>
+    <div class="prose">
+      <p>V lekci 2 jsme podlahu skládali z instancí <code>obj_zed</code>. U větší scény by to byly stovky objektů a každý stojí výkon. Hry proto skládají svět z <span class="term">dlaždic</span> (tiles): malých čtverců stejné velikosti, u nás 32 × 32 px.</p>
+      <p><strong>Tileset</strong> je spritesheet dlaždic. Každá dlaždice v něm má své číslo. <strong>Tilemapa</strong> je mřížka přes celou scénu a v každém políčku je jen číslo dlaždice, která se tam nakreslí. 0 znamená prázdno. Celý level je tak tabulka čísel. Uložit ji je snadné a kreslí se rychle.</p>
+      <p>Ruční skládání krajů a rohů by byla otrava. Proto enginy umí <strong>autotiling</strong>: ty jen maluješ „tady je zem“ a engine podle sousedů sám vybere správnou dlaždici. Najeď myší na zem a uvidíš, jak to počítá.</p>
+    </div>
+
+    <div class="lab k-tile">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Room Editor</span><span>vrstva Zem · 18 × 8 dlaždic · tileset ts_zem</span><span class="hint">Maluj myší, najeď na dlaždici</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="tlCv" width="576" height="256" aria-label="Tilemapa, do které jde malovat dlaždice"></canvas>
+            <h4>Data tilemapy (tohle si engine pamatuje)</h4>
+            <pre class="code data"><code id="tlData"></code></pre>
+          </div>
+          <div class="panel">
+            <h4>Štětec</h4>
+            <div class="seg" role="group" aria-label="Štětec" id="tlTools">
+              <button class="btn" data-t="auto" aria-pressed="true">Zem (autotiling)</button><button class="btn" data-t="tile" aria-pressed="false">Dlaždice</button><button class="btn" data-t="erase" aria-pressed="false">Guma</button>
+            </div>
+            <h4>Tileset ts_zem</h4>
+            <canvas id="tlSet" class="tileset-cv" width="176" height="220" aria-label="Tileset: klikni na dlaždici a maluj s ní"></canvas>
+            <p class="cap">Dlaždice 1 až 16 jsou kraje a rohy trávníku. Klikni na kteroukoli a maluj s ní ručně.</p>
+            <h4>Dlaždice pod myší</h4>
+            <div class="checks" id="tlInfo"></div>
+            <pre class="code"><code id="tlCode"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-tile">
+      <div class="ic">1 2 4 8</div>
+      <p><strong>Jak autotiling počítá.</strong> Každý soused má svou hodnotu: nahoře 1, vpravo 2, dole 4, vlevo 8. Sečti hodnoty sousedů, kteří jsou taky zem. Vyjde číslo 0 až 15 a každé odpovídá jedné dlaždici. 16 kombinací = 16 dlaždic v tilesetu. Sady se 47 dlaždicemi navíc hlídají rohové sousedy, takže umí i vnitřní rohy.</p>
+    </div>
+
+    <div class="prose">
+      <h3>Kolize s tilemapou</h3>
+      <p>Pohybový skript z lekce 2 se ptal <code>place_meeting(x, y, obj_zed)</code>. V GameMakeru se stejná funkce umí zeptat i tilemapy: místo objektu jí předáš ID vrstvy s dlaždicemi a každá neprázdná dlaždice je pak pevná. V pohybovém kódu se tak změní jen jedno slovo.</p>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Vytvoř asset <em>Tile Set</em>, vyber mu sprite s dlaždicemi a nastav velikost dlaždice, offset a separaci (jako u archu). Autotiling se nastavuje v Tile Set editoru v části <em>Auto Tiling</em>. Pak v Room Editoru přidej vrstvu typu <em>Tiles</em>, pojmenuj ji třeba <code>Zem</code>, přiřaď jí tileset a maluj. Dlaždice 0 je v GameMakeru vždy prázdná.</p>
+        <pre class="code"><code data-lang="gml">// Create
+zem = layer_tilemap_get_id("Zem");   // vrstva Tiles se jménem Zem
+
+// Step: kolize jako v lekci 2, jen místo obj_zed je tilemapa
+if (place_meeting(x + hsp, y, zem)) {
+    while (!place_meeting(x + sign(hsp), y, zem)) x += sign(hsp);
+    hsp = 0;
+}
+// zdi i dlaždice najednou: place_meeting(x, y, [obj_zed, zem])
+
+// čtení a zápis dlaždic
+var t = tilemap_get(zem, 5, 3);                 // dlaždice ve sloupci 5, řádku 3
+tilemap_set(zem, 0, 5, 3);                      // smaž ji
+var pod_nohama = tilemap_get_at_pixel(zem, x, y + 1);</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Uzel <code>TileMapLayer</code> s prostředkem <em>TileSet</em>. Kolize přidáš v TileSetu jako <em>Physics Layer</em> a na dlaždice nakreslíš tvar. Autotiling se jmenuje <em>Terrains</em> (Terrain Set v režimu <em>Match Corners and Sides</em>). <code>CharacterBody2D</code> s <code>move_and_slide()</code> pak na dlaždicích stojí sám, pohybový kód se nemění.</p>
+        <pre class="code"><code data-lang="gd">@onready var zem: TileMapLayer = $Zem
+
+func _ready():
+    var bunka = zem.local_to_map(zem.to_local(global_position))   # pixel → buňka
+    print(zem.get_cell_source_id(bunka))                         # -1 = prázdno
+    zem.set_cell(Vector2i(5, 3), 0, Vector2i(2, 1))   # zdroj 0, dlaždice ze sloupce 2, řádku 1
+    zem.erase_cell(Vector2i(5, 3))</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p><em>GameObject → 2D Object → Tilemap → Rectangular</em>. Dlaždice maluješ v okně <em>Tile Palette</em>. Pro kolize přidej k tilemapě <code>Tilemap Collider 2D</code> (a pro hladký povrch ještě <code>Composite Collider 2D</code>). Autotiling dělá <em>Rule Tile</em> z balíčku 2D Tilemap Extras. Pozor, v Unity roste y buněk nahoru.</p>
+        <pre class="code"><code data-lang="cs">using UnityEngine.Tilemaps;
+
+public Tilemap zem;
+public TileBase trava;
+
+void Start() {
+    Vector3Int bunka = zem.WorldToCell(transform.position);
+    TileBase t = zem.GetTile(bunka);                 // null = prázdno
+    zem.SetTile(new Vector3Int(5, 3, 0), trava);
+    zem.SetTile(new Vector3Int(5, 3, 0), null);      // smazat
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Scratch tilemapy nemá. Level se obvykle kreslí jako pozadí a kolize se testuje barvou. Pokročilejší projekty kreslí dlaždice razítkem z rozšíření <em>Pero</em>: postava projde seznam čísel a na každé místo otiskne kostým dlaždice.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb pe">smaž vše</span><span class="sb va">nastav [i] na (1)</span><span class="sb co">opakuj (délka [level]) krát</span><span class="sb lo i1">změň kostým na (položka (i) z [level])</span><span class="sb mo i1">skoč na x: (…) y: (…)</span><span class="sb pe i1">razítko</span><span class="sb va i1">změň [i] o (1)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3 LEVEL DESIGN ================= -->
+  <section class="lesson k-level" id="level">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 3 · Level design</div>
+      <h2>Hráč se má učit hraním</h2>
+    </div>
+    <div class="prose">
+      <p><span class="term">Level design</span> je navrhování úrovní: kam dát plošiny, propasti, nepřátele a mince a co se v nich hráč naučí. Dobrý level hráči nic nevysvětluje textem. Postaví ho do situace, ve které na pravidlo přijde sám.</p>
+      <ul>
+        <li><strong>Měř podle postavy.</strong> Výška a dálka skoku z lekce 2 určují, jak vysoký smí být schod a jak široká propast. Těmto číslům se říká <em>metriky</em>. Zjisti je dřív, než začneš kreslit.</li>
+        <li><strong>Nauč, procvič, zkomplikuj.</strong> Novou věc ukaž nejdřív bez trestu, pak s rizikem a nakonec ve spojení s něčím dalším.</li>
+        <li><strong>Čitelnost.</strong> Co je pevné, musí vypadat pevně. Pozadí ztlum, popředí nech kontrastní. Stejná věc vypadá v celé hře stejně.</li>
+        <li><strong>Veď hráče.</strong> Řada mincí ukazuje cestu i správný oblouk skoku. Mince na nedostupném místě láká hledat, jak se tam dostat.</li>
+        <li><strong>Rytmus.</strong> Střídej napětí a oddech. Po těžké pasáži dej bezpečné místo.</li>
+      </ul>
+    </div>
+
+    <div class="lab k-level">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Metriky skoku</span><span>obj_hrac z lekce 2 · dlaždice 32 px</span><span class="hint">Klikni, kam postavit plošinu</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="mtCv" width="704" height="320" tabindex="0" aria-label="Postava skáče z římsy. Kliknutím postavíš cílovou plošinu a uvidíš, jestli na ni doskočí."></canvas>
+            <p class="cap">Tečky jsou dráha skoku v plné rychlosti, snímek po snímku. Zelená plocha je všechno, kam postava může doskočit, když ve vzduchu přibrzdí. Šipkami můžeš plošinu posouvat.</p>
+          </div>
+          <div class="panel">
+            <div class="verdict" id="mtVerdict" aria-live="polite"></div>
+            <p class="cap" id="mtWhy"></p>
+            <label class="ctl"><span>Max. rychlost <output id="mtMaxV"></output></span><input type="range" id="mtMax" min="2" max="8" step="0.5" value="4"></label>
+            <label class="ctl"><span>Gravitace <output id="mtGV"></output></span><input type="range" id="mtG" min="0.2" max="1.2" step="0.05" value="0.5"></label>
+            <label class="ctl"><span>Síla skoku <output id="mtJV"></output></span><input type="range" id="mtJ" min="6" max="16" step="0.5" value="11"></label>
+            <dl class="readout"><dt>max. výška</dt><dd id="mtH"></dd><dt>max. propast</dt><dd id="mtD"></dd><dt>pohodlně</dt><dd id="mtTip"></dd></dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-level">
+      <div class="ic">−½</div>
+      <p><strong>Nech rezervu.</strong> Skok na samé hraně dosahu zvládne jen ten, kdo hru zná nazpaměť. Schody a propasti navrhuj aspoň o půl dlaždice menší, než je maximum. Maximum si nech na místa, která mají být schválně těžká. A když ladíš gravitaci nebo sílu skoku, změní se metriky a s nimi i celý level.</p>
+    </div>
+
+    <div class="prose">
+      <h3>Nauč, procvič, zkomplikuj</h3>
+      <p>Stejný skok třikrát po sobě, pokaždé s jiným rizikem. V prvním hráč nic neztratí, takže zkouší. Ve druhém už ví, co dělat. Ve třetím přidáš novou věc, třeba nepřítele, a skok, který už umí, dostane nový smysl.</p>
+    </div>
+    <div class="lab k-level">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Tři úseky levelu</span><span>stejná mezera, rostoucí riziko</span></div>
+      <div class="lab-body">
+        <canvas id="tttCv" width="960" height="220" aria-label="Tři úseky: mezera s dnem, mezera nad propastí a mezera nad propastí s nepřítelem"></canvas>
+        <ol class="pipe">
+          <li class="k-level"><b>Nauč</b><span>Mezera má dno. Spadneš a vylezeš. Mince nad ní ukazují oblouk skoku.</span></li>
+          <li class="k-tile"><b>Procvič</b><span>Stejná mezera, ale bez dna. Hráč už ví, jak na to, teď to musí zvládnout.</span></li>
+          <li class="k-col"><b>Zkomplikuj</b><span>Za mezerou hlídkuje slizoun. Skok je stejný, jen musíš vybrat správnou chvíli.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4 ANIMACE ================= -->
+  <section class="lesson k-anim" id="animace">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 4 · Animace</div>
+      <h2>Snímky, rychlost a smyčka</h2>
+    </div>
+    <div class="prose">
+      <p>Sprite přehrává své snímky dokola. Který snímek se zrovna kreslí, určuje proměnná <code>image_index</code>. Engine k ní v každém snímku hry přičte kousek podle rychlosti animace. Je to desetinné číslo a kreslí se snímek podle celé části: 2,33 znamená snímek 2.</p>
+      <p>Rychlost má dvě části. <strong>FPS spritu</strong> nastavíš v Sprite Editoru: kolik snímků animace se přehraje za sekundu. <code>image_speed</code> je násobek: 1 = normálně, 0,5 = poloviční rychlost, 0 = stop.</p>
+      <p>Pozor na <strong>klouzání nohou</strong>. Když postava běží rychle a nohy se hýbou pomalu, vypadá to, jako by bruslila. Pomůže svázat rychlost animace s rychlostí pohybu.</p>
+      <p>Některé animace se nemají opakovat: dopad, útok, smrt. Když animace dojede na konec, GameMaker spustí událost <em>Animation End</em>. V ní animaci zastavíš nebo přepneš na jinou.</p>
+    </div>
+
+    <div class="lab k-anim">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Animace spritu</span><span id="anName">spr_hrac_beh</span><span class="hint">Změň FPS a rychlost a sleduj nohy</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="anCv" width="720" height="260" aria-label="Snímky animace a postava, která je přehrává"></canvas>
+            <canvas id="anGraph" width="720" height="120" aria-label="Graf hodnoty image_index v čase"></canvas>
+          </div>
+          <div class="panel">
+            <div class="seg" role="group" aria-label="Sprite" id="anSpr">
+              <button class="btn" data-s="stoji" aria-pressed="false">stoji</button><button class="btn" data-s="beh" aria-pressed="true">beh</button><button class="btn" data-s="dopad" aria-pressed="false">dopad</button>
+            </div>
+            <label class="ctl"><span>FPS spritu <output id="anFpsV"></output></span><input type="range" id="anFps" min="1" max="30" step="1" value="10"></label>
+            <label class="ctl"><span>Rychlost pohybu (hsp) <output id="anHspV"></output></span><input type="range" id="anHsp" min="0" max="8" step="0.5" value="3"></label>
+            <label class="chk"><input type="checkbox" id="anSync"> image_speed podle rychlosti pohybu</label>
+            <label class="chk"><input type="checkbox" id="anLoop" checked> Opakovat dokola (smyčka)</label>
+            <div class="row"><button class="btn" id="anRestart">Přehrát od začátku</button></div>
+            <dl class="readout"><dt>image_index</dt><dd id="anIdx"></dd><dt>image_speed</dt><dd id="anSpd"></dd><dt>jedna smyčka</dt><dd id="anDur"></dd><dt>Animation End</dt><dd id="anEnds">0×</dd></dl>
+            <pre class="code"><code id="anCode"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>FPS nastavíš v Sprite Editoru vlevo nahoře. V kódu pracuješ s vestavěnými proměnnými instance:</p>
+        <pre class="code"><code data-lang="gml">sprite_index = spr_hrac_beh;   // který sprite
+image_index = 0;               // od kterého snímku
+image_speed = 0.5;             // poloviční rychlost
+// image_number = počet snímků (jen ke čtení)
+
+// ===== Animation End =====
+if (sprite_index == spr_hrac_dopad) {
+    image_speed = 0;
+    image_index = image_number - 1;   // zůstaň na posledním snímku
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Každá animace v <em>SpriteFrames</em> má vlastní FPS a přepínač <em>Loop</em>. Konec neopakované animace ohlásí signál <code>animation_finished</code>.</p>
+        <pre class="code"><code data-lang="gd">@onready var anim: AnimatedSprite2D = $AnimatedSprite2D
+
+func _ready():
+    anim.play("beh")
+    anim.speed_scale = 0.5               # poloviční rychlost
+    anim.animation_finished.connect(_on_konec)
+
+func _on_konec():
+    if anim.animation == "dopad":
+        anim.play("stoji")</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Animační klip (<em>Window → Animation</em>) má <em>Samples</em> (snímky za sekundu) a zaškrtávátko <em>Loop Time</em>. Klipy přehrává komponenta <code>Animator</code>.</p>
+        <pre class="code"><code data-lang="cs">Animator anim = GetComponent&lt;Animator&gt;();
+anim.Play("Beh");    // spusť stav Beh
+anim.speed = 0.5f;   // poloviční rychlost</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Animace je přepínání kostýmů. Rychlost určuje čekání: 0,1 s mezi kostýmy = 10 snímků za sekundu.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb co">opakuj stále</span><span class="sb lo i1">další kostým</span><span class="sb co i1">čekej (0.1) sekund</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5 OVLADANI ================= -->
+  <section class="lesson k-state" id="ovladani">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 5 · Ovládání animací</div>
+      <h2>Pohyb rozhoduje, animace se jen dívá</h2>
+    </div>
+    <div class="prose">
+      <p>Máš pohybový skript z lekce 2 a sprity pro stání, běh, skok, pád a dopad. Jak zařídit, aby se přepínaly ve správnou chvíli a aby se v kódu dalo vyznat i za měsíc?</p>
+    </div>
+
+    <div class="ways">
+      <div class="way">
+        <h3><span class="lt">A</span>Přímo v pohybu</h3>
+        <p>K řádkům pohybu dopíšeš <code>sprite_index = …</code>, třeba tam, kde se testuje šipka. Animace se pak řídí tím, co hráč <em>mačká</em>, ne tím, co postava opravdu <em>dělá</em>.</p>
+        <p class="tag">rychle napsané, ale chybové a čím dál zamotanější</p>
+      </div>
+      <div class="way best">
+        <h3><span class="lt">B</span>Zvlášť v End Step</h3>
+        <p>Pohybový kód zůstane beze změny. Výběr animace je v samostatné události, která běží až po pohybu a kolizích. Jen se podívá na výsledek: jsem na zemi? jaké je <code>hsp</code> a <code>vsp</code>?</p>
+        <p class="tag">doporučený základ</p>
+      </div>
+      <div class="way">
+        <h3><span class="lt">C</span>Stavový automat</h3>
+        <p>B s pamětí. Proměnná <code>stav</code> si pamatuje, co postava dělá, a mění se jen podle jasných pravidel. Hodí se, jakmile přibudou animace, které se musí dohrát, třeba dopad nebo útok.</p>
+        <p class="tag">když animací přibude</p>
+      </div>
+    </div>
+
+    <div class="lab k-state">
+      <div class="lab-bar"><span class="sq"></span><span class="t">obj_hrac</span><span>generátor kódu · přístupy A · B · C</span><span class="hint">Zvol variantu, hra i kód se přizpůsobí. Bez kliknutí hraje autopilot.</span></div>
+      <div class="lab-body">
+        <div class="opts">
+          <div class="panel">
+            <h4>Varianta</h4>
+            <div class="seg" role="group" aria-label="Přístup k animacím" id="acModes">
+              <button class="btn" data-m="A" aria-pressed="true">A · v pohybu</button><button class="btn" data-m="B" aria-pressed="false">B · End Step</button><button class="btn" data-m="C" aria-pressed="false">C · stavy</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Můj projekt má</h4>
+            <div class="row">
+              <label class="chk"><input type="checkbox" id="acOw" checked> Polopropustné plošiny (obj_platforma)</label>
+              <label class="chk"><input type="checkbox" id="acDopad"> Animaci dopadu (spr_hrac_dopad)</label>
+            </div>
+          </div>
+        </div>
+        <div class="split">
+          <div class="panel">
+            <canvas id="acCv" width="704" height="288" tabindex="0" aria-label="Postava v malém levelu. Přepínej způsob ovládání animací a sleduj, jestli animace odpovídá pohybu."></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="acCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="acFocus">Hraje autopilot: běh z hrany, do zdi, skok a zpátky</span>
+            </div>
+            <div class="bug" id="acMsg" aria-live="polite"></div>
+          </div>
+          <div class="panel">
+            <p class="cap" id="acNote"></p>
+            <dl class="readout"><dt>sprite_index</dt><dd id="acSpr"></dd><dt>image_index</dt><dd id="acIdx"></dd><dt>image_xscale</dt><dd id="acXs"></dd><dt>stav</dt><dd id="acStav"></dd><dt>chyby</dt><dd id="acBugs">0</dd></dl>
+            <div class="sm">
+              <svg id="acDia" viewBox="0 0 340 232" role="img" aria-label="Stavový diagram: stoji, bezi, skace, pada, dopad a přechody mezi nimi">
+                <defs>
+                  <marker id="acArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="mk" d="M0 0 L10 5 L0 10 z"/></marker>
+                </defs>
+                <path class="ed" data-e="stoji-bezi" d="M128 22 L210 22" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="bezi-stoji" d="M212 34 L130 34" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="stoji-skace" d="M80 44 L80 100" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="bezi-pada" d="M252 44 L252 100" marker-end="url(#acArr)"/>
+                <path class="ed nodp" data-e="pada-bezi" d="M268 102 L268 46" marker-end="url(#acArr)"/>
+                <path class="ed nodp" data-e="pada-stoji" d="M214 108 L126 46" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="stoji-pada" d="M118 44 L224 101" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="bezi-skace" d="M222 44 L116 101" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="skace-pada" d="M128 118 L210 118" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="pada-dopad" d="M240 134 L198 187" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="dopad-pada" d="M212 189 L254 136" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="dopad-stoji" d="M122 205 C 8 205, 8 64, 30 40" marker-end="url(#acArr)"/>
+                <path class="ed" data-e="dopad-bezi" d="M218 205 C 332 205, 332 64, 310 40" marker-end="url(#acArr)"/>
+                <g class="nd" data-n="stoji"><rect x="32" y="12" width="96" height="32" rx="6"/><text x="80" y="33" text-anchor="middle">stoji</text></g>
+                <g class="nd" data-n="bezi"><rect x="212" y="12" width="96" height="32" rx="6"/><text x="260" y="33" text-anchor="middle">bezi</text></g>
+                <g class="nd" data-n="skace"><rect x="32" y="102" width="96" height="32" rx="6"/><text x="80" y="123" text-anchor="middle">skace</text></g>
+                <g class="nd" data-n="pada"><rect x="212" y="102" width="96" height="32" rx="6"/><text x="260" y="123" text-anchor="middle">pada</text></g>
+                <g class="nd" data-n="dopad"><rect x="122" y="189" width="96" height="32" rx="6"/><text x="170" y="210" text-anchor="middle">dopad</text></g>
+              </svg>
+            </div>
+            <p class="cap" id="acDiaCap"></p>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="row" style="justify-content:space-between">
+            <h4 id="acCodeT">Kód obj_hrac</h4>
+            <button class="btn" type="button" id="acCopyAll">Kopírovat vše</button>
+          </div>
+          <p class="cap">Každé okno je jedna událost objektu <code>obj_hrac</code>. Zkopíruj ho a vlož do stejnojmenné události v GameMakeru. Řádky, které se v tomhle snímku hry zrovna provedly, svítí.</p>
+          <div class="wins" id="acWins"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <h3>Proč zrovna End Step</h3>
+      <p>GameMaker v každém snímku spouští události v pevném pořadí. Když dáš výběr animace do <em>End Step</em>, máš jistotu, že pohyb i kolize už proběhly a <code>hsp</code>, <code>vsp</code> i poloha jsou pro tenhle snímek konečné. Animace pak ukazuje, co se opravdu stalo, ne co se hráč pokusil udělat.</p>
+    </div>
+    <ol class="pipe">
+      <li class="muted"><b>Begin Step</b><span>Tady nic nepotřebujeme.</span></li>
+      <li class="k-pos"><b>Step</b><span>Pohyb z lekce 2: vstup, rychlost, gravitace, kolize. Beze změny.</span></li>
+      <li class="k-state"><b>End Step</b><span>Přečti <code>hsp</code>, <code>vsp</code>, <code>na_zemi</code> a vyber sprite.</span></li>
+      <li class="k-anim"><b>Animation End</b><span>Jen když animace dojela na konec. Ukončí dopad.</span></li>
+      <li class="k-sheet"><b>Draw</b><span>Engine nakreslí <code>sprite_index</code>, snímek <code>image_index</code>.</span></li>
+    </ol>
+
+    <div class="callouts">
+      <div class="callout k-state">
+        <div class="ic">0</div>
+        <p><strong>Nová animace od začátku.</strong> Při změně <code>sprite_index</code> GameMaker <em>nenuluje</em> <code>image_index</code>, takže by nová animace začala někde uprostřed. End Step proto sprite nejdřív vybere do proměnné <code>novy</code> a vymění ho jen tehdy, když se opravdu liší: <code>if (sprite_index != novy) { sprite_index = novy; image_index = 0; }</code>. Kdyby nuloval pokaždé, animace by zamrzla na prvním snímku.</p>
+      </div>
+      <div class="callout k-col">
+        <div class="ic">▭</div>
+        <p><strong>Jedna kolizní maska.</strong> Každý sprite má jiný tvar. Kdyby měl každý vlastní masku, postava by se po přepnutí animace mohla zaseknout ve zdi nebo propadnout podlahou. V Create proto nastav pevnou masku: <code>mask_index = spr_hrac_maska;</code>. Kolize pak na animaci nezávisí.</p>
+      </div>
+      <div class="callout k-sheet">
+        <div class="ic">⇆</div>
+        <p><strong>Otáčení.</strong> <code>image_xscale = -1</code> zrcadlí sprite kolem originu. S originem <em>Bottom Centre</em> z lekce 2 se postava otočí na místě. Otáčej podle <code>hsp</code>, ne podle klávesy, jinak se postava při brzdění otočí dřív, než zastaví.</p>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Kompletní kód pro zvolenou variantu je v oknech v laboratoři výše. Všechno je přímo v událostech objektu, žádné skripty ani funkce navíc. Objekt má tolik událostí, kolik oken vidíš:</p>
+        <pre class="code tree"><code>obj_hrac
+├─ Create         <span class="tree-c">proměnné z lekce 2 + maska (+ stav)</span>
+├─ Step           <span class="tree-c">pohyb z lekce 2 (u A i s animacemi)</span>
+├─ End Step       <span class="tree-c">výběr animace, jen B a C</span>
+└─ Animation End  <span class="tree-c">jen s animací dopadu u B a C</span></code></pre>
+        <p>V Asset Browseru potřebuješ sprity <code>spr_hrac_stoji</code>, <code>spr_hrac_beh</code>, <code>spr_hrac_skok</code>, <code>spr_hrac_pad</code>, případně <code>spr_hrac_dopad</code>, a obdélníkový <code>spr_hrac_maska</code> pro kolize. Všechny se stejným originem <em>Bottom Centre</em>. Dál objekty <code>obj_zed</code> a s plošinami i <code>obj_platforma</code>. End Step přidáš v okně objektu přes <em>Add Event → Step → End Step</em>, Animation End přes <em>Add Event → Other → Animation End</em>.</p>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>V Godotu oddělíš animaci do vlastní funkce a zavoláš ji až po <code>move_and_slide()</code>. Tehdy už platí <code>is_on_floor()</code> i konečná <code>velocity</code>. <code>play()</code> se stejným jménem animaci nerestartuje, takže ho můžeš volat každý snímek.</p>
+        <pre class="code"><code data-lang="gd">@onready var anim: AnimatedSprite2D = $AnimatedSprite2D
+
+func _physics_process(delta):
+    # ... pohyb z lekce 2, beze změny ...
+    move_and_slide()
+    _animuj()
+
+func _animuj():
+    if not is_on_floor():
+        anim.play("skok" if velocity.y < 0 else "pad")
+    elif velocity.x != 0:
+        anim.play("beh")
+    else:
+        anim.play("stoji")
+    anim.speed_scale = abs(velocity.x) / MAX_RYCHLOST if anim.animation == "beh" else 1.0
+    if velocity.x != 0:
+        anim.flip_h = velocity.x &lt; 0</code></pre>
+        <p>Pro přístup C má Godot uzel <code>AnimationTree</code> se stavovým automatem, který kreslíš myší. Pro začátek stačí funkce výše.</p>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Unity oddělení přímo nabízí: stavový automat (přístup C) nakreslíš v okně <em>Animator</em> a přechody řídíš parametry. Pohybový skript <code>Hrac</code> z lekce 2 zůstane, jen zveřejní, jestli stojí na zemi. Animace má vlastní komponentu, která parametry jen čte a nastavuje v <code>LateUpdate</code>, tedy po všem pohybu.</p>
+        <pre class="code"><code data-lang="cs">// v Hrac.cs změň lokální proměnnou na vlastnost:
+public bool NaZemi { get; private set; }
+// a v Update(): NaZemi = Physics2D.Raycast(...);</code></pre>
+        <pre class="code"><code data-lang="cs">using UnityEngine;
+
+[RequireComponent(typeof(Hrac))]
+public class HracAnimace : MonoBehaviour {
+    Animator anim; Rigidbody2D rb; SpriteRenderer sr; Hrac hrac;
+
+    void Awake() {
+        anim = GetComponent&lt;Animator&gt;();
+        rb = GetComponent&lt;Rigidbody2D&gt;();
+        sr = GetComponent&lt;SpriteRenderer&gt;();
+        hrac = GetComponent&lt;Hrac&gt;();
+    }
+
+    void LateUpdate() {   // až po veškerém pohybu
+        Vector2 v = rb.linearVelocity;
+        anim.SetFloat("Rychlost", Mathf.Abs(v.x));
+        anim.SetFloat("RychlostY", v.y);
+        anim.SetBool("NaZemi", hrac.NaZemi);
+        if (Mathf.Abs(v.x) > 0.01f) sr.flipX = v.x &lt; 0;
+    }
+}</code></pre>
+        <p>V Animatoru pak vytvoř stavy Stoji, Beh, Skok, Pad a přechody s podmínkami, třeba Stoji → Beh když <em>Rychlost &gt; 0.1</em>, cokoli → Skok když <em>NaZemi = false</em> a <em>RychlostY &gt; 0</em>.</p>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Ve Scratchi je oddělení nejpřirozenější: animaci dej do <strong>druhého skriptu</strong> téže postavy. Oba běží souběžně, pohybový skript se nemění a animační se jen dívá na proměnné. Otáčení zařídí <em>nastav styl otáčení [doleva-doprava]</em>.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb mo">nastav styl otáčení [doleva-doprava]</span><span class="sb co">opakuj stále</span><span class="sb co i1">pokud &lt;ne &lt;dotýkám se barvy [zelená]?&gt;&gt; tak</span><span class="sb lo i2">změň kostým na [skok]</span><span class="sb co i1">jinak</span><span class="sb co i2">pokud &lt;([abs] z (vx)) &gt; (0.5)&gt; tak</span><span class="sb lo i3">změň kostým na [beh1]</span><span class="sb co i3">čekej (0.1) sekund</span><span class="sb lo i3">změň kostým na [beh2]</span><span class="sb co i3">čekej (0.1) sekund</span><span class="sb co i2">jinak</span><span class="sb lo i3">změň kostým na [stoji]</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 6 DILNA ================= -->
+  <section class="lesson k-level" id="dilna">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Všechno dohromady</div>
+      <h2>Dílna: postav level a zahraj si ho</h2>
+    </div>
+    <div class="prose">
+      <p>Nakresli level z dlaždic, rozmísti plošiny a mince a hned si ho zahraj. Zem se skládá autotilingem, postava má pohyb z lekce 2 a animace podle přístupu C. Při kreslení ukazuje tečkovaný oblouk, kam postava z místa pod myší doskočí. Level se ti uloží v tomhle prohlížeči.</p>
+    </div>
+
+    <div class="lab k-level">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_dilna</span><span>960 × 384 px · dlaždice 32 px</span><span class="hint" id="wsHint">Kresli myší, pak přepni na Hrát</span></div>
+      <div class="lab-body">
+        <div class="row" style="justify-content:space-between">
+          <div class="row">
+            <div class="seg" role="group" aria-label="Režim" id="wsModes"><button class="btn" data-m="edit" aria-pressed="true">Kreslit</button><button class="btn" data-m="play" aria-pressed="false">Hrát</button></div>
+            <div class="seg" role="group" aria-label="Nástroj" id="wsTools">
+              <button class="btn" data-t="zem" aria-pressed="true">Zem</button><button class="btn" data-t="plosina" aria-pressed="false">Plošina</button><button class="btn" data-t="mince" aria-pressed="false">Mince</button><button class="btn" data-t="start" aria-pressed="false">Start</button><button class="btn" data-t="guma" aria-pressed="false">Guma</button>
+            </div>
+          </div>
+          <div class="row"><button class="btn" id="wsDefault">Ukázkový level</button><button class="btn" id="wsClear">Prázdný level</button></div>
+        </div>
+        <canvas id="wsCv" width="960" height="384" tabindex="0" aria-label="Editor levelu. V režimu Kreslit maluješ dlaždice, v režimu Hrát ovládáš postavu šipkami a mezerníkem." style="cursor:crosshair"></canvas>
+        <div class="row" style="justify-content:space-between">
+          <div class="pad" data-for="wsCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="down" aria-label="Seskočit z plošiny">▼</button><button class="btn" data-k="jump">Skok</button></div>
+          <span class="focus-state" id="wsFocus">Ve hře: <span class="kbd">←</span> <span class="kbd">→</span> pohyb, <span class="kbd">mezerník</span> skok, <span class="kbd">↓</span> seskok</span>
+          <div class="row"><span class="pill" id="wsStav">stav: stoji</span><span class="pill" id="wsCoins">mince 0/0</span></div>
+        </div>
+        <div class="row">
+          <label class="chk k-level"><input type="checkbox" id="wsGrid" checked> Mřížka</label>
+          <label class="chk k-level"><input type="checkbox" id="wsReach" checked> Dosah skoku pod myší</label>
+          <label class="chk k-col"><input type="checkbox" id="wsBox"> Kolizní maska</label>
+          <label class="chk"><input type="checkbox" id="wsSnd" checked> Zvuky</label>
+          <span class="cap" id="wsStats"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ENGINY ================= -->
+  <section class="lesson" id="enginy">
+    <div class="sec-head">
+      <div class="eyebrow">Slovníček</div>
+      <h2>Stejné principy, jiná jména</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="terms">
+        <thead><tr><th scope="col">Pojem</th><th scope="col">GameMaker</th><th scope="col">Godot</th><th scope="col">Unity</th><th scope="col">Scratch</th></tr></thead>
+        <tbody>
+          <tr class="k-sheet"><th scope="row"><span class="sq"></span>Rozřezání archu</th><td>Import Strip Image</td><td><em>Add frames from sprite sheet</em>, <code>hframes</code>/<code>vframes</code></td><td>Sprite Mode: Multiple → Slice</td><td>každý kostým zvlášť</td></tr>
+          <tr class="k-tile"><th scope="row"><span class="sq"></span>Tileset</th><td>asset Tile Set</td><td>prostředek TileSet</td><td>Tile Palette</td><td>kostýmy dlaždic</td></tr>
+          <tr class="k-tile"><th scope="row"><span class="sq"></span>Tilemapa</th><td>vrstva Tiles · <code>tilemap_get</code>/<code>set</code></td><td><code>TileMapLayer</code> · <code>get_cell</code>/<code>set_cell</code></td><td><code>Tilemap</code> · <code>GetTile</code>/<code>SetTile</code></td><td>razítko z rozšíření Pero</td></tr>
+          <tr class="k-tile"><th scope="row"><span class="sq"></span>Autotiling</th><td>Auto Tiling v Tile Setu</td><td>Terrains</td><td>Rule Tile</td><td>—</td></tr>
+          <tr class="k-tile"><th scope="row"><span class="sq"></span>Kolize s dlaždicemi</th><td><code>place_meeting(x, y, tilemapa)</code></td><td>Physics Layer v TileSetu</td><td>Tilemap Collider 2D</td><td>dotýkám se barvy</td></tr>
+          <tr class="k-anim"><th scope="row"><span class="sq"></span>Aktuální snímek</th><td><code>image_index</code></td><td><code>frame</code></td><td>řídí Animator</td><td>číslo kostýmu</td></tr>
+          <tr class="k-anim"><th scope="row"><span class="sq"></span>Rychlost animace</th><td>FPS spritu × <code>image_speed</code></td><td>FPS animace × <code>speed_scale</code></td><td>Samples klipu × <code>anim.speed</code></td><td>čekej (0.1) s</td></tr>
+          <tr class="k-anim"><th scope="row"><span class="sq"></span>Konec animace</th><td>událost Animation End</td><td>signál <code>animation_finished</code></td><td>Exit Time, Animation Event</td><td>—</td></tr>
+          <tr class="k-state"><th scope="row"><span class="sq"></span>Kde vybírat animaci</th><td>End Step</td><td>funkce po <code>move_and_slide()</code></td><td>Animator + <code>LateUpdate</code></td><td>druhý skript postavy</td></tr>
+          <tr class="k-state"><th scope="row"><span class="sq"></span>Zrcadlení</th><td><code>image_xscale = -1</code></td><td><code>flip_h</code></td><td><code>flipX</code></td><td>styl otáčení doleva-doprava</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= KVIZ ================= -->
+  <section class="lesson" id="kviz">
+    <div class="sec-head">
+      <div class="eyebrow">Ověř si to</div>
+      <h2>Rychlý kvíz</h2>
+    </div>
+    <div class="row"><span class="score" id="quizScore">0 / 0</span><button class="btn" id="quizReset">Zkusit znovu</button></div>
+    <div class="quiz" id="quiz"></div>
+  </section>
+
+  <!-- ================= UKOL ================= -->
+  <section class="lesson" id="ukol">
+    <div class="sec-head">
+      <div class="eyebrow">Do příště · GameMaker</div>
+      <h2>Úkol: postava s animacemi ve vlastním levelu</h2>
+    </div>
+    <ol class="steps">
+      <li><span>Najdi nebo nakresli spritesheet postavy a dlaždic. Zdarma a s volnou licencí je najdeš třeba na kenney.nl nebo opengameart.org. Pixelovou postavu si můžeš nakreslit v Piskelu.</span></li>
+      <li><span>Přes <em>Import Strip Image</em> vytvoř sprity <code>spr_hrac_stoji</code>, <code>spr_hrac_beh</code>, <code>spr_hrac_skok</code> a <code>spr_hrac_pad</code>. Všem dej stejnou velikost a origin <em>Bottom Centre</em>. Přidej obdélníkový <code>spr_hrac_maska</code> a v Create ho nastav do <code>mask_index</code>.</span></li>
+      <li><span>Vytvoř Tile Set, v místnosti vrstvu Tiles <code>Zem</code> a nakresli level. Ve Step nahraď <code>obj_zed</code> tilemapou (sekce Tilemapa, záložka GameMaker).</span></li>
+      <li><span>V generátoru v kroku 5 zvol přístup B a zaškrtni, co tvůj projekt má. Okna Create, Step a End Step zkopíruj do stejnojmenných událostí <code>obj_hrac</code>.</span></li>
+      <li><span>Zjisti metriky své postavy (můžeš použít laboratoř v kroku 3) a postav level podle pravidla nauč, procvič, zkomplikuj. Dej ho zahrát spolužákovi bez vysvětlování a sleduj, kde se zasekne.</span></li>
+      <li><span>Bonus: zaškrtni animaci dopadu, přejdi na přístup C a přidej událost <em>Animation End</em>. Nebo přehraj zvuk kroku vždycky, když běh dojde na snímek, kdy se noha dotkne země.</span></li>
+    </ol>
+  </section>
+</main>
+
+<footer class="wrap">Herní dílna · Lekce 3: Spritesheety, tilemapy, level design a animace. Všechna grafika je kreslená kódem pixel po pixelu, fyzika běží 60 snímků za sekundu stejně jako v GameMakeru.</footer>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* ---------- theme tokens for canvas ---------- */
+const TOK = {};
+function readTokens() {
+  const cs = getComputedStyle(document.documentElement);
+  ['ink', 'muted', 'line', 'line-strong', 'surface', 'surface-2', 'c-pos', 'c-sheet', 'c-tile', 'c-level', 'c-anim', 'c-state', 'c-col', 'ok', 'bad', 'warn']
+    .forEach(k => TOK[k] = cs.getPropertyValue('--' + k).trim() || '#888');
+}
+readTokens();
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTokens); } catch (e) {}
+new MutationObserver(readTokens).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+
+/* ---------- pixel art (same characters as lessons 1 and 2) ---------- */
+const PAL = { k: '#1d2433', y: '#f7c948', o: '#d9890b', w: '#ffffff', g: '#5cb85c', G: '#2e7d32', b: '#9a6640', d: '#6e4529', r: '#e5484d', p: '#3c7bf0', P: '#2a56b0', s: '#f4c7a1', S: '#8a8f99', T: '#b8bcc4' };
+function bake(rows) {
+  const c = document.createElement('canvas'); c.width = rows[0].length; c.height = rows.length;
+  const x = c.getContext('2d');
+  rows.forEach((row, j) => [...row].forEach((ch, i) => { if (ch !== '.') { x.fillStyle = PAL[ch]; x.fillRect(i, j, 1, 1); } }));
+  c.rows = rows;
+  return c;
+}
+const mir = rows => rows.map(r => [...r].reverse().join(''));
+const cyc = (arr, t, fps) => arr[((Math.floor(t * fps) % arr.length) + arr.length) % arr.length];
+function drawImg(ctx, img, x, y, w, h, flip) {
+  if (!img) return;
+  ctx.imageSmoothingEnabled = false;
+  if (!flip) { ctx.drawImage(img, x, y, w, h); return; }
+  ctx.save(); ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(img, 0, 0, w, h); ctx.restore();
+}
+function gridBg(ctx, W, H, step) {
+  ctx.fillStyle = TOK['surface-2']; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = TOK.line; ctx.lineWidth = 1; ctx.beginPath();
+  for (let x = 0; x <= W; x += step) { ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); }
+  for (let y = 0; y <= H; y += step) { ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); }
+  ctx.stroke();
+}
+function checker(ctx, x, y, w, h, s) {
+  for (let j = 0; j * s < h; j++) for (let i = 0; i * s < w; i++) {
+    ctx.fillStyle = (i + j) & 1 ? '#d9dee6' : '#eef1f5';
+    ctx.fillRect(x + i * s, y + j * s, Math.min(s, w - i * s), Math.min(s, h - j * s));
+  }
+}
+const mono = (ctx, px, w) => ctx.font = `${w || 600} ${px}px "JetBrains Mono", ui-monospace, monospace`;
+const fmt = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toFixed(d).replace(/^-0\.(0+)$/, '0.$1');
+const cz = (v, d = 1) => fmt(v, d).replace('.', ',');
+const canvasPos = (cv, e) => { const r = cv.getBoundingClientRect(), k = cv.width / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k]; };
+function label(ctx, txt, x, y, col) {
+  mono(ctx, 12); const w = ctx.measureText(txt).width;
+  ctx.fillStyle = 'rgba(16,20,28,.72)'; ctx.fillRect(x - 4, y - 13, w + 8, 18);
+  ctx.fillStyle = col || '#fff'; ctx.fillText(txt, x, y);
+}
+
+const COIN = [
+  ['..kkkk..', '.kyyyyk.', 'kyywyyok', 'kywyyyok', 'kyyyyyok', 'kyyyyook', '.kyoook.', '..kkkk..'],
+  ['...kk...', '..kyyk..', '..kwyk..', '..kyok..', '..kyok..', '..kyok..', '..kook..', '...kk...'],
+  ['...kk...', '...ko...', '...ko...', '...ko...', '...ko...', '...ko...', '...ko...', '...kk...']
+];
+COIN.push(mir(COIN[1]));
+const IMG = {
+  coin: COIN.map(bake),
+  slime: [bake(['........', '..kkkk..', '.kggggk.', 'kgkggkgk', 'kggggggk', '.kkkkkk.']), bake(['........', '........', '.kkkkkk.', 'kgkggkgk', 'kggggggk', 'kkkkkkkk'])],
+  plank: bake(['bbbbbbbb', 'bdbbbdbb', 'dddddddd'])
+};
+
+/* ---------- tileset ts_zem: 0 empty, 1-16 autotile grass (index = 1 + neighbour mask), 17 stone, 18 bush, 19 flower ---------- */
+const DIRT = ['bbbbbbbb', 'bbdbbbbb', 'bbbbbbdb', 'bbbbbbbb', 'bdbbbbbb', 'bbbbbdbb', 'bbbbbbbb', 'bbbdbbbb'];
+function terrainRows(m) {   // m: 1 up, 2 right, 4 down, 8 left = neighbour is ground too
+  const g = DIRT.map(r => [...r]);
+  const up = m & 1, rt = m & 2, dn = m & 4, lf = m & 8;
+  if (!lf) for (let j = 0; j < 8; j++) g[j][0] = 'd';
+  if (!rt) for (let j = 0; j < 8; j++) g[j][7] = 'd';
+  if (!dn) for (let i = 0; i < 8; i++) g[7][i] = 'd';
+  if (!up) {
+    g[0] = [...'gggggggg']; g[1] = [...'gGggggGg']; g[2] = [...'GbGbbGbG'];
+    if (!lf) { g[0][0] = '.'; g[1][0] = 'G'; g[2][0] = 'd'; }
+    if (!rt) { g[0][7] = '.'; g[1][7] = 'G'; g[2][7] = 'd'; }
+  }
+  if (!dn && !lf) g[7][0] = '.';
+  if (!dn && !rt) g[7][7] = '.';
+  return g.map(r => r.join(''));
+}
+const TILE = [null];
+for (let m = 0; m < 16; m++) TILE.push(bake(terrainRows(m)));
+TILE.push(bake(['TTTTTTTS', 'TSSSTSSS', 'TSSSTSSS', 'SSSSSSSS', 'TTTSTTTT', 'SSTSSSST', 'SSTSSSST', 'SSSSSSSS']));
+TILE.push(bake(['........', '........', '..GGGG..', '.GgggGG.', 'GggGgggG', 'GgggggGG', '.GGGGGG.', '..b..b..']));
+TILE.push(bake(['........', '..r.....', '.rwr..y.', '..r..yoy', '..G...y.', '..G...G.', '.GG..GG.', '..G...G.']));
+const isTer = v => v >= 1 && v <= 16;
+function drawBlock(ctx, x, y, cols, rows, s, open = {}) {
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const m = (j > 0 || open.t ? 1 : 0) | (i < cols - 1 || open.r ? 2 : 0) | (j < rows - 1 || open.b ? 4 : 0) | (i > 0 || open.l ? 8 : 0);
+    drawImg(ctx, TILE[m + 1], x + i * s, y + j * s, s, s);
+  }
+}
+const skyCache = {};
+function sky(W, H) {
+  const k = W + 'x' + H;
+  if (skyCache[k]) return skyCache[k];
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#6fbdf0'); g.addColorStop(1, '#d6f0ff');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.fillStyle = '#a9d9bd';
+  for (let i = 0; i < W; i += 16) { const hy = Math.round((H * .62 + H * .08 * Math.sin(i / 110) + H * .035 * Math.sin(i / 37)) / 8) * 8; x.fillRect(i, hy, 16, H - hy); }
+  return (skyCache[k] = c);
+}
+
+/* ---------- hero spritesheet: one sprite per animation, 8 × 10 px frames ---------- */
+const HEAD = ['..rrrr..', '.rrrrrrr', '..ssss..', '..sksk..', '..ssss..'];
+const FR = {
+  idle0: HEAD.concat(['.pppppp.', 'spppppps', '.pPPPPp.', '..p..p..', '.kk..kk.']),
+  idle1: ['........', '..rrrr..', '.rrrrrrr', '..ssss..', '..sksk..', '.pppppp.', 'spppppps', '.pPPPPp.', '..p..p..', '.kk..kk.'],
+  run0: HEAD.concat(['.pppppp.', 'spppppps', '.pPPPPp.', '.p...p..', 'kk...kk.']),
+  run1: HEAD.concat(['.pppppps', 'spppppp.', '.pPPPPp.', '..p.p...', '..k.kk..']),
+  run2: HEAD.concat(['.pppppp.', 'spppppps', '.pPPPPp.', '..p...p.', '.kk...kk']),
+  run3: HEAD.concat(['spppppp.', '.pppppps', '.pPPPPp.', '...pp...', '...kkk..']),
+  jump: ['..rrrr..', '.rrrrrrr', 's.ssss.s', 'p.sksk.p', 'p.ssss.p', 'pppppppp', '.pppppp.', '.pPPPPp.', '.pp..pp.', '.k....k.'],
+  fall: HEAD.concat(['spppppps', '.pppppp.', '.pPPPPp.', '..p..p..', '..k..k..']),
+  land0: ['........', '........', '..rrrr..', '.rrrrrrr', '..sksk..', '..ssss..', 'spppppps', '.pPPPPp.', 'pp....pp', 'kk....kk'],
+  land1: ['........', '..rrrr..', '.rrrrrrr', '..ssss..', '..sksk..', '.pppppp.', 'spppppps', '.pPPPPp.', '.p....p.', 'kk....kk']
+};
+const SPR = {
+  stoji: { name: 'spr_hrac_stoji', fps: 3, rows: [FR.idle0, FR.idle1] },
+  beh: { name: 'spr_hrac_beh', fps: 10, rows: [FR.run0, FR.run1, FR.run2, FR.run3] },
+  skok: { name: 'spr_hrac_skok', fps: 1, rows: [FR.jump] },
+  pad: { name: 'spr_hrac_pad', fps: 1, rows: [FR.fall] },
+  dopad: { name: 'spr_hrac_dopad', fps: 8, rows: [FR.land0, FR.land1] }
+};
+for (const k in SPR) SPR[k].img = SPR[k].rows.map(bake);
+// the sheet: one animation per row, 1 px offset, 2 px separation
+const SH = { fw: 8, fh: 10, off: 1, sep: 2, rows: [SPR.stoji.rows, SPR.beh.rows, [FR.jump, FR.fall], SPR.dopad.rows] };
+SH.w = SH.off * 2 + 4 * SH.fw + 3 * SH.sep; SH.h = SH.off * 2 + 4 * SH.fh + 3 * SH.sep;
+SH.img = (() => {
+  const c = document.createElement('canvas'); c.width = SH.w; c.height = SH.h;
+  const x = c.getContext('2d');
+  SH.rows.forEach((frames, r) => frames.forEach((rows, i) => x.drawImage(bake(rows), SH.off + i * (SH.fw + SH.sep), SH.off + r * (SH.fh + SH.sep))));
+  return c;
+})();
+
+/* ---------- sound ---------- */
+let AC = null, soundOn = true;
+function beep(kind) {
+  if (!soundOn) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(), n = AC.currentTime;
+    o.type = 'square';
+    if (kind === 'coin') { o.frequency.setValueAtTime(988, n); o.frequency.setValueAtTime(1319, n + .07); }
+    else if (kind === 'land') { o.frequency.setValueAtTime(110, n); o.frequency.exponentialRampToValueAtTime(60, n + .08); }
+    else { o.frequency.setValueAtTime(300, n); o.frequency.exponentialRampToValueAtTime(700, n + .14); }
+    g.gain.setValueAtTime(.04, n); g.gain.exponentialRampToValueAtTime(.001, n + .24);
+    o.connect(g); g.connect(AC.destination); o.start(n); o.stop(n + .26);
+  } catch (e) {}
+}
+
+/* ---------- fixed-step loop: physics at 60 steps/s like GameMaker ---------- */
+const STEP = 1 / 60, widgets = [];
+let lastT = performance.now(), acc = 0;
+function safe(w, fn, ...a) { try { w[fn](...a); } catch (e) { w.dead = true; console.error(e); } }
+function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.max(0, Math.min(.1, (now - lastT) / 1000)); lastT = Math.max(lastT, now);
+  acc += dt;
+  let n = 0;
+  while (acc >= STEP && n < 6) { for (const w of widgets) if (!w.dead && w.step) safe(w, 'step'); acc -= STEP; n++; }
+  if (n === 6) acc = 0;
+  const t = now / 1000;
+  for (const w of widgets) if (!w.dead && w.draw) safe(w, 'draw', t);
+}
+
+/* ---------- keyboard + touch input bound to a focused canvas ---------- */
+const KEYMAP = { ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right', ArrowUp: 'jump', w: 'jump', W: 'jump', ' ': 'jump', ArrowDown: 'down', s: 'down', S: 'down' };
+function makeInput(cv, focusEl, activeText) {
+  const inp = { left: false, right: false, jump: false, down: false, pressed: false, released: false, focused: false, touched: false, enabled: () => true };
+  const idle = focusEl ? focusEl.innerHTML : '';
+  cv.addEventListener('keydown', e => {
+    const k = KEYMAP[e.key]; if (!k || !inp.enabled()) return; e.preventDefault();
+    if (k === 'jump' && !inp.jump) inp.pressed = true;
+    inp[k] = true;
+  });
+  cv.addEventListener('keyup', e => {
+    const k = KEYMAP[e.key]; if (!k) return;
+    if (k === 'jump' && inp.jump) inp.released = true;
+    inp[k] = false;
+  });
+  cv.addEventListener('focus', () => { inp.focused = true; if (focusEl && inp.enabled()) { focusEl.classList.add('on'); focusEl.textContent = activeText; } });
+  cv.addEventListener('blur', () => { inp.focused = false; inp.left = inp.right = inp.jump = inp.down = false; if (focusEl) { focusEl.classList.remove('on'); focusEl.innerHTML = idle; } });
+  cv.addEventListener('pointerdown', () => cv.focus({ preventScroll: true }));
+  $$(`.pad[data-for="${cv.id}"] [data-k]`).forEach(b => {
+    const k = b.dataset.k;
+    const on = e => { e.preventDefault(); inp.touched = true; if (k === 'jump' && !inp.jump) inp.pressed = true; inp[k] = true; try { b.setPointerCapture(e.pointerId); } catch (_) {} };
+    const off = () => { if (!inp[k]) return; if (k === 'jump') inp.released = true; inp[k] = false; };
+    b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off);
+  });
+  inp.consume = () => { const r = { pressed: inp.pressed, released: inp.released }; inp.pressed = inp.released = false; return r; };
+  inp.active = () => inp.focused || inp.touched;
+  inp.ctl = () => { const ev = inp.consume(); return { dir: inp.right - inp.left, pressed: ev.pressed, released: ev.released, down: inp.down }; };
+  return inp;
+}
+function slider(id, fmtFn, onChange) {
+  const el = $('#' + id), out = $('#' + id + 'V');
+  const upd = () => { const v = +el.value; if (out) out.textContent = fmtFn ? fmtFn(v) : v; onChange && onChange(v); };
+  el.addEventListener('input', upd); upd();
+  return el;
+}
+function setVal(id, v) { const el = $('#' + id); el.value = v; el.dispatchEvent(new Event('input')); }
+function segGroup(sel, attr, onPick) {
+  const btns = $$(`${sel} [data-${attr}]`);
+  const pick = v => { btns.forEach(b => b.setAttribute('aria-pressed', b.dataset[attr] === String(v))); onPick(v); };
+  btns.forEach(b => b.addEventListener('click', () => pick(b.dataset[attr])));
+  return pick;
+}
+
+/* ---------- engine tabs ---------- */
+const ENG = [['gm', 'GameMaker'], ['godot', 'Godot'], ['unity', 'Unity'], ['scratch', 'Scratch']];
+$$('.eng').forEach((box, bi) => {
+  const head = document.createElement('div'); head.className = 'eng-head';
+  head.innerHTML = '<span class="lbl">V enginu</span>';
+  const tabs = document.createElement('div'); tabs.className = 'eng-tabs'; tabs.setAttribute('role', 'tablist');
+  ENG.forEach(([id, name], i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.dataset.e = id; b.textContent = name; b.id = `eng-${bi}-${id}`;
+    b.addEventListener('click', () => setEngine(id));
+    b.addEventListener('keydown', e => {
+      const j = e.key === 'ArrowRight' ? (i + 1) % 4 : e.key === 'ArrowLeft' ? (i + 3) % 4 : -1;
+      if (j >= 0) { e.preventDefault(); setEngine(ENG[j][0]); tabs.children[j].focus(); }
+    });
+    tabs.appendChild(b);
+  });
+  head.appendChild(tabs); box.prepend(head);
+  $$('.eng-panel', box).forEach(p => { p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-labelledby', `eng-${bi}-${p.dataset.e}`); });
+});
+function setEngine(id) {
+  store.set('eng', id);
+  $$('.eng').forEach(box => {
+    $$('[role=tab]', box).forEach(b => { const on = b.dataset.e === id; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
+    $$('.eng-panel', box).forEach(p => p.hidden = p.dataset.e !== id);
+  });
+}
+const savedEng = store.get('eng');
+setEngine(ENG.some(e => e[0] === savedEng) ? savedEng : 'gm');
+
+/* ---------- syntax highlight ---------- */
+const KW = {
+  gml: 'var|if|else|with|return|function|for|while|repeat|true|false|self|other|noone|exit|switch|case|break|default',
+  gd: 'var|const|func|if|else|elif|return|extends|true|false|self|for|in|and|or|not',
+  cs: 'void|public|private|new|var|float|int|bool|return|if|else|class|true|false|using|null|get|set'
+};
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+function highlight(src, lang) {
+  const com = lang === 'gd' ? '#.*$' : '\\/\\/.*$';
+  const re = new RegExp(`(${com})|("(?:[^"\\\\]|\\\\.)*")|(\\b\\d+(?:\\.\\d+)?f?\\b)|\\b(${KW[lang] || KW.gml})\\b|\\b([A-Za-z_]\\w*)(?=\\s*\\()`, 'gm');
+  let out = '', i = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(i, m.index));
+    const cls = m[1] ? 'tc' : m[2] ? 'ts' : m[3] ? 'tn' : m[4] ? 'tk' : 'tf';
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    i = m.index + m[0].length;
+  }
+  return out + esc(src.slice(i));
+}
+$$('pre code[data-lang]').forEach(el => el.innerHTML = highlight(el.textContent, el.dataset.lang));
+const setCode = (el, src) => { if (el._src !== src) { el._src = src; el.innerHTML = highlight(src, 'gml'); } };
+const setTxt = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+const setHtml = (el, s) => { if (el._html !== s) { el._html = s; el.innerHTML = s; } };
+
+/* =========================================================
+   SHARED: tile world + player from lesson 2 + animation
+   ========================================================= */
+// '#' ground (autotiled), '=' one-way plank 32 × 12, 'o' coin, 'P' start
+function makeWorld(cols, rows, T) {
+  const PH = 12;
+  const wd = { cols, rows, T, W: cols * T, H: rows * T, cells: [], start: [1, 1], dirty: true, cache: null };
+  wd.load = strs => {
+    wd.cells = [];
+    for (let j = 0; j < rows; j++) {
+      const r = [...(strs[j] || '').padEnd(cols, '.').slice(0, cols)];
+      r.forEach((ch, i) => { if (ch === 'P') { wd.start = [i, j]; r[i] = '.'; } });
+      wd.cells.push(r);
+    }
+    wd.dirty = true;
+  };
+  wd.dump = () => wd.cells.map(r => r.join(''));
+  wd.at = (i, j) => (j >= 0 && j < rows && i >= 0 && i < cols) ? wd.cells[j][i] : '.';
+  // for drawing, the map edges (left, right, bottom) count as ground so the border looks continuous
+  const visSolid = (i, j) => (i < 0 || i >= cols || j >= rows) ? true : j < 0 ? false : wd.cells[j][i] === '#';
+  const span = (x, y, w, h) => [Math.floor(x / T), Math.floor((x + w - .001) / T), Math.floor(y / T), Math.floor((y + h - .001) / T)];
+  // place_meeting(x, y, zem): side edges are walls, the bottom is open (you can fall out)
+  wd.meetWall = (x, y, w, h) => {
+    const [l, r, t, b] = span(x, y, w, h);
+    for (let j = t; j <= b; j++) for (let i = l; i <= r; i++) {
+      if (i < 0 || i >= cols) return true;
+      if (j >= 0 && j < rows && wd.cells[j][i] === '#') return true;
+    }
+    return false;
+  };
+  // place_meeting(x, y, obj_platforma)
+  wd.meetPlat = (x, y, w, h) => {
+    const [l, r, t, b] = span(x, y, w, h);
+    for (let j = t; j <= b; j++) for (let i = l; i <= r; i++) {
+      if (wd.at(i, j) !== '=') continue;
+      const px = i * T, py = j * T;
+      if (x < px + T && x + w > px && y < py + PH && y + h > py) return true;
+    }
+    return false;
+  };
+  wd.startXY = () => [wd.start[0] * T + (T - 22) / 2, wd.start[1] * T + T - 38];
+  wd.render = () => {
+    if (wd.cache && !wd.dirty) return wd.cache;
+    const c = wd.cache || document.createElement('canvas'); c.width = wd.W; c.height = wd.H;
+    const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
+    x.drawImage(sky(wd.W, wd.H), 0, 0);
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+      const ch = wd.cells[j][i];
+      if (ch === '#') {
+        const m = (visSolid(i, j - 1) ? 1 : 0) | (visSolid(i + 1, j) ? 2 : 0) | (visSolid(i, j + 1) ? 4 : 0) | (visSolid(i - 1, j) ? 8 : 0);
+        drawImg(x, TILE[m + 1], i * T, j * T, T, T);
+      } else if (ch === '=') drawImg(x, IMG.plank, i * T, j * T, T, PH);
+    }
+    wd.cache = c; wd.dirty = false;
+    return c;
+  };
+  return wd;
+}
+
+const DEFP = { max: 4, acc: .6, fric: .4, g: .5, j: 11, cap: 12 };
+const makeHero = () => ({ x: 0, y: 0, w: 22, h: 38, hsp: 0, vsp: 0, ground: false, spr: 'stoji', idx: 0, ispd: 1, xs: 1, stav: 'stoji' });
+
+// the Step event of obj_hrac from lesson 2 (collisions with "while", one-way planks).
+// hook = optional callbacks used only by approach A to change sprites in the middle of movement
+function physicsStep(h, wd, c, P, hook) {
+  const sg = Math.sign, mw = (x, y) => wd.meetWall(x, y, h.w, h.h), mp = (x, y) => wd.meetPlat(x, y, h.w, h.h);
+  if (c.dir !== 0) { h.hsp = clamp(h.hsp + c.dir * P.acc, -P.max, P.max); if (hook) hook.dir(c.dir); }
+  else { h.hsp = Math.max(Math.abs(h.hsp) - P.fric, 0) * sg(h.hsp); if (hook) hook.idle(); }
+  h.vsp = Math.min(h.vsp + P.g, P.cap);
+  const naPlosine = mp(h.x, h.y + 1) && !mp(h.x, h.y);
+  const naZemi = mw(h.x, h.y + 1) || naPlosine;
+  let jumped = false;
+  if (naZemi && c.pressed) { h.vsp = -P.j; jumped = true; if (hook) hook.jump(); }
+  if (c.released && h.vsp < 0) h.vsp *= .5;
+  if (naPlosine && c.down) h.y += 1;
+  let n = 0;
+  if (mw(h.x + h.hsp, h.y)) { while (!mw(h.x + sg(h.hsp), h.y) && n++ < 64) h.x += sg(h.hsp); h.hsp = 0; }
+  h.x += h.hsp;
+  n = 0;
+  if (h.vsp > 0 && !mp(h.x, h.y) && mp(h.x, h.y + h.vsp)) { while (!mp(h.x, h.y + 1) && n++ < 64) h.y += 1; if (hook && !naZemi) hook.land(); h.vsp = 0; }
+  n = 0;
+  if (mw(h.x, h.y + h.vsp)) { while (!mw(h.x, h.y + sg(h.vsp)) && n++ < 64) h.y += sg(h.vsp); if (hook && h.vsp > 0 && !naZemi) hook.land(); h.vsp = 0; }
+  h.y += h.vsp;
+  h.ground = mw(h.x, h.y + 1) || (mp(h.x, h.y + 1) && !mp(h.x, h.y));
+  return jumped;
+}
+// if (sprite_index != novy) { sprite_index = novy; image_index = 0; }
+function setSpr(h, s) { if (h.spr !== s) { h.spr = s; h.idx = 0; } }
+// image_index += FPS / 60 * image_speed; returns true when the animation wrapped (Animation End)
+function advanceAnim(h) {
+  const n = SPR[h.spr].img.length;
+  h.idx += SPR[h.spr].fps / 60 * h.ispd;
+  if (h.idx >= n) { h.idx %= n; return true; }
+  return false;
+}
+// what the result of the movement says the sprite should be (approach B)
+const expectedSpr = h => !h.ground ? (h.vsp < 0 ? 'skok' : 'pad') : (h.hsp !== 0 ? 'beh' : 'stoji');
+const STAV_SPR = { stoji: 'stoji', bezi: 'beh', skace: 'skok', pada: 'pad', dopad: 'dopad' };
+const SPR_STAV = { stoji: 'stoji', beh: 'bezi', skok: 'skace', pad: 'pada', dopad: 'dopad' };
+function endStepC(h, P, dopad = true) {
+  const from = h.stav, g = h.ground;
+  switch (h.stav) {
+    case 'stoji':
+    case 'bezi':
+      h.stav = !g ? (h.vsp < 0 ? 'skace' : 'pada') : (h.hsp !== 0 ? 'bezi' : 'stoji');
+      break;
+    case 'skace': if (h.vsp >= 0) h.stav = 'pada'; break;
+    case 'pada': if (g) h.stav = dopad ? 'dopad' : (h.hsp !== 0 ? 'bezi' : 'stoji'); break;
+    case 'dopad': if (!g) h.stav = 'pada'; else if (h.hsp !== 0) h.stav = 'bezi'; break;
+  }
+  setSpr(h, STAV_SPR[h.stav]);
+  h.ispd = h.stav === 'bezi' ? Math.abs(h.hsp) / P.max : 1;
+  if (h.hsp !== 0) h.xs = Math.sign(h.hsp);
+  return from;
+}
+const animEndC = h => { if (h.stav === 'dopad') { h.stav = 'stoji'; return true; } return false; };
+function drawHero(ctx, h, alpha) {
+  const S = SPR[h.spr];
+  if (alpha) ctx.globalAlpha = alpha;
+  drawImg(ctx, S.img[Math.floor(h.idx) % S.img.length], Math.round(h.x - 5), Math.round(h.y - 2), 32, 40, h.xs < 0);
+  ctx.globalAlpha = 1;
+}
+// one jump at full speed: [dx, dy] of the feet for every frame
+function jumpArc(P, until) {
+  const pts = []; let v = -P.j, dy = 0;
+  for (let k = 1; k < 400; k++) { dy += v; pts.push([P.max * k, dy, v]); v = Math.min(v + P.g, P.cap); if (dy > until) break; }
+  return pts;
+}
+
+/* =========================================================
+   1. SPRITESHEET: slicing
+   ========================================================= */
+(function sheetLab() {
+  const cv = $('#shCv'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height, Z = 8, SX = 22, SY = 30;
+  const P = { w: 10, h: 10, off: 0, sep: 0, n: 4, row: 1 };
+  const ROWN = [2, 4, 2, 2], ROWNAME = ['stoji', 'beh', 'skok + pad', 'dopad'];
+  slider('shW', null, v => P.w = v);
+  slider('shH', null, v => P.h = v);
+  slider('shOff', null, v => P.off = v);
+  slider('shSep', null, v => P.sep = v);
+  slider('shN', null, v => P.n = v);
+  segGroup('#shRow', 'r', r => { P.row = +r; setVal('shN', ROWN[P.row]); });
+  $('#shSolve').onclick = () => { setVal('shW', SH.fw); setVal('shH', SH.fh); setVal('shOff', SH.off); setVal('shSep', SH.sep); setVal('shN', ROWN[P.row]); };
+  const cell = (r, c) => [P.off + c * (P.w + P.sep), P.off + r * (P.h + P.sep)];
+  const checks = $('#shChecks');
+  widgets.push({
+    draw(t) {
+      ctx.fillStyle = TOK['surface-2']; ctx.fillRect(0, 0, W, H);
+      mono(ctx, 12); ctx.fillStyle = TOK.muted; ctx.fillText('hrac_sheet.png (8×)', SX, 18);
+      checker(ctx, SX, SY, SH.w * Z, SH.h * Z, Z);
+      drawImg(ctx, SH.img, SX, SY, SH.w * Z, SH.h * Z);
+      // every cell of the current grid, faint
+      ctx.lineWidth = 1; ctx.strokeStyle = TOK.muted; ctx.setLineDash([3, 3]);
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) { const [x, y] = cell(r, c); ctx.strokeRect(SX + x * Z + .5, SY + y * Z + .5, P.w * Z - 1, P.h * Z - 1); }
+      ctx.setLineDash([]);
+      // the frames that will be imported
+      ctx.strokeStyle = TOK['c-sheet']; ctx.lineWidth = 3;
+      for (let c = 0; c < P.n; c++) {
+        const [x, y] = cell(P.row, c);
+        ctx.strokeRect(SX + x * Z + 1.5, SY + y * Z + 1.5, P.w * Z - 3, P.h * Z - 3);
+        mono(ctx, 11); ctx.fillStyle = TOK['c-sheet']; ctx.fillText(c, SX + x * Z + 4, SY + y * Z + 13);
+      }
+      // preview
+      const PX = SX + SH.w * Z + 46, k = Math.min(12, Math.floor(200 / Math.max(P.w, P.h)));
+      ctx.fillStyle = TOK.ink; mono(ctx, 12); ctx.fillText(`náhled: ${ROWNAME[P.row]}, ${P.n} ${P.n === 1 ? 'snímek' : P.n < 5 ? 'snímky' : 'snímků'}`, PX, 18);
+      checker(ctx, PX, SY, 220, 220, 11);
+      const fi = Math.floor(t * 6) % P.n, [fx, fy] = cell(P.row, fi);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(SH.img, fx, fy, P.w, P.h, PX + 110 - P.w * k / 2, SY + 210 - P.h * k, P.w * k, P.h * k);
+      ctx.fillStyle = TOK.muted; mono(ctx, 11); ctx.fillText(`snímek ${fi}`, PX + 6, SY + 214);
+      const ty = SY + 244;
+      for (let c = 0; c < P.n; c++) {
+        const [x, y] = cell(P.row, c), tw = P.w * 4, th = P.h * 4, tx = PX + c * (tw + 10);
+        checker(ctx, tx, ty, tw, th, 4);
+        ctx.drawImage(SH.img, x, y, P.w, P.h, tx, ty, tw, th);
+        ctx.strokeStyle = c === fi ? TOK['c-sheet'] : TOK.line; ctx.lineWidth = 2; ctx.strokeRect(tx - 1, ty - 1, tw + 2, th + 2);
+      }
+      const ok = { w: P.w === SH.fw, h: P.h === SH.fh, off: P.off === SH.off, sep: P.sep === SH.sep, n: P.n === ROWN[P.row] };
+      const all = Object.values(ok).every(Boolean);
+      setHtml(checks, [
+        [ok.w, `šířka snímku ${P.w}`], [ok.h, `výška snímku ${P.h}`], [ok.off, `odsazení ${P.off}`], [ok.sep, `mezera ${P.sep}`],
+        [ok.n, `počet snímků ${P.n}${!ok.n && P.n > ROWN[P.row] ? ' (bere i prázdná místa)' : ''}`]
+      ].map(([y, s]) => `<div class="${y ? 'y' : 'n'}"><span>${s}</span></div>`).join('') + (all ? '<div class="y"><span>řezy sedí, sprite je připravený</span></div>' : ''));
+      setCode($('#shCode'),
+        `// Sprite Editor → Image → Import Strip Image\nNumber of Frames:        ${P.n}\nFrames per Row:          ${P.n}\nFrame Width:             ${P.w}\nFrame Height:            ${P.h}\nHorizontal Cell Offset:  0\nVertical Cell Offset:    ${P.row}   // řádek ${ROWNAME[P.row]}\nHorizontal Pixel Offset: ${P.off}\nVertical Pixel Offset:   ${P.off}\nHorizontal Separation:   ${P.sep}\nVertical Separation:     ${P.sep}`);
+    }
+  });
+})();
+
+/* =========================================================
+   2. TILEMAP + AUTOTILING
+   ========================================================= */
+(function tileLab() {
+  const cv = $('#tlCv'), ctx = cv.getContext('2d'), C = 18, R = 8, T = 32, W = cv.width, H = cv.height;
+  const MAP = [
+    '..................',
+    '..................',
+    '...........####...',
+    '..........######..',
+    '..B..F..S...##....',
+    '#########...######',
+    '#########...######',
+    '#########...######'
+  ];
+  const g = MAP.map(r => [...r].map(ch => ch === '#' ? 1 : ch === 'S' ? 17 : ch === 'B' ? 18 : ch === 'F' ? 19 : 0));
+  const maskAt = (i, j) => (j > 0 && isTer(g[j - 1][i]) ? 1 : 0) | (i < C - 1 && isTer(g[j][i + 1]) ? 2 : 0) | (j < R - 1 && isTer(g[j + 1][i]) ? 4 : 0) | (i > 0 && isTer(g[j][i - 1]) ? 8 : 0);
+  const retile = (i, j) => { if (i >= 0 && i < C && j >= 0 && j < R && isTer(g[j][i])) g[j][i] = 1 + maskAt(i, j); };
+  const around = (i, j) => [[i, j], [i, j - 1], [i + 1, j], [i, j + 1], [i - 1, j]].forEach(([a, b]) => retile(a, b));
+  for (let j = 0; j < R; j++) for (let i = 0; i < C; i++) retile(i, j);
+  let tool = 'auto', sel = 17, hover = null, painting = false, lastSet = '';
+  const pickTool = segGroup('#tlTools', 't', t => tool = t);
+  function apply(i, j) {
+    if (i < 0 || i >= C || j < 0 || j >= R) return;
+    const before = g[j][i];
+    if (tool === 'auto') { g[j][i] = 1; around(i, j); }
+    else if (tool === 'tile') g[j][i] = sel;
+    else { g[j][i] = 0; around(i, j); }
+    if (g[j][i] !== before || tool === 'auto') lastSet = `tilemap_set(zem, ${g[j][i]}, ${i}, ${j});`;
+  }
+  cv.addEventListener('pointerdown', e => { const [x, y] = canvasPos(cv, e); painting = true; try { cv.setPointerCapture(e.pointerId); } catch (_) {} apply(Math.floor(x / T), Math.floor(y / T)); e.preventDefault(); });
+  cv.addEventListener('pointermove', e => { const [x, y] = canvasPos(cv, e); const i = Math.floor(x / T), j = Math.floor(y / T); hover = i >= 0 && i < C && j >= 0 && j < R ? [i, j] : null; if (painting && hover) apply(i, j); });
+  const stop = () => painting = false;
+  cv.addEventListener('pointerup', stop); cv.addEventListener('pointercancel', stop);
+  cv.addEventListener('pointerleave', () => { if (!painting) hover = null; });
+  // tileset palette
+  const ts = $('#tlSet'), tctx = ts.getContext('2d'), TS = 44;
+  ts.addEventListener('pointerdown', e => {
+    const [x, y] = canvasPos(ts, e), idx = Math.floor(y / TS) * 4 + Math.floor(x / TS);
+    if (idx < 0 || idx >= TILE.length) return;
+    if (idx === 0) { pickTool('erase'); return; }
+    sel = idx; pickTool('tile');
+  });
+  const info = $('#tlInfo'), data = $('#tlData');
+  widgets.push({
+    draw() {
+      checker(ctx, 0, 0, W, H, 16);
+      ctx.fillStyle = 'rgba(111,189,240,.45)'; ctx.fillRect(0, 0, W, H);
+      for (let j = 0; j < R; j++) for (let i = 0; i < C; i++) if (g[j][i]) drawImg(ctx, TILE[g[j][i]], i * T, j * T, T, T);
+      ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1; ctx.beginPath();
+      for (let i = 0; i <= C; i++) { ctx.moveTo(i * T + .5, 0); ctx.lineTo(i * T + .5, H); }
+      for (let j = 0; j <= R; j++) { ctx.moveTo(0, j * T + .5); ctx.lineTo(W, j * T + .5); }
+      ctx.stroke();
+      let hv = 0;
+      if (hover) {
+        const [i, j] = hover; hv = g[j][i];
+        ctx.strokeStyle = TOK['c-tile']; ctx.lineWidth = 3; ctx.strokeRect(i * T + 1.5, j * T + 1.5, T - 3, T - 3);
+        if (isTer(hv)) {
+          [[0, -1, 1], [1, 0, 2], [0, 1, 4], [-1, 0, 8]].forEach(([dx, dy, bit]) => {
+            const ni = i + dx, nj = j + dy, has = ni >= 0 && ni < C && nj >= 0 && nj < R && isTer(g[nj][ni]);
+            const cx = i * T + 16 + dx * 32, cy = j * T + 16 + dy * 32;
+            ctx.fillStyle = has ? 'rgba(43,138,62,.9)' : 'rgba(201,42,42,.85)';
+            ctx.beginPath(); ctx.arc(cx, cy, 10, 0, 7); ctx.fill();
+            ctx.fillStyle = '#fff'; mono(ctx, 11); ctx.textAlign = 'center'; ctx.fillText(has ? bit : '0', cx, cy + 4); ctx.textAlign = 'start';
+          });
+        }
+      }
+      // tileset palette
+      tctx.fillStyle = TOK['surface-2']; tctx.fillRect(0, 0, ts.width, ts.height);
+      for (let k = 0; k < TILE.length; k++) {
+        const x = (k % 4) * TS + 6, y = Math.floor(k / 4) * TS + 6;
+        checker(tctx, x, y, 32, 32, 8);
+        if (TILE[k]) drawImg(tctx, TILE[k], x, y, 32, 32);
+        mono(tctx, 9); tctx.fillStyle = 'rgba(16,20,28,.75)'; tctx.fillRect(x + 32 - 15, y + 32 - 11, 15, 11);
+        tctx.fillStyle = '#fff'; tctx.fillText(k, x + 32 - 13, y + 32 - 2);
+        const on = tool === 'tile' && k === sel, hot = hover && k === hv;
+        if (on || hot) { tctx.strokeStyle = on ? TOK['c-tile'] : TOK.ink; tctx.lineWidth = on ? 3 : 2; tctx.setLineDash(on ? [] : [3, 3]); tctx.strokeRect(x - 3, y - 3, 38, 38); tctx.setLineDash([]); }
+      }
+      // info + code
+      if (hover) {
+        const [i, j] = hover;
+        let html;
+        if (isTer(hv)) {
+          const m = maskAt(i, j), parts = [[1, 'nahoře'], [2, 'vpravo'], [4, 'dole'], [8, 'vlevo']];
+          html = parts.map(([b, n]) => `<div class="${m & b ? 'y' : 'n'}"><span>${n}: ${m & b ? 'zem, +' + b : 'nic, +0'}</span></div>`).join('')
+            + `<div class="i"><span>maska ${parts.filter(([b]) => m & b).map(([b]) => b).join(' + ') || '0'} = ${m} → dlaždice ${m + 1}</span></div>`;
+        } else if (hv) html = `<div class="i"><span>dlaždice ${hv}, ruční (autotiling ji nemění)</span></div>`;
+        else html = '<div class="i"><span>0 = prázdné políčko</span></div>';
+        setHtml(info, html);
+        setCode($('#tlCode'), `var zem = layer_tilemap_get_id("Zem");\nvar t = tilemap_get(zem, ${i}, ${j});   // ${hv}` + (lastSet ? `\n\n// naposledy:\n${lastSet}` : ''));
+      } else {
+        setHtml(info, '<div class="i"><span>najeď myší na mapu</span></div>');
+        setCode($('#tlCode'), `var zem = layer_tilemap_get_id("Zem");\nvar t = tilemap_get(zem, sloupec, radek);` + (lastSet ? `\n\n// naposledy:\n${lastSet}` : ''));
+      }
+      setHtml(data, g.map((r, j) => '[' + r.map((v, i) => { const s = String(v).padStart(2, ' '); return hover && hover[0] === i && hover[1] === j ? `<b>${s}</b>` : s; }).join(',') + ']').join('\n'));
+    }
+  });
+})();
+
+/* =========================================================
+   3a. LEVEL DESIGN: jump metrics
+   ========================================================= */
+(function metricsLab() {
+  const cv = $('#mtCv'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height, T = 32;
+  const P = { max: 4, g: .5, j: 11, cap: 12 };
+  const EDGE = 128, TOP = 192, HW = 22, HH = 38, X0 = EDGE - 1;   // last frame on the ledge: box left 1 px before the edge
+  let tgt = { c: 8, r: 4 }, hover = null, ev = null, arc = [];
+  const g = makeHero(); let phase = 'run', k = 0, tmr = 0, airH = 0;
+  function reset() { Object.assign(g, { x: 6, y: TOP - HH, hsp: 0, vsp: 0, xs: 1, spr: 'beh', idx: 0, ispd: 1 }); phase = 'run'; tmr = 0; }
+  function evaluate() {
+    arc = [[0, TOP, 0]];
+    let v = -P.j, feet = TOP;
+    for (let i = 1; i < 400 && feet < H + 60; i++) { feet += v; arc.push([P.max * i, feet, v]); v = Math.min(v + P.g, P.cap); }
+    const apex = Math.min(...arc.map(p => p[1]));
+    const px = tgt.c * T, py = tgt.r * T;
+    let fc = -1;
+    for (let i = 1; i < arc.length; i++) if (arc[i][2] > 0 && arc[i - 1][1] <= py && arc[i][1] >= py) { fc = i; break; }
+    // same level: how far does a full-speed jump get before the feet are back at TOP
+    let kd = arc.findIndex((p, i) => i > 0 && p[2] > 0 && p[1] >= TOP);
+    const gap = kd > 0 ? X0 + HW + P.max * kd - EDGE - 4 : 0;
+    const base = { apex, gap, h: TOP - apex };
+    if (fc < 0) return Object.assign(base, { ok: false, why: 'high' });
+    const overlap = X0 + HW + P.max * fc - px;
+    if (overlap < 4) return Object.assign(base, { ok: false, why: 'far', miss: Math.ceil(4 - overlap) });
+    const want = px + T - HW / 2;
+    return Object.assign(base, { ok: true, tight: overlap < 24, fc, hs: clamp((want - X0) / fc, 0, P.max) });
+  }
+  const upd = () => { ev = evaluate(); reset(); };
+  slider('mtMax', null, v => { P.max = v; upd(); });
+  slider('mtG', null, v => { P.g = v; upd(); });
+  slider('mtJ', null, v => { P.j = v; upd(); });
+  const place = (c, r) => { tgt = { c: clamp(c, 5, 20), r: clamp(r, 1, 9) }; upd(); };
+  cv.addEventListener('pointerdown', e => { const [x, y] = canvasPos(cv, e); place(Math.floor(x / T), Math.floor(y / T)); });
+  cv.addEventListener('pointermove', e => { const [x, y] = canvasPos(cv, e); hover = [clamp(Math.floor(x / T), 5, 20), clamp(Math.floor(y / T), 1, 9)]; });
+  cv.addEventListener('pointerleave', () => hover = null);
+  cv.addEventListener('keydown', e => {
+    const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+    if (d) { e.preventDefault(); place(tgt.c + d[0], tgt.r + d[1]); }
+  });
+  upd();
+  widgets.push({
+    step() {
+      if (phase === 'run') {
+        g.hsp = Math.min(g.hsp + .6, P.max); g.x += g.hsp; setSpr(g, 'beh'); g.ispd = g.hsp / P.max;
+        if (g.x >= X0) { g.x = X0; phase = 'air'; k = 0; g.vsp = -P.j; airH = ev.ok ? ev.hs : P.max; }
+      } else if (phase === 'air') {
+        k++; g.y += g.vsp; g.x += airH;
+        if (ev.ok && k === ev.fc) { g.y = tgt.r * T - HH; phase = 'land'; tmr = 0; setSpr(g, 'dopad'); g.ispd = 1; }
+        else { setSpr(g, g.vsp < 0 ? 'skok' : 'pad'); g.ispd = 1; }
+        g.vsp = Math.min(g.vsp + P.g, P.cap);
+        if (g.y > H + 40) reset();
+      } else {
+        if (++tmr > 70) reset();
+        if (g.spr === 'dopad' && tmr > 16) setSpr(g, 'stoji');
+      }
+      advanceAnim(g);
+    },
+    draw() {
+      ctx.drawImage(sky(W, H), 0, 0);
+      ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 1; ctx.beginPath();
+      for (let x = 0; x <= W; x += T) { ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); }
+      for (let y = 0; y <= H; y += T) { ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); }
+      ctx.stroke();
+      // reachable area: everything below the apex and left of the falling part of the arc
+      const desc = arc.filter(p => p[2] > 0), ax = arc.reduce((a, p) => p[1] < a[1] ? p : a, arc[0]);
+      ctx.fillStyle = 'rgba(43,138,62,.22)'; ctx.strokeStyle = 'rgba(30,110,50,.8)'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(EDGE, ev.apex); ctx.lineTo(X0 + HW + ax[0], ev.apex);
+      desc.forEach(p => ctx.lineTo(X0 + HW + p[0], p[1]));
+      ctx.lineTo(X0 + HW + desc[desc.length - 1][0], H); ctx.lineTo(EDGE, H); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+      drawBlock(ctx, 0, TOP, 4, (H - TOP) / T, T, { l: true, b: true });
+      // arc dots (feet, full speed)
+      ctx.fillStyle = '#1d2433';
+      arc.forEach(([dx, y], i) => { if (i % 2 === 0) { ctx.beginPath(); ctx.arc(X0 + HW / 2 + dx, y, 2.2, 0, 7); ctx.fill(); } });
+      // apex line
+      ctx.strokeStyle = '#1d2433'; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(0, ev.apex); ctx.lineTo(W, ev.apex); ctx.stroke(); ctx.setLineDash([]);
+      label(ctx, `max. výška ${Math.round(ev.h)} px = ${cz(ev.h / T)} dlaždice`, 8, Math.max(16, ev.apex - 6));
+      // target platform
+      const px = tgt.c * T, py = tgt.r * T;
+      drawBlock(ctx, px, py, 2, 1, T);
+      const col = !ev.ok ? '#c92a2a' : ev.tight ? '#e8590c' : '#2b8a3e';
+      ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.strokeRect(px - 1.5, py - 1.5, 2 * T + 3, T + 3);
+      if (hover && (hover[0] !== tgt.c || hover[1] !== tgt.r)) { ctx.strokeStyle = 'rgba(16,20,28,.6)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 2; ctx.strokeRect(hover[0] * T + 1, hover[1] * T + 1, 2 * T - 2, T - 2); ctx.setLineDash([]); }
+      drawHero(ctx, g);
+      // readouts
+      const v = $('#mtVerdict');
+      setTxt(v, !ev.ok ? 'Nedoskočí' : ev.tight ? 'Doskočí, ale těsně' : 'Doskočí');
+      v.className = 'verdict ' + (!ev.ok ? 'bad' : ev.tight ? 'tight' : 'ok');
+      const dh = TOP - py;
+      setTxt($('#mtWhy'), !ev.ok
+        ? (ev.why === 'high' ? `Plošina je ${dh} px nad římsou, skok vynese jen ${Math.round(ev.h)} px.` : `Chybí asi ${ev.miss} px. Postava dopadne kousek před plošinu.`)
+        : ev.tight ? 'Dopadne jen na samý okraj. Hráč musí skočit z poslední chvíle a v plné rychlosti.'
+          : `Plošina ${dh > 0 ? dh + ' px nad římsou' : dh < 0 ? -dh + ' px pod římsou' : 've stejné výšce'}. Postava ve vzduchu přibrzdí a dopadne doprostřed.`);
+      setTxt($('#mtH'), `${Math.round(ev.h)} px = ${cz(ev.h / T)} dlaždice`);
+      setTxt($('#mtD'), `${Math.round(ev.gap)} px = ${cz(ev.gap / T)} dlaždice`);
+      const comfyH = Math.max(0, Math.floor((ev.h - 16) / T)), comfyD = Math.max(0, Math.floor((ev.gap - 16) / T));
+      setTxt($('#mtTip'), `schod ${comfyH} ${comfyH === 1 ? 'dlaždice' : 'dlaždic'}, propast ${comfyD} ${comfyD === 1 ? 'dlaždice' : 'dlaždic'}`);
+    }
+  });
+})();
+
+/* =========================================================
+   3b. LEVEL DESIGN: teach, test, twist
+   ========================================================= */
+(function tttLab() {
+  const cv = $('#tttCv'), ctx = cv.getContext('2d'), PW = 320, H = cv.height, GY = 150;
+  const NAMES = ['1 · Nauč', '2 · Procvič', '3 · Zkomplikuj'];
+  const h = makeHero();
+  widgets.push({
+    draw(t) {
+      for (let p = 0; p < 3; p++) {
+        const ox = p * PW;
+        ctx.save(); ctx.beginPath(); ctx.rect(ox, 0, PW, H); ctx.clip();
+        ctx.drawImage(sky(PW, H), ox, 0);
+        drawBlock(ctx, ox, GY, 4, 3, 32, { l: true, b: true });
+        drawBlock(ctx, ox + 192, GY, 4, 3, 32, { r: true, b: true });
+        if (p === 0) drawBlock(ctx, ox + 128, GY + 32, 2, 2, 32, { l: true, r: true, b: true });
+        else { ctx.fillStyle = 'rgba(16,20,28,.18)'; ctx.fillRect(ox + 128, GY + 40, 64, H); }
+        if (p === 0) [[136, 104], [160, 90], [184, 104]].forEach(([x, y], i) => drawImg(ctx, cyc(IMG.coin, t + i * .1, 8), ox + x - 4, y, 24, 24));
+        if (p === 2) {
+          const sx = 250 + Math.sin(t * 1.6) * 40;
+          drawImg(ctx, cyc(IMG.slime, t, 3), ox + sx - 16, GY - 24, 32, 24, Math.cos(t * 1.6) < 0);
+        }
+        // hero runs and jumps the gap
+        const ph = ((t * .45 + p * .17) % 1), x = 20 + ph * 290, j0 = 92, j1 = 220;
+        let feet = GY, air = x > j0 && x < j1;
+        if (air) feet = GY - 62 * Math.sin(Math.PI * (x - j0) / (j1 - j0));
+        const rising = air && x < (j0 + j1) / 2;
+        Object.assign(h, { x: ox + x - 11, y: feet - 38, xs: 1, spr: air ? (rising ? 'skok' : 'pad') : 'beh', idx: Math.floor(t * 10) % 4 });
+        drawHero(ctx, h);
+        label(ctx, NAMES[p], ox + 12, 22);
+        ctx.restore();
+        if (p) { ctx.fillStyle = TOK.surface; ctx.fillRect(ox - 2, 0, 4, H); }
+      }
+    }
+  });
+})();
+
+/* =========================================================
+   4. ANIMATION: image_index, FPS, image_speed, loop
+   ========================================================= */
+(function animLab() {
+  const cv = $('#anCv'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height, gr = $('#anGraph'), gx = gr.getContext('2d');
+  const FPS0 = { stoji: 3, beh: 10, dopad: 8 };
+  const st = { spr: 'beh', fps: 10, idx: 0, ispd: 1, hsp: 3, sync: false, loop: true, playing: true, x: 200, endT: 0, ends: 0 };
+  const hist = [];
+  slider('anFps', null, v => st.fps = v);
+  const hspEl = slider('anHsp', null, v => st.hsp = v);
+  $('#anSync').addEventListener('change', e => st.sync = e.target.checked);
+  $('#anLoop').addEventListener('change', e => { st.loop = e.target.checked; if (st.loop) st.playing = true; });
+  $('#anRestart').onclick = () => { st.idx = 0; st.playing = true; };
+  segGroup('#anSpr', 's', s => {
+    st.spr = s; st.idx = 0; st.playing = true; hist.length = 0;
+    setVal('anFps', FPS0[s]);
+    const lp = s !== 'dopad'; $('#anLoop').checked = lp; st.loop = lp;
+    hspEl.disabled = $('#anSync').disabled = s !== 'beh';
+    setTxt($('#anName'), SPR[s].name);
+  });
+  const GY = 236, Z = 5;
+  widgets.push({
+    step() {
+      const n = SPR[st.spr].img.length;
+      st.ispd = st.sync && st.spr === 'beh' ? st.hsp / DEFP.max : 1;
+      if (st.playing) {
+        st.idx += st.fps / 60 * st.ispd;
+        if (st.idx >= n) {
+          st.endT = 50; st.ends++;
+          if (st.loop) st.idx %= n; else { st.idx = n - 1; st.playing = false; }
+        }
+      }
+      if (st.spr === 'beh') { st.x += st.hsp; if (st.x > W + 30) st.x = -30; } else st.x = W / 2;
+      hist.push([st.idx, n]); if (hist.length > 240) hist.shift();
+      if (st.endT > 0) st.endT--;
+    },
+    draw() {
+      const S = SPR[st.spr], n = S.img.length, cur = Math.floor(st.idx) % n;
+      ctx.fillStyle = TOK['surface-2']; ctx.fillRect(0, 0, W, H);
+      mono(ctx, 12); ctx.fillStyle = TOK.ink;
+      ctx.fillText(`${S.name} · ${n} ${n < 5 ? 'snímky' : 'snímků'} · ${st.fps} FPS × image_speed ${fmt(st.ispd, 2)}`, 16, 20);
+      S.img.forEach((img, i) => {
+        const x = 16 + i * 72, y = 32;
+        checker(ctx, x, y, 48, 60, 6);
+        drawImg(ctx, img, x, y, 48, 60);
+        ctx.strokeStyle = i === cur ? TOK['c-anim'] : TOK.line; ctx.lineWidth = i === cur ? 3 : 1;
+        ctx.strokeRect(x - 2, y - 2, 52, 64);
+        mono(ctx, 11); ctx.fillStyle = i === cur ? TOK['c-anim'] : TOK.muted; ctx.fillText(`snímek ${i}`, x - 2, y + 78);
+      });
+      if (st.endT > 0) { mono(ctx, 14, 700); ctx.fillStyle = TOK['c-anim']; ctx.globalAlpha = Math.min(1, st.endT / 20); ctx.fillText('Animation End', W - 150, 20); ctx.globalAlpha = 1; }
+      // stage
+      const top = GY - 10 * Z;
+      ctx.drawImage(sky(W, 130), 0, 128, W, H - 128);
+      for (let x = 0; x < W; x += 32) drawImg(ctx, TILE[1 + 2 + 8], x, GY, 32, 32);
+      ctx.fillStyle = '#1d2433';
+      for (let x = 12; x < W; x += 48) ctx.fillRect(x, GY + 4, 6, 3);
+      drawImg(ctx, S.img[cur], Math.round(st.x - 4 * Z), top, 8 * Z, 10 * Z);
+      // readouts
+      setTxt($('#anIdx'), `${fmt(st.idx, 2)} → snímek ${cur}`);
+      setTxt($('#anSpd'), fmt(st.ispd, 2) + (st.playing ? '' : ' (stojí na posledním snímku)'));
+      const dur = n / (st.fps * Math.max(st.ispd, .0001));
+      setTxt($('#anDur'), st.ispd > 0 ? `${cz(dur, 2)} s (${n} snímků ÷ ${st.fps} FPS${st.ispd !== 1 ? ' ÷ ' + fmt(st.ispd, 2) : ''})` : 'nikdy, image_speed = 0');
+      setTxt($('#anEnds'), st.ends + '×');
+      // graph
+      const GW = gr.width, GH = gr.height, pad = 14;
+      gx.fillStyle = TOK.surface; gx.fillRect(0, 0, GW, GH);
+      const sy = v => GH - pad - v * (GH - pad * 2) / n;
+      gx.strokeStyle = TOK.line; gx.lineWidth = 1; gx.beginPath();
+      for (let i = 0; i <= n; i++) { const y = Math.round(sy(i)) + .5; gx.moveTo(34, y); gx.lineTo(GW, y); }
+      gx.stroke();
+      mono(gx, 11); gx.fillStyle = TOK.muted; gx.textAlign = 'right';
+      for (let i = 0; i <= n; i++) gx.fillText(i, 28, sy(i) + 4);
+      gx.textAlign = 'start';
+      gx.strokeStyle = TOK['c-anim']; gx.lineWidth = 2.5; gx.beginPath();
+      let prev = null;
+      hist.forEach(([v], i) => { const x = 34 + (GW - 40) * i / 239, y = sy(v); if (prev !== null && v < prev) gx.moveTo(x, y); else if (i) gx.lineTo(x, y); else gx.moveTo(x, y); prev = v; });
+      gx.stroke();
+      gx.fillStyle = TOK.ink; gx.fillText('image_index v čase (posledních 240 snímků hry)', 40, 12);
+      setCode($('#anCode'), `sprite_index = ${S.name};\n// v Sprite Editoru: ${st.fps} FPS\nimage_speed = ${st.sync && st.spr === 'beh' ? 'abs(hsp) / max_rychlost;   // ' + fmt(st.ispd, 2) : '1;'}\n\n// každý snímek hry engine udělá:\n// image_index += ${st.fps} / 60 * image_speed` + (st.loop ? '' : `\n\n// ===== Animation End =====\nimage_speed = 0;\nimage_index = image_number - 1;`));
+    }
+  });
+})();
+
+/* =========================================================
+   5. ANIMATION CONTROL: code generator A / B / C (+ one-way planks, + landing)
+   ========================================================= */
+// GML for the chosen variant, one entry per event of obj_hrac.
+// Each line: [text, key that lights it up when it ran this frame, css class]
+function genHracCode(o) {
+  const A = o.mode === 'A', B = o.mode === 'B', ow = o.ow, dp = o.dopad;
+  const L = (t, k, c) => [t, k || null, c || null];
+  const an = (t, k) => L(t, k, 'add');   // animation line in the middle of movement code (approach A)
+  const out = [];
+
+  const cr = [
+    L('// proměnné z lekce 2'),
+    L('hsp = 0;'), L('vsp = 0;'), L('max_rychlost = 4;'), L('zrychleni = 0.6;'), L('treni = 0.4;'),
+    L('gravitace = 0.5;'), L('sila_skoku = 11;'), L('max_pad = 12;'), L(''),
+    L('// jedna kolizní maska pro všechny animace'),
+    L('mask_index = spr_hrac_maska;')
+  ];
+  if (B && dp) cr.push(L(''), L('// pro animaci dopadu'), L('byl_na_zemi = true;'), L('dopad = false;   // právě hraje dopad'));
+  if (o.mode === 'C') {
+    cr.push(L(''), L('// stavový automat'), L('stav = "stoji";'), L('sprity = {'),
+      L('    stoji: spr_hrac_stoji,'), L('    bezi:  spr_hrac_beh,'), L('    skace: spr_hrac_skok,'), L('    pada:  spr_hrac_pad' + (dp ? ',' : '')));
+    if (dp) cr.push(L('    dopad: spr_hrac_dopad'));
+    cr.push(L('};'));
+  }
+  out.push({ ev: 'Create', note: A ? 'proměnné z lekce 2' : 'proměnné z lekce 2 + animace', lines: cr });
+
+  const st = [
+    L('// vstup a vodorovná rychlost'),
+    L('var smer = keyboard_check(vk_right) - keyboard_check(vk_left);'),
+    L('if (smer != 0) {'),
+    L('    hsp = clamp(hsp + smer * zrychleni, -max_rychlost, max_rychlost);')
+  ];
+  if (A) st.push(an('    sprite_index = spr_hrac_beh;', 'a-beh'), an('    image_xscale = smer;', 'a-beh'));
+  st.push(L('} else {'), L('    hsp = max(abs(hsp) - treni, 0) * sign(hsp);'));
+  if (A) st.push(an('    sprite_index = spr_hrac_stoji;', 'a-stoji'));
+  st.push(L('}'), L(''), L('// gravitace a skok'), L('vsp = min(vsp + gravitace, max_pad);'));
+  if (ow) st.push(L('var na_plosine = place_meeting(x, y + 1, obj_platforma) && !place_meeting(x, y, obj_platforma);'), L('var na_zemi = place_meeting(x, y + 1, obj_zed) || na_plosine;'));
+  else st.push(L('var na_zemi = place_meeting(x, y + 1, obj_zed);'));
+  st.push(L('if (na_zemi && keyboard_check_pressed(vk_space)) {'), L('    vsp = -sila_skoku;'));
+  if (A) st.push(an('    sprite_index = spr_hrac_skok;', 'a-skok'));
+  st.push(L('}'), L('if (keyboard_check_released(vk_space) && vsp < 0) vsp *= 0.5;'));
+  if (ow) st.push(L('if (na_plosine && keyboard_check(vk_down)) y += 1;   // seskok z plošiny'));
+  st.push(L(''), L('// kolize vodorovně'), L('if (place_meeting(x + hsp, y, obj_zed)) {'),
+    L('    while (!place_meeting(x + sign(hsp), y, obj_zed)) x += sign(hsp);'), L('    hsp = 0;'), L('}'), L('x += hsp;'), L(''));
+  if (ow) {
+    st.push(L('// polopropustná plošina zastaví jen pád shora'),
+      L('if (vsp > 0 && !place_meeting(x, y, obj_platforma) && place_meeting(x, y + vsp, obj_platforma)) {'),
+      L('    while (!place_meeting(x, y + 1, obj_platforma)) y += 1;'));
+    if (A && dp) st.push(an('    if (!na_zemi) sprite_index = spr_hrac_dopad;', 'a-dopad'));
+    st.push(L('    vsp = 0;'), L('}'), L(''));
+  }
+  st.push(L('// kolize svisle'), L('if (place_meeting(x, y + vsp, obj_zed)) {'),
+    L('    while (!place_meeting(x, y + sign(vsp), obj_zed)) y += sign(vsp);'));
+  if (A && dp) st.push(an('    if (vsp > 0 && !na_zemi) sprite_index = spr_hrac_dopad;', 'a-dopad'));
+  st.push(L('    vsp = 0;'), L('}'), L('y += vsp;'));
+  out.push({ ev: 'Step', note: A ? 'pohyb a animace dohromady' : 'pohyb z lekce 2, beze změny', lines: st });
+  if (A) return out;
+
+  const es = [L('// pohyb i kolize už proběhly, jen se podívej na výsledek')];
+  if (ow) es.push(L('var na_zemi = place_meeting(x, y + 1, obj_zed)'), L('    || (place_meeting(x, y + 1, obj_platforma) && !place_meeting(x, y, obj_platforma));'));
+  else es.push(L('var na_zemi = place_meeting(x, y + 1, obj_zed);'));
+  es.push(L(''));
+  if (B) {
+    if (dp) es.push(L('if (na_zemi && !byl_na_zemi) dopad = true;   // právě dopadl', 'land'),
+      L('if (!na_zemi || hsp != 0) dopad = false;    // spadl nebo se rozběhl'), L('byl_na_zemi = na_zemi;'), L(''));
+    es.push(L('var novy = spr_hrac_stoji;', 'stoji'), L('image_speed = 1;'), L('if (!na_zemi) {'),
+      L('    if (vsp < 0) novy = spr_hrac_skok;', 'skok'), L('    else novy = spr_hrac_pad;', 'pad'));
+    if (dp) es.push(L('} else if (dopad) {'), L('    novy = spr_hrac_dopad;', 'dopad'));
+    es.push(L('} else if (hsp != 0) {'), L('    novy = spr_hrac_beh;', 'beh'), L('    image_speed = abs(hsp) / max_rychlost;   // nohy podle rychlosti', 'beh'), L('}'));
+  } else {
+    es.push(L('switch (stav) {'),
+      L('    case "stoji":', 'c-zem'), L('    case "bezi":', 'c-zem'),
+      L('        if (!na_zemi) stav = (vsp < 0) ? "skace" : "pada";', 'c-zem'),
+      L('        else stav = (hsp != 0) ? "bezi" : "stoji";', 'c-zem'), L('        break;', 'c-zem'),
+      L('    case "skace":', 'c-skace'), L('        if (vsp >= 0) stav = "pada";', 'c-skace'), L('        break;', 'c-skace'),
+      L('    case "pada":', 'c-pada'),
+      L(dp ? '        if (na_zemi) stav = "dopad";' : '        if (na_zemi) stav = (hsp != 0) ? "bezi" : "stoji";', 'c-pada'),
+      L('        break;', 'c-pada'));
+    if (dp) es.push(L('    case "dopad":', 'c-dopad'), L('        if (!na_zemi) stav = "pada";', 'c-dopad'),
+      L('        else if (hsp != 0) stav = "bezi";', 'c-dopad'), L('        break;   // jinak počkej na Animation End', 'c-dopad'));
+    es.push(L('}'), L(''), L('var novy = sprity[$ stav];'), L('image_speed = (stav == "bezi") ? abs(hsp) / max_rychlost : 1;'));
+  }
+  es.push(L(''), L('// nová animace vždy od prvního snímku'), L('if (sprite_index != novy) {', 'switch'),
+    L('    sprite_index = novy;', 'switch'), L('    image_index = 0;', 'switch'), L('}'),
+    L('if (hsp != 0) image_xscale = sign(hsp);', 'flip'));
+  out.push({ ev: 'End Step', note: 'výběr animace', lines: es });
+  if (dp) out.push({ ev: 'Animation End', note: 'dohrál se dopad', lines: [B ? L('if (sprite_index == spr_hrac_dopad) dopad = false;', 'end') : L('if (stav == "dopad") stav = "stoji";', 'end')] });
+  return out;
+}
+const codeText = e => `// ===== obj_hrac: ${e.ev} =====\n` + e.lines.map(l => l[0]).join('\n') + '\n';
+function copyCode(btn, txt, el) {
+  btn.dataset.l = btn.dataset.l || btn.textContent;
+  const done = m => { btn.textContent = m; clearTimeout(btn._t); btn._t = setTimeout(() => btn.textContent = btn.dataset.l, 1500); };
+  const fallback = () => {
+    try { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); done('Označeno, stiskni Ctrl+C'); } catch (e) {}
+  };
+  try { navigator.clipboard.writeText(txt).then(() => done('Zkopírováno ✓'), fallback); } catch (e) { fallback(); }
+}
+
+(function animCtlLab() {
+  const cv = $('#acCv'), ctx = cv.getContext('2d');
+  const MAP = [
+    '......................',
+    '......................',
+    '...................###',
+    '...................###',
+    '...................###',
+    '#####...====.......###',
+    '#####..............###',
+    '######################',
+    '######################'
+  ];
+  const wd = makeWorld(22, 9, 32), W = wd.W, H = wd.H, P = DEFP, h = makeHero();
+  const OPT = { mode: 'A', ow: true, dopad: false };
+  function loadMap() { wd.load(OPT.ow ? MAP : MAP.map(r => r.replace(/=/g, '.'))); wd.start = [1, 4]; }
+  loadMap();
+  const inp = makeInput(cv, $('#acFocus'), 'Řídíš ty: ← → pohyb, mezerník skok' + (OPT.ow ? ', ↓ seskok' : ''));
+  function resetHero() { const [sx, sy] = wd.startXY(); Object.assign(h, { x: sx, y: sy, hsp: 0, vsp: 0, xs: 1, spr: 'stoji', idx: 0, ispd: 1, stav: 'stoji', ground: true, byl: true, dopadF: false }); }
+  resetHero();
+
+  const NOTE = {
+    A: 'Animace je rozházená po pohybovém kódu (růžový proužek) a rozhoduje podle kláves, ne podle toho, co se opravdu stalo. Sleduj hlášky pod hrou.',
+    B: 'Step je beze změny. End Step se po pohybu podívá na výsledek a vybere sprite.',
+    C: 'End Step si v proměnné stav pamatuje, co postava dělá, a mění ho jen podle pravidel. Nejpřehlednější, když animací přibývá.'
+  };
+  const WHY = { stoji: 'postava stojí (hsp = 0)', beh: 'postava se pohybuje', skok: 'postava letí nahoru', pad: 'postava padá' };
+  const keys = new Map();
+  const mark = (k, n = 1) => keys.set(k, Math.max(keys.get(k) || 0, n));
+  const HOOK_A = {
+    dir(d) { h.spr = 'beh'; h.xs = d; mark('a-beh'); },
+    idle() { h.spr = 'stoji'; mark('a-stoji'); },
+    jump() { h.spr = 'skok'; mark('a-skok', 14); },
+    land() { if (OPT.dopad) { h.spr = 'dopad'; mark('a-dopad', 14); } }
+  };
+  let mm = 0, msg = '', msgT = 0, bugs = 0, lastNode = 'stoji', edge = '', edgeT = 0, keySig = '', lineEls = [], evs = [];
+
+  // ----- code windows -----
+  function renderWins() {
+    evs = genHracCode(OPT);
+    const box = $('#acWins'); box.innerHTML = ''; lineEls = []; keySig = '';
+    evs.forEach(e => {
+      const w = document.createElement('div'); w.className = 'win';
+      w.innerHTML = `<div class="win-head"><span><b>${e.ev}</b><span class="cap">${e.note}</span></span><button class="btn" type="button">Kopírovat</button></div><pre class="code lines"><code></code></pre>`;
+      const code = $('code', w);
+      code.innerHTML = e.lines.map(([s, k, c]) => `<span class="ln${c ? ' ' + c : ''}"${k ? ` data-k="${k}"` : ''}>${s ? highlight(s, 'gml') : ' '}</span>`).join('');
+      lineEls.push(...$$('[data-k]', code));
+      $('button', w).addEventListener('click', ev => copyCode(ev.currentTarget, codeText(e), code));
+      box.appendChild(w);
+    });
+    setTxt($('#acCodeT'), `Kód obj_hrac · ${evs.length} ${evs.length < 5 ? 'události' : 'událostí'}: ${evs.map(e => e.ev).join(', ')}`);
+  }
+  $('#acCopyAll').addEventListener('click', e => copyCode(e.currentTarget, evs.map(codeText).join('\n'), $('#acWins')));
+  function refresh() {
+    h.stav = SPR_STAV[h.spr] || 'stoji'; if (!OPT.dopad && h.stav === 'dopad') { h.stav = 'stoji'; h.spr = 'stoji'; }
+    h.ispd = 1; h.dopadF = false; h.byl = h.ground;
+    bugs = 0; mm = 0; msgT = 0; keys.clear();
+    setTxt($('#acNote'), NOTE[OPT.mode]);
+    setTxt($('#acDiaCap'), OPT.mode === 'C' ? 'Diagram je proměnná stav. Šipky jsou přechody v End Step.' : 'V přístupech A a B se stav nikam neukládá. Diagram jen ukazuje, který sprite se zrovna kreslí.');
+    $$('#acDia [data-n="dopad"]').forEach(n => n.classList.toggle('off', !OPT.dopad));
+    $$('#acDia [data-e]').forEach(p => p.toggleAttribute('hidden', OPT.dopad ? p.classList.contains('nodp') : p.dataset.e.includes('dopad')));
+    renderWins();
+  }
+  segGroup('#acModes', 'm', m => { OPT.mode = m; refresh(); });
+  $('#acOw').addEventListener('change', e => { OPT.ow = e.target.checked; loadMap(); resetHero(); next('walk'); refresh(); });
+  $('#acDopad').addEventListener('change', e => { OPT.dopad = e.target.checked; refresh(); });
+  OPT.ow = $('#acOw').checked; OPT.dopad = $('#acDopad').checked; loadMap();
+  refresh();
+
+  // ----- the simulated events, same logic as the generated code -----
+  function endStepB() {
+    const g = h.ground;
+    if (OPT.dopad) {
+      if (g && !h.byl) { h.dopadF = true; mark('land', 12); }
+      if (!g || h.hsp !== 0) h.dopadF = false;
+      h.byl = g;
+    }
+    let novy = 'stoji'; h.ispd = 1;
+    if (!g) novy = h.vsp < 0 ? 'skok' : 'pad';
+    else if (OPT.dopad && h.dopadF) novy = 'dopad';
+    else if (h.hsp !== 0) { novy = 'beh'; h.ispd = Math.abs(h.hsp) / P.max; }
+    mark(novy);
+    if (h.spr !== novy) { h.spr = novy; h.idx = 0; mark('switch', 12); }
+    if (h.hsp !== 0) { h.xs = Math.sign(h.hsp); mark('flip'); }
+  }
+  function endStepCLab() {
+    const before = h.spr, from = endStepC(h, P, OPT.dopad);
+    mark({ stoji: 'c-zem', bezi: 'c-zem', skace: 'c-skace', pada: 'c-pada', dopad: 'c-dopad' }[from]);
+    if (h.spr !== before) mark('switch', 12);
+    if (h.hsp !== 0) mark('flip');
+  }
+
+  // autopilot: off the ledge, into the wall, a jump on the spot, back up onto the ledge
+  const AP = { phase: 'walk', t: 0 };
+  function next(p) { AP.phase = p; AP.t = 0; }
+  function autopilot() {
+    AP.t++;
+    let dir = 0, pressed = false, released = false;
+    switch (AP.phase) {
+      case 'walk': dir = 1; if (h.ground && wd.meetWall(h.x + 1, h.y, h.w, h.h) && h.x > 400) next('push'); break;
+      case 'push': dir = 1; if (AP.t > 70) next('idle'); break;
+      case 'idle': if (AP.t > 45) next('hop'); break;
+      case 'hop': if (AP.t === 1) pressed = true; if (AP.t > 20 && h.ground) { released = true; next('wait'); } break;
+      case 'wait': if (AP.t > 50) next('back'); break;
+      case 'back': dir = -1; if (h.ground && h.x < 215) { pressed = true; next('climb'); } break;
+      case 'climb': dir = -1; if (AP.t > 10 && h.ground) { released = true; next(h.y < 150 ? 'home' : 'back'); } break;
+      case 'home': dir = -1; if (h.x < 50) next('rest'); break;
+      case 'rest': if (AP.t > 60) next('walk'); break;
+    }
+    if (AP.t > 900) { resetHero(); next('rest'); }
+    return { dir, pressed, released, down: false };
+  }
+  let wasActive = false;
+
+  widgets.push({
+    step() {
+      const active = inp.active();
+      const c = active ? inp.ctl() : (inp.consume(), autopilot());
+      if (!OPT.ow) c.down = false;
+      if (wasActive && !active) next('walk');
+      wasActive = active;
+      for (const [k, n] of keys) { if (n <= 1) keys.delete(k); else keys.set(k, n - 1); }
+      // Step
+      if (OPT.mode === 'A') h.ispd = 1;
+      physicsStep(h, wd, c, P, OPT.mode === 'A' ? HOOK_A : null);
+      // End Step
+      if (OPT.mode === 'B') endStepB();
+      else if (OPT.mode === 'C') endStepCLab();
+      // animation advance + Animation End
+      if (advanceAnim(h) && OPT.dopad) {
+        if (OPT.mode === 'B' && h.spr === 'dopad') { h.dopadF = false; mark('end', 24); }
+        if (OPT.mode === 'C' && animEndC(h)) mark('end', 24);
+      }
+      // diagram
+      const node = OPT.mode === 'C' ? h.stav : SPR_STAV[h.spr];
+      if (node !== lastNode) { edge = lastNode + '-' + node; edgeT = 36; lastNode = node; }
+      if (edgeT > 0) edgeT--;
+      // does the drawn sprite match what the hero is really doing?
+      const exp = expectedSpr(h);
+      if (h.spr !== exp && h.spr !== 'dopad') {
+        mm++;
+        if (mm === 4) bugs++;
+        if (mm >= 4) { msg = `Kreslí ${SPR[h.spr].name}, ale ${WHY[exp]}.`; msgT = 120; }
+      } else { mm = 0; if (msgT > 0) msgT--; }
+      if (h.y > H + 64) resetHero();
+    },
+    draw() {
+      ctx.drawImage(wd.render(), 0, 0);
+      drawHero(ctx, h);
+      label(ctx, SPR[h.spr].name, Math.round(h.x + 11 - 52), Math.round(h.y - 12), h.spr === expectedSpr(h) || h.spr === 'dopad' ? '#fff' : '#ff8787');
+      setTxt($('#acSpr'), SPR[h.spr].name);
+      setTxt($('#acIdx'), fmt(h.idx, 2));
+      setTxt($('#acXs'), String(h.xs));
+      setTxt($('#acStav'), OPT.mode === 'C' ? `"${h.stav}"` : OPT.mode === 'B' && OPT.dopad ? `nepoužívá se, dopad = ${h.dopadF}` : 'nepoužívá se');
+      setTxt($('#acBugs'), String(bugs));
+      const m = $('#acMsg');
+      if (msgT > 0) { setTxt(m, '✗ ' + msg); m.className = 'bug bad'; }
+      else if (OPT.mode === 'A') { setTxt(m, 'Zatím sedí. Sleduj pád z hrany, běh do zdi a skok.'); m.className = 'bug'; }
+      else { setTxt(m, '✓ Animace odpovídá tomu, co postava opravdu dělá.'); m.className = 'bug ok'; }
+      const node = OPT.mode === 'C' ? h.stav : SPR_STAV[h.spr];
+      $$('#acDia [data-n]').forEach(g => g.classList.toggle('on', g.dataset.n === node));
+      $$('#acDia [data-e]').forEach(p => p.classList.toggle('on', edgeT > 0 && p.dataset.e === edge));
+      const sig = [...keys.keys()].sort().join(',');
+      if (sig !== keySig) { keySig = sig; lineEls.forEach(el => el.classList.toggle('on', keys.has(el.dataset.k))); }
+    }
+  });
+})();
+
+/* =========================================================
+   6. WORKSHOP: level editor + play
+   ========================================================= */
+(function workshop() {
+  const cv = $('#wsCv'), ctx = cv.getContext('2d');
+  const wd = makeWorld(30, 12, 32), T = 32, W = wd.W, H = wd.H;
+  const DEMO = [
+    '..............................',
+    '..............................',
+    '..............................',
+    '........oo..............ooo...',
+    '.......====............=====..',
+    '................###...........',
+    '...oo...........###......oo...',
+    '..####.....====.###.....####..',
+    '................###...........',
+    '.P......o.o.....###..o..o.....',
+    '########...#########..########',
+    '########...#########..########'
+  ];
+  const EMPTY = ['', '', '', '', '', '', '', '', '', '.P', '#'.repeat(30), '#'.repeat(30)];
+  try {
+    const o = JSON.parse(store.get('l3-dilna') || 'null');
+    if (o && Array.isArray(o.cells) && o.cells.length === 12) { wd.load(o.cells); if (Array.isArray(o.start)) wd.start = o.start; }
+    else wd.load(DEMO);
+  } catch (e) { wd.load(DEMO); }
+  const save = () => store.set('l3-dilna', JSON.stringify({ cells: wd.dump(), start: wd.start }));
+  let mode = 'edit', tool = 'zem', painting = false, hover = null;
+  const OPT = { grid: true, reach: true, box: false };
+  const inp = makeInput(cv, $('#wsFocus'), 'Hraješ: ← → pohyb, mezerník skok, ↓ seskok z plošiny');
+  inp.enabled = () => mode === 'play';
+  const h = makeHero();
+  let coins = [], got = 0, wasGround = true;
+  function respawn() { const [sx, sy] = wd.startXY(); Object.assign(h, { x: sx, y: sy, hsp: 0, vsp: 0, xs: 1, spr: 'stoji', idx: 0, ispd: 1, stav: 'stoji', ground: true }); }
+  function startPlay() {
+    respawn(); coins = []; got = 0;
+    wd.cells.forEach((r, j) => r.forEach((ch, i) => { if (ch === 'o') coins.push({ x: i * T, y: j * T, taken: false }); }));
+  }
+  const pickTool = segGroup('#wsTools', 't', t => tool = t);
+  const setMode = segGroup('#wsModes', 'm', m => {
+    mode = m;
+    $$('#wsTools .btn').forEach(b => b.disabled = m === 'play');
+    cv.style.cursor = m === 'edit' ? 'crosshair' : 'default';
+    setTxt($('#wsHint'), m === 'edit' ? 'Kresli myší, pak přepni na Hrát' : 'Klikni do hry a hraj, Kreslit tě vrátí do editoru');
+    if (m === 'play') { startPlay(); cv.focus({ preventScroll: true }); }
+  });
+  pickTool('zem'); setMode('edit');
+  $('#wsGrid').addEventListener('change', e => OPT.grid = e.target.checked);
+  $('#wsReach').addEventListener('change', e => OPT.reach = e.target.checked);
+  $('#wsBox').addEventListener('change', e => OPT.box = e.target.checked);
+  $('#wsSnd').addEventListener('change', e => soundOn = e.target.checked);
+  $('#wsDefault').onclick = () => { wd.load(DEMO); save(); if (mode === 'play') startPlay(); };
+  $('#wsClear').onclick = () => { wd.load(EMPTY); save(); if (mode === 'play') startPlay(); };
+
+  function apply(i, j) {
+    if (i < 0 || i >= 30 || j < 0 || j >= 12) return;
+    if (tool === 'start') { wd.start = [i, j]; wd.cells[j][i] = '.'; }
+    else {
+      const ch = { zem: '#', plosina: '=', mince: 'o', guma: '.' }[tool];
+      if (wd.cells[j][i] === ch) return;
+      wd.cells[j][i] = ch;
+    }
+    wd.dirty = true; save();
+  }
+  cv.addEventListener('pointerdown', e => {
+    if (mode !== 'edit') return;
+    const [x, y] = canvasPos(cv, e);
+    painting = true; try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+    apply(Math.floor(x / T), Math.floor(y / T)); e.preventDefault();
+  });
+  cv.addEventListener('pointermove', e => {
+    const [x, y] = canvasPos(cv, e), i = Math.floor(x / T), j = Math.floor(y / T);
+    hover = i >= 0 && i < 30 && j >= 0 && j < 12 ? [i, j] : null;
+    if (painting && hover && tool !== 'start') apply(i, j);
+  });
+  const stop = () => painting = false;
+  cv.addEventListener('pointerup', stop); cv.addEventListener('pointercancel', stop);
+  cv.addEventListener('pointerleave', () => { if (!painting) hover = null; });
+  const ARC = jumpArc(DEFP, 96);
+
+  widgets.push({
+    step() {
+      if (mode !== 'play') return;
+      const c = inp.ctl();
+      if (physicsStep(h, wd, c, DEFP)) beep('jump');
+      endStepC(h, DEFP);
+      if (advanceAnim(h)) animEndC(h);
+      if (h.ground && !wasGround && h.stav === 'dopad') beep('land');
+      wasGround = h.ground;
+      for (const k of coins) if (!k.taken && h.x < k.x + 26 && h.x + h.w > k.x + 6 && h.y < k.y + 28 && h.y + h.h > k.y + 4) { k.taken = true; got++; beep('coin'); }
+      if (h.y > H + 64) respawn();
+    },
+    draw(t) {
+      ctx.drawImage(wd.render(), 0, 0);
+      if (mode === 'edit') {
+        if (OPT.grid) {
+          ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1; ctx.beginPath();
+          for (let x = 0; x <= W; x += T) { ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); }
+          for (let y = 0; y <= H; y += T) { ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); }
+          ctx.stroke();
+        }
+        wd.cells.forEach((r, j) => r.forEach((ch, i) => { if (ch === 'o') drawImg(ctx, cyc(IMG.coin, t + i * .05, 8), i * T, j * T, 32, 32); }));
+        const [sx, sy] = wd.startXY();
+        Object.assign(h, { x: sx, y: sy, xs: 1, spr: 'stoji', idx: Math.floor(t * 3) % 2 });
+        drawHero(ctx, h, .85);
+        label(ctx, 'start', sx - 6, sy - 8);
+        if (hover) {
+          const [i, j] = hover;
+          ctx.strokeStyle = '#1d2433'; ctx.lineWidth = 2; ctx.strokeRect(i * T + 1, j * T + 1, T - 2, T - 2);
+          const below = wd.at(i, j + 1), standable = wd.at(i, j) !== '#' && (below === '#' || below === '=');
+          if (OPT.reach && standable) {
+            const fx = i * T + T / 2, fy = (j + 1) * T;
+            ctx.fillStyle = 'rgba(16,20,28,.8)';
+            [-1, 1].forEach(d => ARC.forEach(([dx, dy], k) => { if (k % 2 === 0) { ctx.beginPath(); ctx.arc(fx + d * dx, fy + dy, 2.2, 0, 7); ctx.fill(); } }));
+          }
+        }
+      } else {
+        for (const k of coins) if (!k.taken) drawImg(ctx, cyc(IMG.coin, t + k.x * .001, 8), k.x, k.y, 32, 32);
+        drawHero(ctx, h);
+        if (OPT.box) {
+          ctx.strokeStyle = '#e03131'; ctx.lineWidth = 2; ctx.strokeRect(Math.round(h.x) + 1, Math.round(h.y) + 1, h.w - 2, h.h - 2);
+          ctx.strokeStyle = '#f08c00'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
+          wd.cells.forEach((r, j) => r.forEach((ch, i) => { if (ch === '=') ctx.strokeRect(i * T + .75, j * T + .75, T - 1.5, 10.5); }));
+          ctx.setLineDash([]);
+        }
+        ctx.fillStyle = 'rgba(16,20,28,.72)'; ctx.fillRect(12, 12, 170, 40);
+        drawImg(ctx, IMG.coin[0], 20, 16, 32, 32);
+        ctx.fillStyle = '#fff'; ctx.font = '700 24px "Pixelify Sans", monospace'; ctx.fillText(`${got} / ${coins.length}`, 60, 41);
+        label(ctx, `stav: ${h.stav}`, W - 150, 30);
+        if (coins.length && got === coins.length) { ctx.fillStyle = 'rgba(16,20,28,.72)'; ctx.fillRect(W / 2 - 200, H / 2 - 36, 400, 72); ctx.fillStyle = '#f7c948'; ctx.textAlign = 'center'; ctx.fillText('Všechny mince sebrány!', W / 2, H / 2 + 8); ctx.textAlign = 'start'; }
+      }
+      let nTiles = 0, nPl = 0, nCoins = 0;
+      wd.cells.forEach(r => r.forEach(ch => { if (ch === '#') nTiles++; else if (ch === '=') nPl++; else if (ch === 'o') nCoins++; }));
+      setTxt($('#wsStats'), `${nTiles} dlaždic zeminy, ${nPl} plošin, ${nCoins} mincí`);
+      setTxt($('#wsStav'), mode === 'play' ? `stav: ${h.stav}` : 'editor');
+      setTxt($('#wsCoins'), mode === 'play' ? `mince ${got}/${coins.length}` : `mince ${nCoins}`);
+      $('#wsCoins').classList.toggle('on', mode === 'play' && coins.length > 0 && got === coins.length);
+    }
+  });
+})();
+
+/* =========================================================
+   QUIZ
+   ========================================================= */
+(function quiz() {
+  const Q = [
+    ['Arch má snímky široké 16 px a mezi nimi mezeru 2 px, bez odsazení. Na kterém pixelu začíná třetí snímek v řádku?', ['36', '32', '48'], 0, '(16 + 2) × 2 = 36. Mezera se počítá za každým snímkem před ním.'],
+    ['Co je uložené v tilemapě?', ['čísla dlaždic v mřížce', 'jeden velký obrázek levelu', 'seznam instancí obj_zed'], 0, 'Tilemapa je tabulka čísel. Obrázky dlaždic jsou v tilesetu.'],
+    ['Autotiling: dlaždice má zem nahoře a vlevo, vpravo a dole nic. Jaká je maska?', ['9', '3', '12'], 0, 'Nahoře 1 + vlevo 8 = 9.'],
+    ['Sprite má 6 snímků, 12 FPS a image_speed = 1. Jak dlouho trvá jedna smyčka?', ['0,5 s', '2 s', '6 s'], 0, '6 snímků ÷ 12 za sekundu = 0,5 s.'],
+    ['Postava běží proti zdi, stojí na místě, ale pořád hýbe nohama. Co je nejspíš špatně?', ['animace se řídí klávesou, ne výsledkem pohybu', 'sprite má málo snímků', 'chybí gravitace'], 0, 'Klávesa je stisknutá, ale kolize vynulovala hsp. Animace vybraná v End Step podle hsp by ukázala stání.'],
+    ['Proč dávat výběr animace do End Step?', ['pohyb i kolize už proběhly a hodnoty jsou konečné', 'End Step běží rychleji', 'jinde nejde měnit sprite_index'], 0, 'End Step běží po Step, takže animace vidí, co se v tomhle snímku opravdu stalo.'],
+    ['Po změně sprite_index se nová animace rozjede od prostředka. Proč?', ['image_index se při změně spritu nenuluje', 'sprite má špatný origin', 'image_speed je záporné'], 0, 'Proto End Step nastaví image_index = 0, ale jen když se sprite opravdu mění.'],
+    ['Po přepnutí na animaci skoku se postava zasekne ve stropu. Co pomůže?', ['jedna pevná kolizní maska v mask_index', 'větší gravitace', 'víc snímků animace'], 0, 'Když má každý sprite vlastní masku, změna animace změní i velikost kolizního obdélníku.'],
+    ['Postava vyskočí nejvýš 3,6 dlaždice. Jak vysoký schod je rozumné postavit do běžné části levelu?', ['3 dlaždice', '3,5 dlaždice', '4 dlaždice'], 0, 'Nech rezervu. Skok na hranu dosahu je jen pro schválně těžká místa.']
+  ];
+  const box = $('#quiz'), score = $('#quizScore');
+  let answered = 0, right = 0;
+  function upd() { score.textContent = `${right} / ${Q.length}` + (answered === Q.length ? (right === Q.length ? '  · bez chyby!' : '  · hotovo') : ''); }
+  function render() {
+    answered = right = 0; box.innerHTML = '';
+    Q.forEach(([q, opts, ok, why], qi) => {
+      const el = document.createElement('div'); el.className = 'q';
+      el.innerHTML = `<div class="q-t">${qi + 1}. ${q}</div><div class="q-opts"></div><div class="q-fb" aria-live="polite"></div>`;
+      const ob = $('.q-opts', el), fb = $('.q-fb', el);
+      opts.forEach((o, oi) => {
+        const b = document.createElement('button'); b.className = 'btn'; b.textContent = o;
+        b.onclick = () => {
+          $$('button', ob).forEach(x => x.disabled = true);
+          $$('button', ob)[ok].classList.add('ok');
+          if (oi !== ok) b.classList.add('no'); else right++;
+          answered++;
+          fb.textContent = (oi === ok ? 'Správně. ' : 'Ne tak docela. ') + why;
+          upd();
+        };
+        ob.appendChild(b);
+      });
+      box.appendChild(el);
+    });
+    upd();
+  }
+  $('#quizReset').onclick = render;
+  render();
+})();
+
+/* ---------- toc highlight ---------- */
+(function toc() {
+  if (!('IntersectionObserver' in window)) return;
+  const links = $$('.toc a'), map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { links.forEach(l => l.classList.remove('on')); const a = map.get(e.target.id); a && a.classList.add('on'); }
+  }), { rootMargin: '-40% 0px -55% 0px' });
+  $$('section.lesson').forEach(s => io.observe(s));
+})();
+
+requestAnimationFrame(loop);
+})();
+</script>

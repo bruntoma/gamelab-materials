@@ -1,0 +1,1585 @@
+<title>Z čeho se skládá hra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: one reading column on a 32px "room editor" grid; interactive labs break out to full width as editor windows. Each concept owns one colour used everywhere it appears. */
+:root {
+  --bg: #eef1f5;
+  --bg-grid: rgba(40, 60, 110, .06);
+  --surface: #ffffff;
+  --surface-2: #f4f6f9;
+  --ink: #172031;
+  --muted: #566173;
+  --line: #d6dce5;
+  --line-strong: #b6c0ce;
+  --c-asset: #5d6a80;
+  --c-sprite: #c2255c;
+  --c-object: #2b63d9;
+  --c-instance: #0a8aa3;
+  --c-room: #2b8a3e;
+  --c-camera: #d27200;
+  --mask: #e03131;
+  --check-a: #e4e8ef;
+  --check-b: #f6f8fb;
+  --void: #222833;
+  --code-bg: #172031;
+  --code-fg: #e4e9f1;
+  --code-com: #8d9ab0;
+  --code-str: #a6e39a;
+  --code-num: #ffc86b;
+  --code-kw: #93b9ff;
+  --code-fn: #f7a8cb;
+  --ok: #2b8a3e;
+  --bad: #c92a2a;
+
+  --f-display: "Pixelify Sans", "Courier New", monospace;
+  --f-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  --step--1: .875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.25rem;
+  --step-2: 1.6rem;
+  --step-3: 2.2rem;
+  --step-4: clamp(2.4rem, 6vw, 3.6rem);
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
+    --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
+    --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b;
+    --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --code-bg: #0b0f15;
+    --ok: #5fd06f; --bad: #ff6b6b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
+  --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
+  --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b;
+  --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --code-bg: #0b0f15;
+  --ok: #5fd06f; --bad: #ff6b6b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--bg-grid) 1px, transparent 1px), linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.1; text-wrap: balance; margin: 0; letter-spacing: .01em; }
+h2 { font-size: var(--step-3); }
+h3 { font-size: var(--step-1); }
+p { margin: 0; }
+a { color: var(--c-object); }
+code { font-family: var(--f-mono); font-size: .88em; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: .05em .35em; }
+:focus-visible { outline: 3px solid var(--c-object); outline-offset: 2px; }
+
+.k-asset { --kc: var(--c-asset); } .k-sprite { --kc: var(--c-sprite); } .k-object { --kc: var(--c-object); }
+.k-instance { --kc: var(--c-instance); } .k-room { --kc: var(--c-room); } .k-camera { --kc: var(--c-camera); }
+.sq { display: inline-block; width: .7em; height: .7em; background: var(--kc); flex: none; }
+
+/* hero */
+.hero { padding-block: clamp(32px, 6vw, 64px) 24px; display: grid; gap: 28px; }
+.eyebrow { font-family: var(--f-mono); font-size: var(--step--1); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+.hero h1 { font-size: var(--step-4); max-width: 16ch; }
+.lead { font-size: var(--step-1); max-width: 60ch; color: var(--ink); }
+.lead + .lead { font-size: var(--step-0); color: var(--muted); }
+.goals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.goal { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; color: inherit; }
+.goal:hover { border-color: var(--kc); }
+.goal b { font-family: var(--f-display); font-size: var(--step-1); font-weight: 700; }
+.goal span:last-child { grid-column: 2; color: var(--muted); font-size: var(--step--1); line-height: 1.45; }
+
+/* toc */
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.toc .wrap { display: flex; gap: 6px; overflow-x: auto; padding-block: 10px; scrollbar-width: thin; }
+.toc a { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 6px 12px; border-radius: 999px; text-decoration: none; color: var(--ink); font-size: var(--step--1); border: 1px solid transparent; }
+.toc a:hover, .toc a.on { border-color: var(--line-strong); background: var(--surface); }
+
+/* sections */
+section.lesson { padding-block: clamp(40px, 7vw, 72px) 8px; display: grid; gap: 22px; scroll-margin-top: 56px; }
+.sec-head { display: grid; gap: 10px; }
+.sec-head .eyebrow { color: var(--kc); font-weight: 600; align-items: center; }
+.prose { display: grid; gap: 14px; max-width: 68ch; }
+.prose strong { font-weight: 700; }
+.prose ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.term { font-weight: 700; color: var(--kc); }
+.callout { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 14px 18px; background: var(--surface); border: 1px dashed var(--line-strong); border-radius: var(--radius); max-width: 68ch; }
+.callout .ic { font-family: var(--f-display); font-size: var(--step-1); color: var(--kc, var(--ink)); line-height: 1.2; }
+.callout p { font-size: var(--step--1); line-height: 1.55; }
+.analogy { font-family: var(--f-display); font-size: var(--step-1); line-height: 1.35; max-width: 40ch; color: var(--kc); }
+
+/* lab window */
+.lab { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 12px 32px -18px rgba(10, 20, 40, .35); }
+.lab-bar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-family: var(--f-mono); font-size: .8rem; color: var(--muted); flex-wrap: wrap; }
+.lab-bar .t { color: var(--ink); font-weight: 600; }
+.lab-bar .hint { margin-left: auto; font-family: var(--f-body); }
+.lab-body { padding: 16px; display: grid; gap: 16px; }
+.lab canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; border-radius: 4px; }
+.cols { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); align-items: start; }
+.cols > * { min-width: 0; }
+.panel { display: grid; gap: 10px; align-content: start; }
+.panel h4 { margin: 0; font-family: var(--f-mono); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.cap { font-size: var(--step--1); color: var(--muted); line-height: 1.45; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.btn { font: inherit; font-size: var(--step--1); padding: 7px 12px; border-radius: 5px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; line-height: 1.2; }
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn:disabled { opacity: .45; cursor: default; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 6px; overflow: hidden; }
+.seg .btn { border: 0; border-radius: 0; }
+.seg .btn + .btn { border-left: 1px solid var(--line-strong); }
+label.ctl { display: grid; gap: 4px; font-size: var(--step--1); }
+label.ctl > span { display: flex; justify-content: space-between; gap: 8px; }
+label.chk { display: flex; gap: 8px; align-items: center; font-size: var(--step--1); cursor: pointer; }
+input[type="range"] { width: 100%; accent-color: var(--kc, var(--ink)); }
+input[type="checkbox"] { accent-color: var(--kc, var(--ink)); width: 1.05em; height: 1.05em; }
+select { font: inherit; font-size: var(--step--1); padding: 6px 8px; border-radius: 5px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); }
+
+.readout { font-family: var(--f-mono); font-size: .8rem; font-variant-numeric: tabular-nums; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; }
+.readout dt { color: var(--muted); }
+.readout dd { margin: 0; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: .75rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); }
+.pill.warn { color: var(--bad); border-color: var(--bad); }
+
+/* code */
+pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font-family: var(--f-mono); font-size: .82rem; line-height: 1.6; tab-size: 4; }
+pre.code code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit; }
+.tc { color: var(--code-com); font-style: italic; } .ts { color: var(--code-str); } .tn { color: var(--code-num); } .tk { color: var(--code-kw); } .tf { color: var(--code-fn); }
+
+/* engine tabs */
+.eng { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.eng-head { display: flex; align-items: center; gap: 12px; padding: 0 0 0 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.eng-head .lbl { font-family: var(--f-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.eng-tabs { display: flex; overflow-x: auto; }
+.eng-tabs button { font: inherit; font-size: var(--step--1); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.eng-tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
+.eng-panel { padding: 16px; display: grid; gap: 12px; }
+.eng-panel > p, .eng-panel li { font-size: var(--step--1); line-height: 1.55; max-width: 72ch; }
+.eng-panel ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+
+/* scratch blocks */
+.scratch { display: grid; gap: 3px; justify-items: start; font-size: .82rem; font-weight: 700; }
+.sb { color: #fff; padding: 6px 12px; border-radius: 5px; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18); }
+.sb.ev { background: #c88a00; border-radius: 14px 14px 5px 5px; }
+.sb.mo { background: #3d7fe0; } .sb.lo { background: #7a52d6; } .sb.co { background: #d98200; } .sb.op { background: #3f9b3b; } .sb.va { background: #e0661a; }
+.sb.ind { margin-left: 18px; }
+
+/* asset browser */
+.ab { display: grid; grid-template-columns: minmax(200px, 260px) 1fr; min-height: 340px; }
+.ab-tree { border-right: 1px solid var(--line); padding: 10px 6px; display: grid; align-content: start; gap: 2px; background: var(--surface-2); }
+.ab-folder { font-family: var(--f-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 8px 10px 4px; }
+.ab-item { all: unset; display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 4px; font-family: var(--f-mono); font-size: .85rem; cursor: pointer; }
+.ab-item:hover { background: var(--surface); }
+.ab-item[aria-selected="true"] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); font-weight: 600; }
+.ab-item:focus-visible { outline: 3px solid var(--c-object); }
+.ab-view { padding: 18px; display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-content: start; }
+.ab-view > * { min-width: 0; }
+.ab-prev { width: 200px; height: 200px; background-color: var(--check-b); background-image: conic-gradient(var(--check-a) 25%, transparent 0 50%, var(--check-a) 0 75%, transparent 0); background-size: 20px 20px; border: 1px solid var(--line); border-radius: 4px; display: grid; place-items: center; overflow: hidden; }
+.ab-prev canvas { width: 200px; height: 200px; }
+.ab-info { display: grid; gap: 10px; align-content: start; }
+.ab-type { font-family: var(--f-mono); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--kc); font-weight: 600; }
+.ab-name { font-family: var(--f-mono); font-size: var(--step-2); font-weight: 600; line-height: 1.1; word-break: break-all; }
+.ab-desc { font-size: var(--step--1); max-width: 52ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chips .k { font-size: .78rem; color: var(--muted); min-width: 7.5em; }
+.chip { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: .78rem; padding: 3px 9px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); }
+.chip:hover { border-color: var(--kc); }
+.chip:focus-visible { outline: 3px solid var(--c-object); }
+
+/* sprite lab */
+.sprite-lab { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; }
+.frames { display: flex; gap: 6px; flex-wrap: wrap; }
+.frames button { all: unset; cursor: pointer; border: 2px solid var(--line); border-radius: 4px; padding: 2px; background: var(--check-b); display: grid; justify-items: center; font-family: var(--f-mono); font-size: .7rem; color: var(--muted); }
+.frames button.on { border-color: var(--c-sprite); color: var(--ink); }
+.frames canvas { width: 44px; height: 44px; }
+
+/* layers */
+.layers-stage { perspective: 1600px; padding: 8px 0; }
+.layers-stack { position: relative; aspect-ratio: 2 / 1; max-width: 100%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.2, .7, .2, 1); }
+.layers-stack .layer { position: absolute; inset: 0; transition: transform .7s cubic-bezier(.2, .7, .2, 1), opacity .3s; }
+.layers-stack .layer canvas { width: 100%; height: 100%; }
+.layers-stack .tag { position: absolute; left: 8px; top: 8px; font-family: var(--f-mono); font-size: .72rem; background: var(--ink); color: var(--surface); padding: 2px 8px; border-radius: 3px; opacity: 0; transition: opacity .3s; }
+.layers-stack.exploded { transform: rotateX(56deg) rotateZ(-24deg) scale(.74) translateY(-6%); }
+.layers-stack.exploded .layer { outline: 2px solid var(--line-strong); }
+.layers-stack.exploded .tag { opacity: 1; }
+.layers-stack.exploded .layer[data-i="1"] { transform: translateZ(90px); }
+.layers-stack.exploded .layer[data-i="2"] { transform: translateZ(180px); }
+.layers-stack .layer.off { opacity: 0; }
+.layers-stack.exploded .layer.off { opacity: .12; }
+.layer-list { display: grid; gap: 6px; }
+.layer-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface-2); font-size: var(--step--1); }
+.layer-row .d { font-family: var(--f-mono); font-size: .75rem; color: var(--muted); }
+
+/* camera */
+.cam-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 16px; }
+.cam-vp { position: relative; }
+.cam-vp canvas { cursor: grab; }
+.cam-vp canvas:active { cursor: grabbing; }
+.cam-vp canvas:focus-visible { outline: 3px solid var(--c-camera); outline-offset: 2px; }
+.vp-tag { position: absolute; right: 8px; bottom: 8px; font-family: var(--f-mono); font-size: .7rem; background: rgba(0, 0, 0, .6); color: #fff; padding: 2px 7px; border-radius: 3px; pointer-events: none; }
+.map-wrap canvas { cursor: crosshair; touch-action: none; }
+.cam-vp canvas { touch-action: none; }
+.pad { display: flex; gap: 8px; }
+.pad .btn { min-width: 54px; padding-block: 10px; font-size: 1rem; user-select: none; -webkit-user-select: none; touch-action: none; }
+.kbd { font-family: var(--f-mono); font-size: .75rem; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; }
+.focus-state { font-size: .78rem; }
+.focus-state.on { color: var(--ok); }
+
+/* object lab */
+.inst-card { padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); display: grid; gap: 8px; }
+.obj-card { padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); display: grid; gap: 10px; }
+.log { font-family: var(--f-mono); font-size: .76rem; display: grid; gap: 2px; min-height: 7.5em; background: var(--code-bg); color: var(--code-fg); border-radius: 6px; padding: 10px 12px; overflow-x: auto; }
+.log div { white-space: pre; }
+.log .tc { white-space: pre; }
+
+/* diagram */
+.diagram { overflow-x: auto; }
+.diagram svg { width: 100%; min-width: 640px; height: auto; display: block; }
+.diagram .grp { fill: none; stroke: var(--line-strong); stroke-dasharray: 6 5; }
+.diagram .grp-l { fill: var(--muted); font-family: var(--f-mono); font-size: 13px; letter-spacing: .08em; }
+.diagram .node rect { fill: var(--surface); stroke: var(--kc); stroke-width: 2.5; }
+.diagram .node .n1 { fill: var(--ink); font-family: var(--f-display); font-size: 19px; font-weight: 700; }
+.diagram .node .n2 { fill: var(--muted); font-family: var(--f-mono); font-size: 11.5px; }
+.diagram .node { cursor: pointer; transition: opacity .2s; }
+.diagram .node:focus { outline: none; }
+.diagram .node:focus-visible rect { stroke-width: 4; }
+.diagram .edge path { fill: none; stroke: var(--muted); stroke-width: 2; transition: opacity .2s, stroke .2s; }
+.diagram .edge text { fill: var(--muted); font-size: 13.5px; font-family: var(--f-body); font-style: italic; transition: opacity .2s; }
+.diagram .arrowhead { fill: var(--muted); }
+.diagram svg.focus .node:not(.hot), .diagram svg.focus .edge:not(.hot) { opacity: .22; }
+.diagram svg .edge.hot path { stroke: var(--ink); stroke-width: 2.5; }
+.diagram svg .edge.hot text { fill: var(--ink); font-weight: 600; }
+.diagram-info { min-height: 3.2em; font-size: var(--step--1); max-width: 72ch; }
+.diagram-info b { font-family: var(--f-display); font-size: var(--step-1); color: var(--kc); font-weight: 700; }
+
+/* table */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table.terms { border-collapse: collapse; width: 100%; min-width: 720px; font-size: var(--step--1); }
+table.terms th, table.terms td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.terms thead th { font-family: var(--f-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--surface-2); }
+table.terms tbody th { font-family: var(--f-display); font-size: var(--step-0); white-space: nowrap; }
+table.terms tbody th .sq { margin-right: 8px; }
+table.terms td code { font-size: .8em; }
+table.terms tr:last-child th, table.terms tr:last-child td { border-bottom: 0; }
+
+/* quiz */
+.quiz { display: grid; gap: 14px; }
+.q { padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; display: grid; gap: 10px; }
+.q-t { font-weight: 700; }
+.q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.q-opts .btn.ok { background: var(--ok); color: var(--surface); border-color: var(--ok); }
+.q-opts .btn.no { border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.q-fb { font-size: var(--step--1); color: var(--muted); }
+.score { font-family: var(--f-display); font-size: var(--step-2); }
+
+/* homework */
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; max-width: 72ch; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 2.2em 1fr; gap: 10px; align-items: baseline; }
+ol.steps li::before { content: counter(s); font-family: var(--f-display); font-size: var(--step-1); font-weight: 700; color: var(--muted); }
+
+footer { padding-block: 48px; color: var(--muted); font-size: var(--step--1); }
+
+@media (max-width: 760px) {
+  .cam-grid { grid-template-columns: 1fr; }
+  .ab { grid-template-columns: 1fr; }
+  .ab-tree { border-right: 0; border-bottom: 1px solid var(--line); grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .ab-folder { grid-column: 1 / -1; }
+  .ab-view { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .layers-stack, .layers-stack .layer, .layers-stack .tag { transition: none; }
+}
+</style>
+
+<nav class="toc" aria-label="Obsah lekce">
+  <div class="wrap">
+    <a href="#asset" class="k-asset"><span class="sq"></span>Asset</a>
+    <a href="#sprite" class="k-sprite"><span class="sq"></span>Sprite</a>
+    <a href="#objekt" class="k-object"><span class="sq"></span>Objekt a instance</a>
+    <a href="#scena" class="k-room"><span class="sq"></span>Scéna</a>
+    <a href="#kamera" class="k-camera"><span class="sq"></span>Kamera</a>
+    <a href="#vztahy">Jak to do sebe zapadá</a>
+    <a href="#enginy">Názvy v enginech</a>
+    <a href="#kviz">Kvíz</a>
+    <a href="#ukol">Úkol</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="hero">
+    <div class="eyebrow"><span>Herní dílna</span><span>Lekce 1 ze série</span><span>Základy 2D her</span></div>
+    <h1>Z čeho se skládá hra</h1>
+    <p class="lead">Každá 2D hra, od Super Maria po Hollow Knight, stojí na stejných stavebních kamenech. V této lekci se naučíme, jak se jmenují a hlavně jak spolu souvisí.</p>
+    <p class="lead">Ukázky jsou v GameMakeru, ale u každé najdeš i přepínač na Godot, Unity a Scratch. Zkus si všechno naklikat: šedé rámečky s nadpisem jako v editoru jsou interaktivní.</p>
+    <div class="goals">
+      <a class="goal k-asset" href="#asset"><span class="sq"></span><b>Asset</b><span>Všechno, co je v projektu: obrázky, zvuky, objekty, scény.</span></a>
+      <a class="goal k-sprite" href="#sprite"><span class="sq"></span><b>Sprite</b><span>Obrázek nebo animace. Neví, kde je, jen jak vypadá.</span></a>
+      <a class="goal k-object" href="#objekt"><span class="sq"></span><b>Objekt</b><span>Předpis: jak věc vypadá a jak se chová.</span></a>
+      <a class="goal k-instance" href="#objekt"><span class="sq"></span><b>Instance</b><span>Konkrétní kus objektu, který žije ve scéně.</span></a>
+      <a class="goal k-room" href="#scena"><span class="sq"></span><b>Scéna</b><span>Místo, kde se hra odehrává: úroveň, menu, Game Over.</span></a>
+      <a class="goal k-camera" href="#kamera"><span class="sq"></span><b>Kamera</b><span>Určuje, kterou část scény právě vidíme.</span></a>
+    </div>
+  </header>
+
+  <!-- ============ ASSET ============ -->
+  <section class="lesson k-asset" id="asset">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Pojem 1 · Asset</div>
+      <h2>Asset: dílek ve stavebnici</h2>
+    </div>
+    <div class="prose">
+      <p><span class="term">Asset</span> (čti „eset“) je cokoli, z čeho se hra skládá a co najdeš v projektu: obrázky, zvuky, písma, objekty, scény i skripty. Samy o sobě nic nedělají. Hra vznikne teprve tím, jak je poskládáš dohromady.</p>
+      <p class="analogy">Projekt je krabice s Legem. Assety jsou jednotlivé kostičky.</p>
+      <p>Assety se navzájem používají. Objekt mince potřebuje obrázek mince a zvuk cinknutí. Scéna potřebuje objekty, které v ní budou. Klikni na asset vlevo a podívej se, s čím je propojený.</p>
+    </div>
+
+    <div class="lab k-asset">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Asset Browser</span><span>projekt: Herní dílna</span><span class="hint">Klikni na položku</span></div>
+      <div class="ab">
+        <div class="ab-tree" id="abTree" role="listbox" aria-label="Assety v projektu"></div>
+        <div class="ab-view" id="abView" aria-live="polite">
+          <div class="ab-prev"><canvas id="abCanvas" width="200" height="200"></canvas></div>
+          <div class="ab-info" id="abInfo"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-asset">
+      <div class="ic">Tip</div>
+      <p>Pojmenovávej assety s předponou podle typu: <code>spr_</code> sprite, <code>obj_</code> objekt, <code>snd_</code> zvuk, <code>rm_</code> scéna (room). V kódu pak hned poznáš, co je co, a nestane se, že se sprite a objekt jmenují stejně.</p>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Assety najdeš v panelu <strong>Asset Browser</strong>. Nový asset vytvoříš pravým klikem → <em>Create</em>. Typy: Sprites, Sounds, Objects, Rooms, Scripts, Fonts, Tile Sets, Paths, Sequences a další. V kódu se na asset odkazuješ přímo jménem:</p>
+        <pre class="code"><code data-lang="gml">// zahraj zvuk (asset snd_mince), priorita 1, neopakovat
+audio_play_sound(snd_mince, 1, false);
+
+// přepni na jinou scénu (asset rm_level2)
+room_goto(rm_level2);</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Assety jsou obyčejné soubory v panelu <strong>FileSystem</strong>, cesta začíná <code>res://</code>. Obrázky <code>.png</code>, zvuky <code>.wav</code>/<code>.ogg</code>, scény <code>.tscn</code>, skripty <code>.gd</code>. Godot jim říká <em>resources</em>.</p>
+        <pre class="code"><code data-lang="gd"># načti zvuk ze souboru a přehraj ho
+var zvuk = preload("res://zvuky/mince.wav")
+$AudioStreamPlayer.stream = zvuk
+$AudioStreamPlayer.play()</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Assety jsou v okně <strong>Project</strong> ve složce <code>Assets/</code>. Do skriptu je obvykle nedostáváš jménem, ale přetáhneš je myší do políčka v Inspectoru.</p>
+        <pre class="code"><code data-lang="cs">public AudioClip zvukMince;   // políčko v Inspectoru, přetáhneš sem soubor
+
+void SebralMinci() {
+    AudioSource.PlayClipAtPoint(zvukMince, transform.position);
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Scratch soubory neukazuje. Assety jsou rozdělené do záložek: <strong>Kostýmy</strong> (obrázky postavy), <strong>Zvuky</strong> a <strong>Pozadí</strong> (u scény). Postavy jsou v seznamu pod scénou.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb lo" style="background:#c94fc9">pusť zvuk [Mince] a čekej</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPRITE ============ -->
+  <section class="lesson k-sprite" id="sprite">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Pojem 2 · Sprite</div>
+      <h2>Sprite: obrázek, který umí pózovat</h2>
+    </div>
+    <div class="prose">
+      <p><span class="term">Sprite</span> je obrázek, kterým se ve hře něco kreslí. Může mít víc <strong>snímků</strong> (frames). Když se rychle střídají, vznikne animace, stejně jako v kreslené knížce, kterou listuješ palcem.</p>
+      <p>Sprite má pár důležitých vlastností:</p>
+      <ul>
+        <li><strong>Rozměr</strong> v pixelech a <strong>počet snímků</strong> s rychlostí animace (FPS, snímky za sekundu).</li>
+        <li><strong>Origin</strong> (počátek): bod, za který sprite „drží“ na souřadnicích x, y. Kolem něj se sprite i otáčí a zrcadlí.</li>
+        <li><strong>Kolizní maska</strong>: oblast, která se počítá při nárazech. Nemusí být stejná jako obrázek.</li>
+      </ul>
+    </div>
+
+    <div class="lab k-sprite">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Sprite Editor</span><span id="spName">spr_mince</span><span class="hint">Klikni do mřížky a přesuň origin</span></div>
+      <div class="lab-body">
+        <div class="sprite-lab">
+          <div class="panel">
+            <h4>Sprite (editor)</h4>
+            <canvas id="spEdit" width="320" height="320" style="cursor:crosshair;max-width:320px" aria-label="Zvětšený sprite s mřížkou, originem a kolizní maskou"></canvas>
+            <div class="frames" id="spFrames"></div>
+            <div class="cap mono" id="spMeta"></div>
+          </div>
+          <div class="panel">
+            <h4>Instance ve hře</h4>
+            <canvas id="spGame" width="360" height="260" aria-label="Sprite nakreslený na souřadnicích instance"></canvas>
+            <p class="cap">Křížek je poloha instance (x, y). Sprite se nakreslí tak, aby jeho origin ležel přesně na křížku. Zkus origin přesunout a pak sprite otáčet.</p>
+          </div>
+          <div class="panel">
+            <h4>Nastavení</h4>
+            <label class="ctl"><span>Sprite</span>
+              <select id="spSel"><option value="spr_mince">spr_mince</option><option value="spr_hrac">spr_hrac</option><option value="spr_slime">spr_slime</option></select>
+            </label>
+            <div class="row">
+              <button class="btn" id="spPlay" aria-pressed="true">Přehrává se</button>
+              <div class="seg" role="group" aria-label="Origin">
+                <button class="btn" data-o="tl">Vlevo nahoře</button><button class="btn" data-o="c">Střed</button><button class="btn" data-o="bc">Dole</button>
+              </div>
+            </div>
+            <label class="ctl"><span>Rychlost animace <span class="mono" id="spSpdV">1×</span></span><input type="range" id="spSpd" min="0" max="3" step="0.25" value="1"></label>
+            <label class="ctl"><span>Natočení <span class="mono" id="spAngV">0°</span></span><input type="range" id="spAng" min="0" max="360" step="5" value="0"></label>
+            <label class="chk"><input type="checkbox" id="spFlip"> Zrcadlit (otočit doleva)</label>
+            <label class="chk"><input type="checkbox" id="spMask" checked> Ukázat kolizní masku</label>
+            <pre class="code"><code id="spCode"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-sprite">
+      <div class="ic">!</div>
+      <p>Sprite neví, kde je, ani co dělá. Je to jen obrázek. Polohu, pohyb a chování mu dává <strong>instance objektu</strong>, která ho používá. Jeden sprite může používat víc objektů, třeba stejná mince pro „minci“ i „zlatou minci“.</p>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>V <strong>Sprite Editoru</strong> nastavíš snímky, FPS, origin (rozbalovací nabídka nebo klik do obrázku) a <em>Collision Mask</em>. Instance pak sprite ovládá vestavěnými proměnnými:</p>
+        <pre class="code"><code data-lang="gml">sprite_index = spr_hrac_beh;  // který sprite instance kreslí
+image_index  = 0;             // aktuální snímek (od nuly)
+image_speed  = 1;             // 1 = rychlost podle FPS spritu, 0 = stop
+image_angle  = 45;            // natočení ve stupních, proti směru hodinek
+image_xscale = -1;            // zrcadlení: postava se dívá doleva</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Obrázek je <em>Texture</em>. Kreslí ho uzel <strong>Sprite2D</strong>, animace dělá <strong>AnimatedSprite2D</strong> se sadou <em>SpriteFrames</em>. Origin nastavuješ vlastnostmi <code>centered</code> a <code>offset</code>. Kolize je zvláštní uzel <code>CollisionShape2D</code>.</p>
+        <pre class="code"><code data-lang="gd">$AnimatedSprite2D.play("beh")        # spusť animaci "beh"
+$AnimatedSprite2D.speed_scale = 1.0   # rychlost animace
+$AnimatedSprite2D.flip_h = true       # zrcadlení
+rotation_degrees = 45                 # natočení celého uzlu</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Obrázek importuješ s <em>Texture Type: Sprite (2D and UI)</em>. Origin se jmenuje <strong>Pivot</strong> (nastavíš ho v Sprite Editoru). Na scéně ho kreslí komponenta <strong>SpriteRenderer</strong>, animuje <em>Animator</em> a kolize řeší <em>Collider2D</em>.</p>
+        <pre class="code"><code data-lang="cs">SpriteRenderer sr = GetComponent&lt;SpriteRenderer&gt;();
+sr.sprite = spriteBeh;   // vyměň obrázek
+sr.flipX = true;         // zrcadlení
+transform.rotation = Quaternion.Euler(0, 0, 45);</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Sprite je ve Scratchi <strong>kostým</strong>. Animace = přepínání kostýmů. Origin je <strong>střed kostýmu</strong> (v editoru kostýmu ho posuneš tak, že posuneš obrázek vůči středovému křížku).</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb co">opakuj stále</span><span class="sb lo ind">další kostým</span><span class="sb co ind">čekej (0.125) sekund</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OBJEKT / INSTANCE ============ -->
+  <section class="lesson k-object" id="objekt">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Pojem 3 · Objekt a <span class="k-instance" style="color:var(--c-instance)">instance</span></div>
+      <h2>Objekt je vykrajovátko, instance jsou perníčky</h2>
+    </div>
+    <div class="prose">
+      <p><span class="term">Objekt</span> je předpis. Říká, jak má věc vypadat (který sprite použije) a jak se má chovat: co udělá, když vznikne, co dělá v každém snímku hry, co se stane, když do ní něco narazí. Těmto situacím se říká <strong>události</strong> (events).</p>
+      <p><span class="term k-instance">Instance</span> je jeden konkrétní kus vyrobený podle objektu a umístěný ve scéně. Objekt <code>obj_slime</code> máš v projektu jednou, ale slizounů ve scéně může být dvacet.</p>
+      <p>Všechny instance sdílí chování objektu, ale každá má <strong>vlastní proměnné</strong>: polohu <code>x</code>, <code>y</code>, počet životů <code>hp</code>. Proto může jeden slizoun zemřít a ostatní žijí dál.</p>
+    </div>
+
+    <div class="lab k-object">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Object Editor + Room</span><span>obj_slime</span><span class="hint">Klikni do scény = nová instance. Klikni na instanci = vyber ji.</span></div>
+      <div class="lab-body">
+        <canvas id="obCanvas" width="720" height="250" aria-label="Scéna s instancemi objektu obj_slime"></canvas>
+        <div class="cols">
+          <div class="obj-card k-object">
+            <h4 class="mono" style="margin:0;color:var(--c-object)">Objekt obj_slime · platí pro všechny</h4>
+            <label class="ctl"><span>Sprite objektu</span>
+              <select id="obSpr"><option value="spr_slime">spr_slime</option><option value="spr_mince">spr_mince</option><option value="spr_hrac">spr_hrac</option></select>
+            </label>
+            <label class="ctl"><span>Rychlost chůze (v události Step) <span class="mono" id="obSpdV">1.5</span></span><input type="range" id="obSpd" min="0" max="4" step="0.5" value="1.5"></label>
+            <pre class="code"><code id="obEvents"></code></pre>
+          </div>
+          <div class="inst-card k-instance">
+            <h4 class="mono" style="margin:0;color:var(--c-instance)">Vybraná instance · platí jen pro ni</h4>
+            <div id="obInst"></div>
+          </div>
+          <div class="panel">
+            <h4>Co se stalo (v GML)</h4>
+            <div class="log" id="obLog" aria-live="polite"></div>
+            <div class="row"><span class="pill mono" id="obCount"></span><button class="btn" id="obClear">Smazat všechny</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-object">
+      <div class="ic">?</div>
+      <p>Ve skutečném GameMakeru se změna objektu projeví až po novém spuštění hry. Tady ji vidíš hned, aby bylo jasné, co patří objektu a co instanci.</p>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Objekt vytvoříš v Asset Browseru, přiřadíš mu sprite a přidáš události (<em>Create</em>, <em>Step</em>, <em>Draw</em>, <em>Collision</em>…). Instance přetáhneš myší do scény v Room Editoru, nebo je vytvoříš kódem:</p>
+        <pre class="code"><code data-lang="gml">// Create event objektu obj_slime: běží jednou, když instance vznikne
+hp = 3;
+
+// kdekoli jinde: vytvoř novou instanci na vrstvě "Instances"
+var s = instance_create_layer(200, 300, "Instances", obj_slime);
+s.hp = 10;   // změní hp jen téhle jedné instanci
+
+// počet instancí objektu ve scéně
+show_debug_message(instance_number(obj_slime));</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Godot nemá „objekty“. Předpisem je <strong>scéna</strong> (<code>.tscn</code>) se skriptem, např. <code>slime.tscn</code>. Instanci vytvoříš přetažením scény do jiné scény, nebo kódem. Pozor: slovo „scéna“ v Godotu znamená předpis i úroveň.</p>
+        <pre class="code"><code data-lang="gd">const SlimeScena = preload("res://slime.tscn")
+
+func _ready():
+    var s = SlimeScena.instantiate()   # vyrob instanci
+    s.position = Vector2(200, 300)
+    s.hp = 10                          # jen téhle instanci
+    add_child(s)                       # vlož ji do hry</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Předpisem je <strong>Prefab</strong>: GameObject s komponentami, uložený jako asset. Každý GameObject ve scéně je pak instance. Chování píšeš jako komponentu (skript), např. <code>Slime.cs</code>.</p>
+        <pre class="code"><code data-lang="cs">public GameObject slimePrefab;   // přetáhni prefab v Inspectoru
+
+void Start() {
+    GameObject s = Instantiate(slimePrefab, new Vector3(2, 3, 0), Quaternion.identity);
+    s.GetComponent&lt;Slime&gt;().hp = 10;   // jen téhle instanci
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Objekt je <strong>postava</strong>. Instance jsou <strong>klony</strong>: kopie postavy, které běží podle stejných skriptů. Každý klon má vlastní polohu a proměnné „jen pro tuto postavu“.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb co">opakuj (5) krát</span><span class="sb co ind">vytvoř klon [sebe]</span><span class="sb ev" style="margin-top:8px">když startuji jako klon</span><span class="sb mo">skoč na [náhodná pozice]</span><span class="sb va">nastav [hp] na (3)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCÉNA ============ -->
+  <section class="lesson k-room" id="scena">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Pojem 4 · Scéna (room)</div>
+      <h2>Scéna: jeviště, na kterém se hraje</h2>
+    </div>
+    <div class="prose">
+      <p><span class="term">Scéna</span> (v GameMakeru <em>room</em>, místnost) je místo, kde se hra odehrává. Scénou může být úroveň, hlavní menu i obrazovka „Game Over“. Má svou šířku a výšku v pixelech a rozmisťuješ do ní instance objektů.</p>
+      <p>Scéna se skládá z <strong>vrstev</strong>. Jsou jako průhledné fólie položené na sobě: dole pozadí, nad ním dlaždice terénu, navrchu instance. Co je ve vyšší vrstvě, překryje to, co je pod ním.</p>
+      <p class="analogy">Scéna je divadelní jeviště. Kulisy jsou vzadu, herci vpředu.</p>
+    </div>
+
+    <div class="lab k-room">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Room Editor</span><span>rm_level1 · výřez 960 × 480</span><span class="hint">Vypínej vrstvy, pak je rozlož</span></div>
+      <div class="lab-body">
+        <div class="cam-grid">
+          <div class="layers-stage">
+            <div class="layers-stack" id="lyStack">
+              <div class="layer" data-i="0"><canvas width="640" height="320"></canvas><span class="tag">Background · depth 200</span></div>
+              <div class="layer" data-i="1"><canvas width="640" height="320"></canvas><span class="tag">Tiles · depth 100</span></div>
+              <div class="layer" data-i="2"><canvas width="640" height="320"></canvas><span class="tag">Instances · depth 0</span></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Vrstvy (shora dolů)</h4>
+            <div class="layer-list" id="lyList"></div>
+            <button class="btn" id="lyExplode" aria-pressed="false">Rozložit vrstvy do 3D</button>
+            <dl class="readout">
+              <dt>Název</dt><dd>rm_level1</dd>
+              <dt>Šířka × výška</dt><dd>1920 × 480 px</dd>
+              <dt>Instance</dt><dd>1× obj_hrac, 12× obj_mince, 3× obj_slime</dd>
+              <dt>Pořadí</dt><dd>1. v Room Order → spustí se první</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>V <strong>Room Editoru</strong> nastavíš velikost scény a vrstvy (<em>Background</em>, <em>Tiles</em>, <em>Instances</em>, <em>Assets</em>). Každá vrstva má <strong>depth</strong>: čím menší číslo, tím víc vepředu. První scéna v seznamu <em>Room Order</em> se spustí jako první.</p>
+        <pre class="code"><code data-lang="gml">room_goto(rm_level2);        // přejdi do jiné scény
+room_restart();              // začni tuhle scénu znovu
+var w = room_width;          // šířka aktuální scény v pixelech
+layer_set_visible("Tiles", false);  // skryj vrstvu</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Úroveň je také <strong>scéna</strong>: strom uzlů, ve kterém jsou instance jiných scén (hráč, mince…). Vrstvy řešíš pořadím uzlů ve stromu a vlastností <code>z_index</code>, pozadí třeba uzlem <code>ParallaxBackground</code>, terén <code>TileMapLayer</code>.</p>
+        <pre class="code"><code data-lang="gd">get_tree().change_scene_to_file("res://level2.tscn")
+get_tree().reload_current_scene()
+$TileMapLayer.visible = false</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Úroveň je <strong>Scene</strong> (soubor <code>.unity</code>). Scény, které se mají dostat do hry, přidáš v <em>Build Profiles</em>. Pořadí kreslení 2D řeší <em>Sorting Layers</em> a <em>Order in Layer</em> na SpriteRendereru.</p>
+        <pre class="code"><code data-lang="cs">using UnityEngine.SceneManagement;
+
+SceneManager.LoadScene("Level2");
+SceneManager.LoadScene(SceneManager.GetActiveScene().name); // restart</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Scratch má jen <strong>jednu scénu</strong> (Stage) o velikosti 480 × 360 bodů. Další „úrovně“ se dělají přepnutím pozadí. Vrstvy řešíš bloky „přesuň se do popředí / dozadu“.</p>
+        <div class="scratch"><span class="sb ev">když přijmu zprávu [level 2]</span><span class="sb lo">změň pozadí na [Les]</span><span class="sb lo">přesuň se do vrstvy [popředí]</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ KAMERA ============ -->
+  <section class="lesson k-camera" id="kamera">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Pojem 5 · Kamera a viewport</div>
+      <h2>Kamera: kameraman ve tvé scéně</h2>
+    </div>
+    <div class="prose">
+      <p>Scéna bývá mnohem větší než obrazovka. <span class="term">Kamera</span> určuje, kterou část scény právě vidíme. Je to obdélník ve scéně, který má polohu (x, y) a velikost (šířku a výšku).</p>
+      <p><strong>Viewport</strong> je místo na obrazovce, kam se záběr kamery vykreslí. Kamera říká <em>co</em> se snímá, viewport <em>kam a jak velké</em> se to ukáže.</p>
+      <p>Když kameru zmenšíš a viewport zůstane stejný, obraz se přiblíží. Když se hráč pohne a kamera ho sleduje, vypadá to, že ujíždí celý svět. Ve skutečnosti se hýbe jen kamera.</p>
+    </div>
+
+    <div class="lab k-camera" id="camLab">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Room + Game</span><span>rm_level1 · view_camera[0]</span><span class="hint">Táhni žlutý rámeček nebo obraz vpravo</span></div>
+      <div class="lab-body">
+        <div class="panel map-wrap">
+          <h4>Celá scéna rm_level1 (1920 × 480 px)</h4>
+          <canvas id="camMap" width="1160" height="380" aria-label="Mapa celé scény, rámeček ukazuje kameru"></canvas>
+        </div>
+        <div class="cam-grid">
+          <div class="panel cam-vp">
+            <h4>Co vidí hráč na obrazovce (viewport 960 × 540)</h4>
+            <div style="position:relative">
+              <canvas id="camVp" width="960" height="540" tabindex="0" aria-label="Záběr kamery. Klikni a ovládej postavu šipkami."></canvas>
+              <span class="vp-tag">viewport[0]</span>
+            </div>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" aria-label="Ovládání postavy">
+                <button class="btn" data-k="left" aria-label="Doleva">◀</button>
+                <button class="btn" data-k="right" aria-label="Doprava">▶</button>
+                <button class="btn" data-k="jump" aria-label="Skok">Skok</button>
+              </div>
+              <span class="focus-state" id="camFocus">Klikni do obrazu a ovládej postavu <span class="kbd">←</span> <span class="kbd">→</span> <span class="kbd">↑</span></span>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Kamera</h4>
+            <div class="seg" role="group" aria-label="Režim kamery">
+              <button class="btn" id="camManual" aria-pressed="true">Ručně</button><button class="btn" id="camFollow" aria-pressed="false">Sleduje hráče</button>
+            </div>
+            <label class="ctl"><span>Velikost kamery <span class="mono" id="camSizeV"></span></span><input type="range" id="camSize" min="192" max="848" step="16" value="480"></label>
+            <label class="chk"><input type="checkbox" id="camClamp" checked> Nepustit kameru ven ze scény</label>
+            <label class="chk"><input type="checkbox" id="camSmooth" checked> Plynulé sledování</label>
+            <label class="chk"><input type="checkbox" id="camSound" checked> Zvuky</label>
+            <dl class="readout">
+              <dt>kamera x, y</dt><dd id="roPos"></dd>
+              <dt>kamera š × v</dt><dd id="roSize"></dd>
+              <dt>viewport</dt><dd>960 × 540</dd>
+              <dt>zvětšení</dt><dd id="roZoom"></dd>
+              <dt>myš</dt><dd id="roMouse">—</dd>
+            </dl>
+            <div class="row"><span class="pill" id="roWarn" hidden>Kamera vidí mimo scénu</span><button class="btn" id="camReset">Začít znovu</button></div>
+          </div>
+        </div>
+        <pre class="code"><code id="camCode"></code></pre>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="callout k-camera">
+        <div class="ic">HUD</div>
+        <p>Nápis „MINCE 0/12“ se s kamerou nehýbe. Kreslí se totiž na obrazovku, ne do scény. V GameMakeru se na to používá událost <strong>Draw GUI</strong>, v Godotu uzel <code>CanvasLayer</code>, v Unity <code>Canvas</code>.</p>
+      </div>
+      <div class="callout k-camera">
+        <div class="ic">x, y</div>
+        <p>Najeď myší na obraz. Souřadnice na obrazovce a ve scéně se liší o polohu kamery a zvětšení. GameMaker v <code>mouse_x</code> a <code>mouse_y</code> vrací už přepočítané souřadnice ve scéně.</p>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>V Room Editoru → <strong>Viewports and Cameras</strong> zaškrtni <em>Enable Viewports</em> a u <em>Viewport 0</em> <em>Visible</em>. <em>Camera Properties</em> = velikost kamery, <em>Viewport Properties</em> = velikost na obrazovce, <em>Object Following</em> = koho sledovat. Nebo to napiš sám (Step event hráče):</p>
+        <pre class="code"><code data-lang="gml">var cam = view_camera[0];
+var w = camera_get_view_width(cam);
+var h = camera_get_view_height(cam);
+
+// vycentruj kameru na hráče, ale nepouštěj ji ven ze scény
+var cx = clamp(x - w / 2, 0, room_width  - w);
+var cy = clamp(y - h / 2, 0, room_height - h);
+camera_set_view_pos(cam, cx, cy);</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Přidej uzel <strong>Camera2D</strong> jako potomka hráče: bude ho sledovat sám. Hranice nastavíš vlastnostmi <code>limit_*</code>, přiblížení <code>zoom</code>. Velikost viewportu je velikost okna (Project Settings → Display → Window).</p>
+        <pre class="code"><code data-lang="gd">$Camera2D.limit_left = 0
+$Camera2D.limit_top = 0
+$Camera2D.limit_right = 1920
+$Camera2D.limit_bottom = 480
+$Camera2D.zoom = Vector2(2, 2)               # 2× přiblížení
+$Camera2D.position_smoothing_enabled = true  # plynulé sledování</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Ve scéně je <strong>Main Camera</strong>. Pro 2D ji přepni na <em>Orthographic</em>. <code>orthographicSize</code> je polovina výšky záběru ve světových jednotkách. Na pokročilé sledování je balíček <em>Cinemachine</em>.</p>
+        <pre class="code"><code data-lang="cs">public Transform hrac;
+
+void LateUpdate() {
+    // kamera stojí na pozici hráče, z = -10 aby byla "před" scénou
+    transform.position = new Vector3(hrac.position.x, hrac.position.y, -10f);
+}
+// Camera.main.orthographicSize = 5f;   // menší číslo = větší přiblížení</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Scratch <strong>kameru nemá</strong>, scéna je vždy 480 × 360. Kamera se dá předstírat: pamatuješ si proměnnou <code>kameraX</code> a každou postavu kreslíš posunutou o ni. Přesně tohle za tebe dělají ostatní enginy.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb co">opakuj stále</span><span class="sb mo ind">nastav x na ((světX) - (kameraX))</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VZTAHY ============ -->
+  <section class="lesson" id="vztahy">
+    <div class="sec-head">
+      <div class="eyebrow">Shrnutí</div>
+      <h2>Jak to do sebe zapadá</h2>
+    </div>
+    <div class="prose">
+      <p>Projekt obsahuje assety. Objekt používá sprite (a třeba zvuk). Ve scéně žijí instance objektů. Kamera snímá výřez scény a viewport ho ukáže na obrazovce. Najeď na pojem nebo na něj klikni a uvidíš jeho vazby.</p>
+    </div>
+    <div class="lab">
+      <div class="lab-body">
+        <div class="diagram">
+          <svg id="dia" viewBox="0 0 960 390" role="img" aria-label="Diagram vztahů mezi assety, spritem, objektem, instancí, scénou, kamerou a obrazovkou">
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="grp" x="14" y="14" width="800" height="196" rx="14"/>
+            <text class="grp-l" x="34" y="196">PROJEKT · VŠECHNO TADY JSOU ASSETY</text>
+
+            <g class="edge" data-a="objekt" data-b="sprite"><path d="M455 120 L367 120" marker-end="url(#arr)"/><text x="411" y="110" text-anchor="middle">používá</text></g>
+            <g class="edge" data-a="objekt" data-b="zvuk"><path d="M520 95 Q 310 6 104 93" marker-end="url(#arr)"/><text x="310" y="44" text-anchor="middle">přehrává</text></g>
+            <g class="edge" data-a="instance" data-b="objekt"><path d="M520 295 L520 147" marker-end="url(#arr)"/><text x="530" y="228">je kopií</text></g>
+            <g class="edge" data-a="scena" data-b="instance"><path d="M690 145 L590 293" marker-end="url(#arr)"/><text x="630" y="250" text-anchor="end">obsahuje</text></g>
+            <g class="edge" data-a="kamera" data-b="scena"><path d="M750 295 L750 147" marker-end="url(#arr)"/><text x="760" y="228">snímá</text></g>
+            <g class="edge" data-a="kamera" data-b="obrazovka"><path d="M795 320 L823 320" marker-end="url(#arr)"/><text x="809" y="372" text-anchor="middle">viewport</text></g>
+
+            <g class="node k-asset" data-n="zvuk" tabindex="0"><rect x="39" y="95" width="130" height="52" rx="6"/><text class="n1" x="104" y="119" text-anchor="middle">Zvuk</text><text class="n2" x="104" y="137" text-anchor="middle">snd_mince</text></g>
+            <g class="node k-sprite" data-n="sprite" tabindex="0"><rect x="235" y="95" width="130" height="52" rx="6"/><text class="n1" x="300" y="119" text-anchor="middle">Sprite</text><text class="n2" x="300" y="137" text-anchor="middle">spr_mince</text></g>
+            <g class="node k-object" data-n="objekt" tabindex="0"><rect x="455" y="95" width="130" height="52" rx="6"/><text class="n1" x="520" y="119" text-anchor="middle">Objekt</text><text class="n2" x="520" y="137" text-anchor="middle">obj_mince</text></g>
+            <g class="node k-room" data-n="scena" tabindex="0"><rect x="665" y="95" width="130" height="52" rx="6"/><text class="n1" x="730" y="119" text-anchor="middle">Scéna</text><text class="n2" x="730" y="137" text-anchor="middle">rm_level1</text></g>
+            <g class="node k-instance" data-n="instance" tabindex="0"><rect x="455" y="295" width="130" height="52" rx="6"/><text class="n1" x="520" y="319" text-anchor="middle">Instance</text><text class="n2" x="520" y="337" text-anchor="middle">12× mince</text></g>
+            <g class="node k-camera" data-n="kamera" tabindex="0"><rect x="665" y="295" width="130" height="52" rx="6"/><text class="n1" x="730" y="319" text-anchor="middle">Kamera</text><text class="n2" x="730" y="337" text-anchor="middle">view_camera[0]</text></g>
+            <g class="node" data-n="obrazovka" tabindex="0" style="--kc:var(--ink)"><rect x="825" y="295" width="122" height="52" rx="6"/><text class="n1" x="886" y="319" text-anchor="middle">Obrazovka</text><text class="n2" x="886" y="337" text-anchor="middle">960 × 540</text></g>
+          </svg>
+        </div>
+        <p class="diagram-info" id="diaInfo" aria-live="polite">Najeď na kterýkoli pojem.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ENGINY ============ -->
+  <section class="lesson" id="enginy">
+    <div class="sec-head">
+      <div class="eyebrow">Slovníček</div>
+      <h2>Stejné principy, jiná jména</h2>
+    </div>
+    <div class="prose">
+      <p>Když přejdeš na jiný engine, nemusíš se učit znovu od nuly. Pojmy zůstávají, mění se jen názvy a pár detailů.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="terms">
+        <thead><tr><th scope="col">Pojem</th><th scope="col">GameMaker</th><th scope="col">Godot</th><th scope="col">Unity</th><th scope="col">Scratch</th></tr></thead>
+        <tbody>
+          <tr class="k-asset"><th scope="row"><span class="sq"></span>Asset</th><td>Asset (Asset Browser)</td><td>Resource, soubor v <code>res://</code></td><td>Asset (okno Project)</td><td>Kostým, zvuk, pozadí</td></tr>
+          <tr class="k-sprite"><th scope="row"><span class="sq"></span>Sprite</th><td>Sprite</td><td>Texture + <code>Sprite2D</code> / <code>AnimatedSprite2D</code></td><td>Sprite + <code>SpriteRenderer</code></td><td>Kostým</td></tr>
+          <tr class="k-sprite"><th scope="row"><span class="sq"></span>Origin</th><td>Origin</td><td><code>offset</code>, <code>centered</code></td><td>Pivot</td><td>Střed kostýmu</td></tr>
+          <tr class="k-object"><th scope="row"><span class="sq"></span>Objekt</th><td>Object</td><td>Scéna se skriptem (<code>.tscn</code>)</td><td>Prefab</td><td>Postava</td></tr>
+          <tr class="k-instance"><th scope="row"><span class="sq"></span>Instance</th><td>Instance</td><td>Instance scény (uzel)</td><td>GameObject ve scéně</td><td>Klon</td></tr>
+          <tr class="k-room"><th scope="row"><span class="sq"></span>Scéna</th><td>Room</td><td>Scéna (hlavní)</td><td>Scene</td><td>Scéna (Stage), jen jedna</td></tr>
+          <tr class="k-camera"><th scope="row"><span class="sq"></span>Kamera</th><td>Camera (<code>view_camera</code>)</td><td><code>Camera2D</code></td><td>Camera (Orthographic)</td><td>Není, předstírá se</td></tr>
+          <tr class="k-camera"><th scope="row"><span class="sq"></span>Viewport</th><td>Viewport</td><td>Viewport / okno</td><td>Viewport Rect / Game view</td><td>Scéna 480 × 360</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ KVIZ ============ -->
+  <section class="lesson" id="kviz">
+    <div class="sec-head">
+      <div class="eyebrow">Ověř si to</div>
+      <h2>Rychlý kvíz</h2>
+    </div>
+    <div class="row"><span class="score" id="quizScore">0 / 0</span><button class="btn" id="quizReset">Zkusit znovu</button></div>
+    <div class="quiz" id="quiz"></div>
+  </section>
+
+  <!-- ============ UKOL ============ -->
+  <section class="lesson" id="ukol">
+    <div class="sec-head">
+      <div class="eyebrow">Do příště · GameMaker</div>
+      <h2>Úkol: první scéna s kamerou</h2>
+    </div>
+    <ol class="steps">
+      <li><span>Vytvoř sprite <code>spr_hrac</code> (stačí čtverec 32 × 32) a nastav mu origin na <em>Middle Centre</em>.</span></li>
+      <li><span>Vytvoř objekt <code>obj_hrac</code>, přiřaď mu sprite a do události <em>Step</em> napiš pohyb šipkami: <code>x += (keyboard_check(vk_right) - keyboard_check(vk_left)) * 4;</code></span></li>
+      <li><span>Vytvoř sprite a objekt <code>obj_mince</code>. Do scény polož 1 hráče a aspoň 5 mincí. Kolik máš objektů a kolik instancí?</span></li>
+      <li><span>Zvětši scénu na 2000 × 768 px. V <em>Viewports and Cameras</em> zapni viewport 0, kameru 640 × 360, viewport 1280 × 720 a <em>Object Following</em> nastav na <code>obj_hrac</code>.</span></li>
+      <li><span>Bonus: zmenši kameru na 320 × 180. Co se stalo s obrazem a proč?</span></li>
+    </ol>
+  </section>
+</main>
+
+<footer class="wrap">Herní dílna · Lekce 1: Základní pojmy. Grafika ve všech ukázkách je kreslená kódem, pixel po pixelu.</footer>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+/* ---------- theme tokens for canvas UI ---------- */
+const TOK = {};
+function readTokens() {
+  const cs = getComputedStyle(document.documentElement);
+  ['ink', 'muted', 'line', 'line-strong', 'surface', 'surface-2', 'c-asset', 'c-sprite', 'c-object', 'c-instance', 'c-room', 'c-camera', 'mask', 'check-a', 'check-b', 'void']
+    .forEach(k => TOK[k] = cs.getPropertyValue('--' + k).trim());
+}
+readTokens();
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTokens); } catch (e) {}
+new MutationObserver(readTokens).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+
+/* ---------- pixel art ---------- */
+const PAL = { k: '#1d2433', y: '#f7c948', o: '#d9890b', w: '#ffffff', g: '#5cb85c', G: '#2e7d32', b: '#9a6640', d: '#6e4529', r: '#e5484d', p: '#3c7bf0', P: '#2a56b0', s: '#f4c7a1', c: '#dceefc' };
+function bake(rows) {
+  const h = rows.length, w = rows[0].length;
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d');
+  rows.forEach((row, j) => [...row].forEach((ch, i) => { if (ch !== '.') { x.fillStyle = PAL[ch]; x.fillRect(i, j, 1, 1); } }));
+  c.rows = rows;
+  return c;
+}
+const mir = rows => rows.map(r => [...r].reverse().join(''));
+
+const COIN1 = ['..kkkk..', '.kyyyyk.', 'kyywyyok', 'kywyyyok', 'kyyyyyok', 'kyyyyook', '.kyoook.', '..kkkk..'];
+const COIN2 = ['...kk...', '..kyyk..', '..kwyk..', '..kyok..', '..kyok..', '..kyok..', '..kook..', '...kk...'];
+const COIN3 = ['...kk...', '...ko...', '...ko...', '...ko...', '...ko...', '...ko...', '...ko...', '...kk...'];
+const HERO_TOP = ['..rrrr..', '.rrrrrrr', '..ssss..', '..sksk..', '..ssss..', '.pppppp.', 'spppppps', '.pPPPPp.'];
+const HERO1 = HERO_TOP.concat(['..p..p..', '.kk..kk.']);
+const HERO2 = HERO_TOP.concat(['.p....p.', 'kk....kk']);
+const SL1 = ['........', '..kkkk..', '.kggggk.', 'kgkggkgk', 'kggggggk', '.kkkkkk.'];
+const SL2 = ['........', '........', '.kkkkkk.', 'kgkggkgk', 'kggggggk', 'kkkkkkkk'];
+const GRASS = ['gggggggg', 'gGggggGg', 'GbGbbGbG', 'bbbbbbbb', 'bbdbbbbb', 'bbbbbdbb', 'bdbbbbbb', 'bbbbbbdb'];
+const DIRT = ['bbbbbbbb', 'bbdbbbbb', 'bbbbbbdb', 'bbbbbbbb', 'bdbbbbbb', 'bbbbbdbb', 'bbbbbbbb', 'bbbdbbbb'];
+const TREE = ['..GGGG..', '.GggggG.', 'GggggggG', 'GgggGggG', 'GGggggGG', '.GGGGGG.', '...dd...', '...dd...'];
+const CLOUD = ['...wwww.....', '.wwwwwwwww..', 'wwwwwwwwwwww', '.cccccccccc.'];
+const FLAG = ['krrrrr..', 'krrrrrr.', 'krrrrr..', 'k.......', 'k.......', 'k.......', 'k.......', 'k.......', 'k.......', 'k.......', 'k.......', 'kk......'];
+const HEART = ['rr.rr', 'rrrrr', '.rrr.', '..r..'];
+
+const SPRITES = {
+  spr_mince: { frames: [COIN1, COIN2, COIN3, mir(COIN2)].map(bake), fps: 8, origin: [4, 4] },
+  spr_hrac: { frames: [HERO1, HERO2].map(bake), fps: 6, origin: [4, 10] },
+  spr_slime: { frames: [SL1, SL2].map(bake), fps: 3, origin: [4, 6] },
+  spr_trava: { frames: [bake(GRASS)], fps: 0, origin: [0, 0] }
+};
+Object.values(SPRITES).forEach(s => {
+  s.w = s.frames[0].width; s.h = s.frames[0].height;
+  // automatic rectangular mask = bounding box of all opaque pixels
+  let x0 = s.w, y0 = s.h, x1 = 0, y1 = 0;
+  s.frames.forEach(f => f.rows.forEach((row, j) => [...row].forEach((ch, i) => {
+    if (ch !== '.') { x0 = Math.min(x0, i); y0 = Math.min(y0, j); x1 = Math.max(x1, i + 1); y1 = Math.max(y1, j + 1); }
+  })));
+  s.mask = [x0, y0, x1, y1];
+});
+const IMG = { grass: SPRITES.spr_trava.frames[0], dirt: bake(DIRT), tree: bake(TREE), cloud: bake(CLOUD), flag: bake(FLAG), heart: bake(HEART) };
+const frameAt = (name, t) => { const s = SPRITES[name], n = s.frames.length; return s.fps ? s.frames[((Math.floor(t * s.fps) % n) + n) % n] : s.frames[0]; };
+function drawImg(ctx, img, x, y, w, h, flip) {
+  ctx.imageSmoothingEnabled = false;
+  if (!flip) { ctx.drawImage(img, x, y, w, h); return; }
+  ctx.save(); ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(img, 0, 0, w, h); ctx.restore();
+}
+
+/* ---------- sound ---------- */
+let AC = null, soundOn = true;
+function beep(kind) {
+  if (!soundOn) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(), n = AC.currentTime;
+    o.type = 'square';
+    if (kind === 'coin') { o.frequency.setValueAtTime(988, n); o.frequency.setValueAtTime(1319, n + .07); }
+    else { o.frequency.setValueAtTime(300, n); o.frequency.exponentialRampToValueAtTime(700, n + .14); }
+    g.gain.setValueAtTime(.05, n); g.gain.exponentialRampToValueAtTime(.001, n + .28);
+    o.connect(g); g.connect(AC.destination); o.start(n); o.stop(n + .3);
+  } catch (e) {}
+}
+
+/* ---------- main loop ---------- */
+const tickers = [];
+let lastT = performance.now();
+function loop(now) {
+  requestAnimationFrame(loop);
+  // rAF timestamps can be slightly older than performance.now() at start; never let dt go negative
+  const dt = Math.max(0, Math.min(.05, (now - lastT) / 1000)); lastT = Math.max(lastT, now);
+  const t = now / 1000;
+  for (const f of tickers) {
+    if (f.dead) continue;
+    try { f(dt, t); } catch (e) { f.dead = true; console.error(e); }
+  }
+}
+const visible = el => { const st = { v: true }; if ('IntersectionObserver' in window) new IntersectionObserver(es => es.forEach(e => st.v = e.isIntersecting)).observe(el); return st; };
+
+/* ---------- engine tabs ---------- */
+const ENG = [['gm', 'GameMaker'], ['godot', 'Godot'], ['unity', 'Unity'], ['scratch', 'Scratch']];
+let eng = store.get('eng') || 'gm';
+$$('.eng').forEach((box, bi) => {
+  const head = document.createElement('div'); head.className = 'eng-head';
+  head.innerHTML = '<span class="lbl">V enginu</span>';
+  const tabs = document.createElement('div'); tabs.className = 'eng-tabs'; tabs.setAttribute('role', 'tablist');
+  ENG.forEach(([id, name]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.dataset.e = id; b.textContent = name;
+    b.id = `eng-${bi}-${id}`;
+    b.addEventListener('click', () => setEngine(id));
+    b.addEventListener('keydown', e => {
+      const i = ENG.findIndex(x => x[0] === id);
+      let j = null;
+      if (e.key === 'ArrowRight') j = (i + 1) % ENG.length;
+      if (e.key === 'ArrowLeft') j = (i + ENG.length - 1) % ENG.length;
+      if (j !== null) { e.preventDefault(); setEngine(ENG[j][0]); tabs.children[j].focus(); }
+    });
+    tabs.appendChild(b);
+  });
+  head.appendChild(tabs); box.prepend(head);
+  $$('.eng-panel', box).forEach(p => { p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-labelledby', `eng-${bi}-${p.dataset.e}`); });
+});
+function setEngine(id) {
+  eng = id; store.set('eng', id);
+  $$('.eng').forEach(box => {
+    $$('[role=tab]', box).forEach(b => { const on = b.dataset.e === id; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
+    $$('.eng-panel', box).forEach(p => p.hidden = p.dataset.e !== id);
+  });
+}
+setEngine(ENG.some(e => e[0] === eng) ? eng : 'gm');
+
+/* ---------- syntax highlight ---------- */
+const KW = {
+  gml: 'var|if|else|with|return|function|for|while|repeat|true|false|self|other|noone|exit',
+  gd: 'var|const|func|if|else|elif|return|extends|true|false|self|for|in|and|or|not',
+  cs: 'void|public|private|new|var|float|int|return|if|else|class|true|false|using|null'
+};
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+function highlight(src, lang) {
+  const com = lang === 'gd' ? '#.*$' : '\\/\\/.*$';
+  const re = new RegExp(`(${com})|("(?:[^"\\\\]|\\\\.)*")|(\\b\\d+(?:\\.\\d+)?f?\\b)|\\b(${KW[lang] || KW.gml})\\b|\\b([A-Za-z_]\\w*)(?=\\s*\\()`, 'gm');
+  let out = '', i = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(i, m.index));
+    const cls = m[1] ? 'tc' : m[2] ? 'ts' : m[3] ? 'tn' : m[4] ? 'tk' : 'tf';
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    i = m.index + m[0].length;
+  }
+  return out + esc(src.slice(i));
+}
+$$('pre code[data-lang]').forEach(el => el.innerHTML = highlight(el.textContent, el.dataset.lang));
+const setCode = (el, src) => { if (el._src !== src) { el._src = src; el.innerHTML = highlight(src, 'gml'); } };
+
+/* =========================================================
+   WORLD: rm_level1 (shared by asset browser, layers, camera)
+   ========================================================= */
+const T = 32, RW = 1920, RH = 480, COLS = 60, ROWS = 15;
+const HGT = [...'333333334444333333555533333333444455553333333333444333333333'].map(Number);
+const PLATS = [{ c: 9, n: 3, h: 7 }, { c: 24, n: 4, h: 7 }, { c: 41, n: 4, h: 7 }, { c: 52, n: 3, h: 7 }];
+const grid = [];
+for (let r = 0; r < ROWS; r++) {
+  grid[r] = [];
+  for (let c = 0; c < COLS; c++) grid[r][c] = r >= ROWS - HGT[c] || PLATS.some(p => c >= p.c && c < p.c + p.n && r === ROWS - p.h);
+}
+const groundTop = c => (ROWS - HGT[c]) * T;
+const solidAt = (px, py) => {
+  if (px < 0 || px >= RW || py >= RH) return true;
+  if (py < 0) return false;
+  return grid[Math.floor(py / T)][Math.floor(px / T)];
+};
+
+function mkCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+const bgLayer = mkCanvas(RW, RH), tileLayer = mkCanvas(RW, RH), world = mkCanvas(RW, RH);
+(function buildStatic() {
+  let x = bgLayer.getContext('2d');
+  const sky = x.createLinearGradient(0, 0, 0, RH); sky.addColorStop(0, '#6fbdf0'); sky.addColorStop(1, '#d6f0ff');
+  x.fillStyle = sky; x.fillRect(0, 0, RW, RH);
+  x.fillStyle = '#b3dcc4';
+  for (let i = 0; i < RW; i += 16) { const hy = Math.round((250 + 46 * Math.sin(i / 190) + 18 * Math.sin(i / 57)) / 8) * 8; x.fillRect(i, hy, 16, RH - hy); }
+  x.fillStyle = '#86c79c';
+  for (let i = 0; i < RW; i += 16) { const hy = Math.round((330 + 28 * Math.sin(i / 120 + 1) + 12 * Math.sin(i / 41)) / 8) * 8; x.fillRect(i, hy, 16, RH - hy); }
+  [[60, 50, 6], [420, 30, 5], [760, 84, 6], [1130, 40, 7], [1500, 76, 5], [1760, 30, 6]].forEach(([cx, cy, s]) => drawImg(x, IMG.cloud, cx, cy, 12 * s, 4 * s));
+
+  x = tileLayer.getContext('2d');
+  [3, 15, 32, 46, 55].forEach(c => drawImg(x, IMG.tree, c * T - 16, groundTop(c) - 64, 64, 64));
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    if (!grid[r][c]) continue;
+    const top = r === 0 || !grid[r - 1][c];
+    drawImg(x, top ? IMG.grass : IMG.dirt, c * T, r * T, T, T);
+  }
+})();
+
+const COIN_SPOTS = [[5, 336], [6, 336], [9, 208], [10, 208], [11, 208], [19, 272], [20, 272], [25, 208], [26, 208], [36, 272], [42, 208], [43, 208]];
+const coins = COIN_SPOTS.map(([c, y], i) => ({ x: c * T, y, taken: false, ph: i * .13 }));
+const slimes = [[12, 17], [22, 29], [38, 47]].map(([a, b], i) => ({ min: a * T, max: b * T, x: (a + 1 + i) * T, y: groundTop(a) - 24, dir: i % 2 ? -1 : 1, ph: i * .4 }));
+const player = { x: 70, y: 300, w: 22, h: 38, vx: 0, vy: 0, ground: false, face: 1 };
+const input = { left: false, right: false, jump: false, jumpQ: false };
+let collected = 0;
+function resetWorld() {
+  coins.forEach(c => c.taken = false); collected = 0;
+  Object.assign(player, { x: 70, y: 300, vx: 0, vy: 0, face: 1 });
+}
+
+function stepPlayer() {
+  const p = player;
+  p.vx = (input.right - input.left) * 3.4;
+  if (p.vx) p.face = Math.sign(p.vx);
+  if (input.jumpQ && p.ground) { p.vy = -16; beep('jump'); }
+  input.jumpQ = false;
+  p.vy = Math.min(p.vy + .8, 15);
+  // horizontal
+  p.x += p.vx;
+  for (const yy of [p.y + 1, p.y + p.h / 2, p.y + p.h - 1]) {
+    if (p.vx > 0 && solidAt(p.x + p.w, yy)) p.x = Math.floor((p.x + p.w) / T) * T - p.w - .01;
+    if (p.vx < 0 && solidAt(p.x, yy)) p.x = (Math.floor(p.x / T) + 1) * T;
+  }
+  // vertical
+  p.y += p.vy; p.ground = false;
+  for (const xx of [p.x + 1, p.x + p.w - 1]) {
+    if (p.vy > 0 && solidAt(xx, p.y + p.h)) { p.y = Math.floor((p.y + p.h) / T) * T - p.h; p.vy = 0; p.ground = true; }
+    else if (p.vy < 0 && solidAt(xx, p.y)) { p.y = (Math.floor(p.y / T) + 1) * T; p.vy = 0; }
+  }
+  for (const c of coins) {
+    if (!c.taken && p.x < c.x + 26 && p.x + p.w > c.x + 6 && p.y < c.y + 28 && p.y + p.h > c.y + 4) { c.taken = true; collected++; beep('coin'); }
+  }
+}
+let acc = 0;
+function updateWorld(dt) {
+  acc += dt;
+  while (acc >= 1 / 60) { stepPlayer(); acc -= 1 / 60; }
+  for (const s of slimes) {
+    s.x += s.dir * 40 * dt;
+    if (s.x < s.min) { s.x = s.min; s.dir = 1; }
+    if (s.x > s.max) { s.x = s.max; s.dir = -1; }
+  }
+}
+function drawInstances(ctx, t) {
+  drawImg(ctx, IMG.flag, 57 * T + 8, groundTop(57) - 48, 32, 48);
+  for (const c of coins) if (!c.taken) drawImg(ctx, frameAt('spr_mince', t + c.ph), c.x, c.y, 32, 32);
+  for (const s of slimes) drawImg(ctx, frameAt('spr_slime', t + s.ph), s.x, s.y, 32, 24, s.dir < 0);
+  const hf = player.vx && player.ground ? SPRITES.spr_hrac.frames[Math.floor(t * 8) % 2] : SPRITES.spr_hrac.frames[0];
+  drawImg(ctx, hf, Math.round(player.x - 5), Math.round(player.y - 2), 32, 40, player.face < 0);
+}
+const wctx = world.getContext('2d');
+tickers.push((dt, t) => {
+  updateWorld(dt);
+  wctx.drawImage(bgLayer, 0, 0); wctx.drawImage(tileLayer, 0, 0);
+  drawInstances(wctx, t);
+});
+
+/* =========================================================
+   ASSET BROWSER
+   ========================================================= */
+(function assetBrowser() {
+  const GROUPS = [
+    ['Sprites', 'k-sprite', ['spr_hrac', 'spr_mince', 'spr_slime', 'spr_trava']],
+    ['Sounds', 'k-asset', ['snd_mince', 'snd_skok']],
+    ['Objects', 'k-object', ['obj_hrac', 'obj_mince', 'obj_slime']],
+    ['Rooms', 'k-room', ['rm_level1']],
+    ['Fonts', 'k-asset', ['fnt_skore']]
+  ];
+  const INFO = {
+    spr_hrac: { type: 'Sprite', k: 'k-sprite', desc: 'Postavička hráče. Dva snímky chůze. Origin je dole uprostřed, aby postava stála přesně na zemi.', meta: '8 × 10 px · 2 snímky · 6 FPS', usedBy: ['obj_hrac'] },
+    spr_mince: { type: 'Sprite', k: 'k-sprite', desc: 'Otáčející se mince. Čtyři snímky, origin uprostřed.', meta: '8 × 8 px · 4 snímky · 8 FPS', usedBy: ['obj_mince'] },
+    spr_slime: { type: 'Sprite', k: 'k-sprite', desc: 'Slizoun, který se smršťuje a natahuje.', meta: '8 × 6 px · 2 snímky · 3 FPS', usedBy: ['obj_slime'] },
+    spr_trava: { type: 'Sprite', k: 'k-sprite', desc: 'Dlaždice trávy. V GameMakeru by z ní byl spíš Tile Set, ale pořád je to obrázek.', meta: '8 × 8 px · 1 snímek', usedBy: ['rm_level1'] },
+    snd_mince: { type: 'Zvuk', k: 'k-asset', desc: 'Krátké cinknutí při sebrání mince.', meta: 'WAV · 0,3 s', usedBy: ['obj_mince'], sound: 'coin' },
+    snd_skok: { type: 'Zvuk', k: 'k-asset', desc: 'Zvuk skoku.', meta: 'WAV · 0,3 s', usedBy: ['obj_hrac'], sound: 'jump' },
+    obj_hrac: { type: 'Objekt', k: 'k-object', spr: 'spr_hrac', desc: 'Hráč. Čte klávesy, padá díky gravitaci, skáče a sbírá mince.', meta: 'Události: Create, Step, Draw GUI', uses: ['spr_hrac', 'snd_skok', 'fnt_skore'], usedBy: ['rm_level1'] },
+    obj_mince: { type: 'Objekt', k: 'k-object', spr: 'spr_mince', desc: 'Mince. Když se jí dotkne hráč, zahraje zvuk, přičte skóre a zničí se.', meta: 'Události: Collision s obj_hrac', uses: ['spr_mince', 'snd_mince'], usedBy: ['rm_level1'] },
+    obj_slime: { type: 'Objekt', k: 'k-object', spr: 'spr_slime', desc: 'Nepřítel. Chodí tam a zpět. Každá instance má vlastní počet životů.', meta: 'Události: Create, Step', uses: ['spr_slime'], usedBy: ['rm_level1'] },
+    rm_level1: { type: 'Scéna (Room)', k: 'k-room', desc: 'První úroveň. Obsahuje dlaždice terénu a instance: 1 hráče, 12 mincí a 3 slizouny. Má nastavenou kameru.', meta: '1920 × 480 px · 3 vrstvy · kamera 480 × 270', uses: ['spr_trava', 'obj_hrac', 'obj_mince', 'obj_slime'] },
+    fnt_skore: { type: 'Písmo', k: 'k-asset', desc: 'Písmo pro ukazatel skóre v rohu obrazovky.', meta: 'Pixelify Sans · 16 px', usedBy: ['obj_hrac'] }
+  };
+  const tree = $('#abTree'), info = $('#abInfo'), cv = $('#abCanvas'), ctx = cv.getContext('2d');
+  let sel = store.get('asset') || 'obj_mince';
+  if (!INFO[sel]) sel = 'obj_mince';
+  GROUPS.forEach(([name, k, items]) => {
+    const f = document.createElement('div'); f.className = 'ab-folder'; f.textContent = name; tree.appendChild(f);
+    items.forEach(id => {
+      const b = document.createElement('button'); b.className = 'ab-item ' + k; b.setAttribute('role', 'option'); b.dataset.id = id;
+      b.innerHTML = `<span class="sq"></span>${id}`;
+      b.addEventListener('click', () => select(id));
+      tree.appendChild(b);
+    });
+  });
+  const chip = id => `<button class="chip ${INFO[id].k}" data-go="${id}"><span class="sq"></span>${id}</button>`;
+  function select(id) {
+    sel = id; store.set('asset', id);
+    $$('.ab-item', tree).forEach(b => b.setAttribute('aria-selected', b.dataset.id === id));
+    const d = INFO[id];
+    info.className = 'ab-info ' + d.k;
+    info.innerHTML = `<div class="ab-type">${d.type}</div><div class="ab-name">${id}</div><p class="ab-desc">${d.desc}</p><div class="cap mono">${d.meta}</div>`
+      + (d.uses ? `<div class="chips"><span class="k">Používá:</span>${d.uses.map(chip).join('')}</div>` : '')
+      + (d.usedBy ? `<div class="chips"><span class="k">Používá ho:</span>${d.usedBy.map(chip).join('')}</div>` : '')
+      + (d.sound ? `<div class="row"><button class="btn primary" data-play="${d.sound}">▶ Přehrát</button></div>` : '');
+    $$('[data-go]', info).forEach(b => b.addEventListener('click', () => { select(b.dataset.go); const it = $(`.ab-item[data-id="${b.dataset.go}"]`, tree); it && it.focus(); }));
+    $$('[data-play]', info).forEach(b => b.addEventListener('click', () => { const s = soundOn; soundOn = true; beep(b.dataset.play); soundOn = s; }));
+  }
+  select(sel);
+  const vis = visible(cv);
+  tickers.push((dt, t) => {
+    if (!vis.v) return;
+    const d = INFO[sel];
+    ctx.clearRect(0, 0, 200, 200); ctx.imageSmoothingEnabled = false;
+    const sprName = d.type === 'Sprite' ? sel : d.spr;
+    if (sprName) {
+      const s = SPRITES[sprName], sc = Math.floor(140 / Math.max(s.w, s.h));
+      drawImg(ctx, frameAt(sprName, t), (200 - s.w * sc) / 2, (200 - s.h * sc) / 2, s.w * sc, s.h * sc);
+    } else if (sel === 'rm_level1') {
+      ctx.drawImage(world, 0, 0, RW, RH, 0, 75, 200, 50);
+      ctx.strokeStyle = TOK['c-camera']; ctx.lineWidth = 2; ctx.strokeRect(1, 75 + 210 / 9.6, 50, 28);
+    } else if (d.sound) {
+      ctx.fillStyle = TOK['c-asset'];
+      for (let i = 0; i < 40; i++) {
+        const env = Math.exp(-i / 14), a = (Math.abs(Math.sin(i * 1.7 + (d.sound === 'coin' ? 0 : 2))) * .7 + .3) * env * 70;
+        ctx.fillRect(20 + i * 4, 100 - a, 3, a * 2);
+      }
+    } else if (sel === 'fnt_skore') {
+      ctx.fillStyle = TOK.ink; ctx.font = '700 30px "Pixelify Sans", monospace'; ctx.textAlign = 'center';
+      ctx.fillText('MINCE', 100, 92); ctx.fillText('7 / 12', 100, 130);
+      ctx.font = '600 13px "Pixelify Sans", monospace'; ctx.fillText('ÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ', 100, 162);
+    }
+  });
+})();
+
+/* =========================================================
+   SPRITE LAB
+   ========================================================= */
+(function spriteLab() {
+  const ed = $('#spEdit'), ectx = ed.getContext('2d'), gm = $('#spGame'), gctx = gm.getContext('2d');
+  const st = { spr: 'spr_mince', playing: true, speed: 1, fi: 0, origin: [4, 4], angle: 0, flip: false, mask: true };
+  const framesBox = $('#spFrames');
+  function setSprite(name) {
+    st.spr = name; st.fi = 0; st.origin = SPRITES[name].origin.slice();
+    $('#spName').textContent = name;
+    framesBox.innerHTML = '';
+    SPRITES[name].frames.forEach((f, i) => {
+      const b = document.createElement('button'); b.setAttribute('aria-label', 'Snímek ' + i);
+      const c = mkCanvas(44, 44), x = c.getContext('2d'), sc = Math.floor(40 / Math.max(f.width, f.height));
+      drawImg(x, f, (44 - f.width * sc) / 2, (44 - f.height * sc) / 2, f.width * sc, f.height * sc);
+      b.appendChild(c); b.append(String(i));
+      b.addEventListener('click', () => { st.playing = false; st.fi = i; syncPlay(); });
+      framesBox.appendChild(b);
+    });
+  }
+  function syncPlay() { const b = $('#spPlay'); b.setAttribute('aria-pressed', st.playing); b.textContent = st.playing ? 'Přehrává se' : 'Pozastaveno'; }
+  $('#spSel').addEventListener('change', e => setSprite(e.target.value));
+  $('#spPlay').addEventListener('click', () => { st.playing = !st.playing; syncPlay(); });
+  $('#spSpd').addEventListener('input', e => { st.speed = +e.target.value; $('#spSpdV').textContent = st.speed + '×'; });
+  $('#spAng').addEventListener('input', e => { st.angle = +e.target.value; $('#spAngV').textContent = st.angle + '°'; });
+  $('#spFlip').addEventListener('change', e => st.flip = e.target.checked);
+  $('#spMask').addEventListener('change', e => st.mask = e.target.checked);
+  $$('[data-o]').forEach(b => b.addEventListener('click', () => {
+    const s = SPRITES[st.spr];
+    st.origin = { tl: [0, 0], c: [s.w / 2, s.h / 2], bc: [s.w / 2, s.h] }[b.dataset.o];
+  }));
+  let geo = { cell: 1, ox: 0, oy: 0 };
+  ed.addEventListener('click', e => {
+    const r = ed.getBoundingClientRect(), k = ed.width / r.width;
+    const mx = (e.clientX - r.left) * k, my = (e.clientY - r.top) * k, s = SPRITES[st.spr];
+    st.origin = [Math.max(0, Math.min(s.w, Math.round((mx - geo.ox) / geo.cell))), Math.max(0, Math.min(s.h, Math.round((my - geo.oy) / geo.cell)))];
+  });
+  setSprite('spr_mince');
+  const vis = visible(ed);
+  tickers.push(dt => {
+    if (!vis.v) return;
+    const s = SPRITES[st.spr], n = s.frames.length;
+    if (st.playing) st.fi = (st.fi + s.fps * st.speed * dt) % n;
+    const fi = Math.max(0, Math.floor(st.fi)) % n, f = s.frames[fi];
+    $$('button', framesBox).forEach((b, i) => b.classList.toggle('on', i === fi));
+    // editor
+    const W = ed.width, cell = Math.floor(Math.min(270 / s.w, 270 / s.h)), ox = Math.round((W - s.w * cell) / 2), oy = Math.round((W - s.h * cell) / 2);
+    geo = { cell, ox, oy };
+    ectx.clearRect(0, 0, W, W);
+    for (let j = 0; j < s.h; j++) for (let i = 0; i < s.w; i++) {
+      ectx.fillStyle = (i + j) % 2 ? TOK['check-a'] : TOK['check-b']; ectx.fillRect(ox + i * cell, oy + j * cell, cell, cell);
+    }
+    drawImg(ectx, f, ox, oy, s.w * cell, s.h * cell);
+    ectx.strokeStyle = TOK['line-strong']; ectx.lineWidth = 1; ectx.globalAlpha = .5; ectx.beginPath();
+    for (let i = 0; i <= s.w; i++) { ectx.moveTo(ox + i * cell + .5, oy); ectx.lineTo(ox + i * cell + .5, oy + s.h * cell); }
+    for (let j = 0; j <= s.h; j++) { ectx.moveTo(ox, oy + j * cell + .5); ectx.lineTo(ox + s.w * cell, oy + j * cell + .5); }
+    ectx.stroke(); ectx.globalAlpha = 1;
+    if (st.mask) {
+      const [a, b, c, d] = s.mask;
+      ectx.setLineDash([6, 4]); ectx.strokeStyle = TOK.mask; ectx.lineWidth = 2;
+      ectx.strokeRect(ox + a * cell + 1, oy + b * cell + 1, (c - a) * cell - 2, (d - b) * cell - 2); ectx.setLineDash([]);
+    }
+    const px = ox + st.origin[0] * cell, py = oy + st.origin[1] * cell;
+    ectx.strokeStyle = TOK['c-sprite']; ectx.lineWidth = 3;
+    ectx.beginPath(); ectx.moveTo(px - 16, py); ectx.lineTo(px + 16, py); ectx.moveTo(px, py - 16); ectx.lineTo(px, py + 16); ectx.stroke();
+    ectx.beginPath(); ectx.arc(px, py, 7, 0, Math.PI * 2); ectx.stroke();
+    // game view
+    const GW = gm.width, GH = gm.height, ix = 180, iy = 150, S = 10;
+    gctx.fillStyle = TOK['surface-2']; gctx.fillRect(0, 0, GW, GH);
+    gctx.strokeStyle = TOK.line; gctx.lineWidth = 1; gctx.beginPath();
+    for (let x = 0; x <= GW; x += 20) { gctx.moveTo(x + .5, 0); gctx.lineTo(x + .5, GH); }
+    for (let y = 0; y <= GH; y += 20) { gctx.moveTo(0, y + .5); gctx.lineTo(GW, y + .5); }
+    gctx.stroke();
+    gctx.save(); gctx.translate(ix, iy); gctx.rotate(-st.angle * Math.PI / 180); gctx.scale(st.flip ? -S : S, S);
+    gctx.imageSmoothingEnabled = false; gctx.drawImage(f, -st.origin[0], -st.origin[1]);
+    if (st.mask) { const [a, b, c, d] = s.mask; gctx.strokeStyle = TOK.mask; gctx.lineWidth = 2 / S; gctx.setLineDash([4 / S, 3 / S]); gctx.strokeRect(a - st.origin[0], b - st.origin[1], c - a, d - b); gctx.setLineDash([]); }
+    gctx.restore();
+    gctx.strokeStyle = TOK.ink; gctx.lineWidth = 2;
+    gctx.beginPath(); gctx.moveTo(ix - 12, iy); gctx.lineTo(ix + 12, iy); gctx.moveTo(ix, iy - 12); gctx.lineTo(ix, iy + 12); gctx.stroke();
+    gctx.fillStyle = TOK.ink; gctx.font = '600 13px "JetBrains Mono", monospace'; gctx.fillText(`x = ${ix}, y = ${iy}`, 10, GH - 12);
+    $('#spMeta').textContent = `${s.w} × ${s.h} px · ${n} ${n === 1 ? 'snímek' : n < 5 ? 'snímky' : 'snímků'} · ${s.fps} FPS · origin (${+st.origin[0].toFixed(1)}, ${+st.origin[1].toFixed(1)})`;
+    setCode($('#spCode'), `sprite_index = ${st.spr};\nimage_speed  = ${st.playing ? st.speed : 0};\nimage_index  = ${fi};\nimage_angle  = ${st.angle};\nimage_xscale = ${st.flip ? -1 : 1};\n// origin (${+st.origin[0].toFixed(1)}, ${+st.origin[1].toFixed(1)}) se nastavuje v editoru spritu`);
+  });
+})();
+
+/* =========================================================
+   OBJECT / INSTANCE LAB
+   ========================================================= */
+(function objectLab() {
+  const cv = $('#obCanvas'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height, GY = 210, SC = 6, MAX = 12;
+  const obj = { spr: 'spr_slime', spd: 1.5 };
+  let insts = [], nextId = 100001, sel = null;
+  const log = [];
+  function addLog(line) { log.push(line); while (log.length > 7) log.shift(); $('#obLog').innerHTML = log.map(l => `<div>${highlight(l, 'gml')}</div>`).join(''); }
+  function create(x, quiet) {
+    const i = { id: nextId++, x: Math.round(x), hp: 3, dir: Math.random() < .5 ? -1 : 1, ph: Math.random() };
+    insts.push(i);
+    if (!quiet) addLog(`var i = instance_create_layer(${i.x}, ${GY}, "Instances", obj_slime); // id ${i.id}`);
+    return i;
+  }
+  [140, 360, 560].forEach(x => create(x, true));
+  addLog('// ve scéně jsou 3 instance obj_slime');
+  const box = i => { const s = SPRITES[obj.spr]; const w = s.w * SC, h = s.h * SC; return [i.x - w / 2, GY - h, w, h]; };
+  function renderInst() {
+    const el = $('#obInst');
+    if (!sel || !insts.includes(sel)) {
+      sel = null;
+      el.innerHTML = `<p class="cap">Klikni na instanci ve scéně. Uvidíš její vlastní proměnné.</p><dl class="readout"><dt>instancí</dt><dd>${insts.length}</dd></dl>`;
+      return;
+    }
+    el.innerHTML = `<dl class="readout"><dt>id</dt><dd>${sel.id}</dd><dt>x</dt><dd id="obX">${Math.round(sel.x)}</dd><dt>y</dt><dd>${GY}</dd><dt>hp</dt><dd>${sel.hp}</dd></dl>
+      <div class="row"><button class="btn" id="obMinus">hp − 1</button><button class="btn" id="obPlus">hp + 1</button><button class="btn" id="obDel">Zničit</button></div>`;
+    $('#obMinus').onclick = () => {
+      sel.hp--;
+      if (sel.hp <= 0) { addLog(`i.hp = 0;  // → instance_destroy()`); insts = insts.filter(x => x !== sel); sel = null; }
+      else addLog(`i.hp = ${sel.hp};  // jen instance ${sel.id}`);
+      renderInst(); count();
+    };
+    $('#obPlus').onclick = () => { sel.hp = Math.min(6, sel.hp + 1); addLog(`i.hp = ${sel.hp};  // jen instance ${sel.id}`); renderInst(); };
+    $('#obDel').onclick = () => { addLog(`instance_destroy(${sel.id});`); insts = insts.filter(x => x !== sel); sel = null; renderInst(); count(); };
+  }
+  function count() { $('#obCount').textContent = `instance_number(obj_slime) = ${insts.length}`; }
+  function events() {
+    setCode($('#obEvents'), `// Create\nsprite_index = ${obj.spr};\nhp = 3;\nsmer = choose(-1, 1);\n\n// Step\nx += ${obj.spd} * smer;\nif (x < 20 || x > room_width - 20) smer = -smer;`);
+  }
+  cv.addEventListener('click', e => {
+    const r = cv.getBoundingClientRect(), k = W / r.width, mx = (e.clientX - r.left) * k, my = (e.clientY - r.top) * k;
+    const hit = insts.slice().reverse().find(i => { const [x, y, w, h] = box(i); return mx >= x - 6 && mx <= x + w + 6 && my >= y - 20 && my <= y + h + 6; });
+    if (hit) { sel = hit; renderInst(); return; }
+    if (insts.length >= MAX) { addLog(`// limit ukázky: max ${MAX} instancí`); return; }
+    sel = create(Math.max(24, Math.min(W - 24, mx))); renderInst(); count();
+  });
+  $('#obSpr').addEventListener('change', e => { obj.spr = e.target.value; addLog(`// obj_slime: sprite → ${obj.spr} (všechny instance)`); events(); });
+  $('#obSpd').addEventListener('input', e => { obj.spd = +e.target.value; $('#obSpdV').textContent = obj.spd; events(); });
+  $('#obSpd').addEventListener('change', () => addLog(`// obj_slime Step: rychlost ${obj.spd} (všechny instance)`));
+  $('#obClear').addEventListener('click', () => { insts = []; sel = null; addLog('with (obj_slime) instance_destroy();'); renderInst(); count(); });
+  renderInst(); count(); events();
+
+  const vis = visible(cv);
+  tickers.push((dt, t) => {
+    if (!vis.v) return;
+    for (const i of insts) {
+      i.x += obj.spd * i.dir * 60 * dt;
+      if (i.x < 20) { i.x = 20; i.dir = 1; }
+      if (i.x > W - 20) { i.x = W - 20; i.dir = -1; }
+    }
+    if (sel) { const ox = $('#obX'); if (ox) ox.textContent = Math.round(sel.x); }
+    ctx.fillStyle = TOK['surface-2']; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = TOK.line; ctx.lineWidth = 1; ctx.beginPath();
+    for (let x = 0; x <= W; x += 32) { ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, GY); }
+    for (let y = GY; y >= 0; y -= 32) { ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); }
+    ctx.stroke();
+    for (let x = 0; x < W; x += 32) drawImg(ctx, IMG.grass, x, GY, 32, 32);
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, GY + 32, W, H - GY - 32);
+    ctx.font = '600 11px "JetBrains Mono", monospace'; ctx.textAlign = 'center';
+    for (const i of insts) {
+      const [x, y, w, h] = box(i), s = SPRITES[obj.spr];
+      drawImg(ctx, frameAt(obj.spr, t + i.ph), Math.round(x), y, w, h, i.dir < 0 && obj.spr !== 'spr_mince');
+      for (let k = 0; k < i.hp; k++) drawImg(ctx, IMG.heart, Math.round(i.x - i.hp * 8 + k * 16), y - 18, 13, 10);
+      ctx.fillStyle = '#ffffff'; ctx.fillText(i.id, i.x, GY + 24);
+      if (i === sel) {
+        ctx.strokeStyle = TOK['c-instance']; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+        ctx.strokeRect(Math.round(x) - 6, y - 22, w + 12, h + 28); ctx.setLineDash([]);
+      }
+    }
+    if (!insts.length) { ctx.fillStyle = TOK.muted; ctx.font = '600 16px "Atkinson Hyperlegible Next", sans-serif'; ctx.fillText('Prázdná scéna. Klikni a vytvoř instanci.', W / 2, 100); }
+    ctx.textAlign = 'start';
+  });
+})();
+
+/* =========================================================
+   LAYERS LAB
+   ========================================================= */
+(function layersLab() {
+  const stack = $('#lyStack'), layers = $$('.layer', stack), ctxs = layers.map(l => l.querySelector('canvas').getContext('2d'));
+  const CW = 640, CH = 320, k = CW / 960;
+  ctxs[0].imageSmoothingEnabled = false; ctxs[0].drawImage(bgLayer, 0, 0, 960, 480, 0, 0, CW, CH);
+  ctxs[1].imageSmoothingEnabled = false; ctxs[1].drawImage(tileLayer, 0, 0, 960, 480, 0, 0, CW, CH);
+  const DEF = [[2, 'Instances', 'Hráč, mince, slizouni', 0], [1, 'Tiles', 'Terén z dlaždic, stromy', 100], [0, 'Background', 'Nebe, kopce, mraky', 200]];
+  const list = $('#lyList');
+  DEF.forEach(([i, name, desc, depth]) => {
+    const row = document.createElement('label'); row.className = 'layer-row';
+    row.innerHTML = `<input type="checkbox" checked id="ly${i}"><span><b>${name}</b><br><span class="cap">${desc}</span></span><span class="d">depth ${depth}</span>`;
+    row.querySelector('input').addEventListener('change', e => layers[i].classList.toggle('off', !e.target.checked));
+    list.appendChild(row);
+  });
+  $('#lyExplode').addEventListener('click', e => { const on = stack.classList.toggle('exploded'); e.target.setAttribute('aria-pressed', on); e.target.textContent = on ? 'Složit vrstvy zpět' : 'Rozložit vrstvy do 3D'; });
+  const vis = visible(stack);
+  tickers.push((dt, t) => {
+    if (!vis.v) return;
+    const c = ctxs[2]; c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, CW, CH);
+    c.setTransform(k, 0, 0, k, 0, 0); drawInstances(c, t); c.setTransform(1, 0, 0, 1, 0, 0);
+  });
+})();
+
+/* =========================================================
+   CAMERA LAB
+   ========================================================= */
+(function cameraLab() {
+  const map = $('#camMap'), mctx = map.getContext('2d'), vp = $('#camVp'), vctx = vp.getContext('2d'), lab = $('#camLab');
+  const VW = 960, VH = 540;
+  const MAP = { x0: -200, y0: -140, w: 2320, h: 760 }, ms = map.width / MAP.w;
+  const cam = { x: 0, y: 210, w: 480, h: 270 };
+  let mode = 'manual', clampOn = true, smooth = true, mouse = null;
+  const ax = (v, s, R, lo, hi) => s >= R ? (R - s) / 2 : Math.max(lo, Math.min(hi - s, v));
+  function clampCam() {
+    if (clampOn) { cam.x = ax(cam.x, cam.w, RW, 0, RW); cam.y = ax(cam.y, cam.h, RH, 0, RH); }
+    else { cam.x = Math.max(MAP.x0, Math.min(MAP.x0 + MAP.w - cam.w, cam.x)); cam.y = Math.max(MAP.y0, Math.min(MAP.y0 + MAP.h - cam.h, cam.y)); }
+  }
+  function setMode(m) {
+    mode = m;
+    $('#camManual').setAttribute('aria-pressed', m === 'manual');
+    $('#camFollow').setAttribute('aria-pressed', m === 'follow');
+  }
+  $('#camManual').onclick = () => setMode('manual');
+  $('#camFollow').onclick = () => { setMode('follow'); vp.focus({ preventScroll: true }); };
+  $('#camSize').addEventListener('input', e => {
+    const cx = cam.x + cam.w / 2, cy = cam.y + cam.h / 2;
+    cam.w = +e.target.value; cam.h = Math.round(cam.w * 9 / 16);
+    cam.x = cx - cam.w / 2; cam.y = cy - cam.h / 2; clampCam();
+  });
+  $('#camClamp').addEventListener('change', e => { clampOn = e.target.checked; clampCam(); });
+  $('#camSmooth').addEventListener('change', e => smooth = e.target.checked);
+  $('#camSound').addEventListener('change', e => soundOn = e.target.checked);
+  $('#camReset').onclick = () => { resetWorld(); cam.x = 0; cam.y = RH - cam.h; clampCam(); };
+
+  // map dragging
+  const toWorldMap = e => { const r = map.getBoundingClientRect(), k = map.width / r.width; return [(e.clientX - r.left) * k / ms + MAP.x0, (e.clientY - r.top) * k / ms + MAP.y0]; };
+  let drag = null;
+  map.addEventListener('pointerdown', e => {
+    const [wx, wy] = toWorldMap(e);
+    const inside = wx >= cam.x && wx <= cam.x + cam.w && wy >= cam.y && wy <= cam.y + cam.h;
+    drag = inside ? [wx - cam.x, wy - cam.y] : [cam.w / 2, cam.h / 2];
+    setMode('manual');
+    cam.x = wx - drag[0]; cam.y = wy - drag[1]; clampCam();
+    map.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  map.addEventListener('pointermove', e => { if (!drag) return; const [wx, wy] = toWorldMap(e); cam.x = wx - drag[0]; cam.y = wy - drag[1]; clampCam(); });
+  map.addEventListener('pointerup', () => drag = null);
+  map.addEventListener('pointercancel', () => drag = null);
+
+  // viewport: pan + mouse readout
+  let pan = null;
+  const vpPos = e => { const r = vp.getBoundingClientRect(), k = VW / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k]; };
+  vp.addEventListener('pointerdown', e => { pan = vpPos(e); setMode('manual'); vp.setPointerCapture(e.pointerId); vp.focus({ preventScroll: true }); });
+  vp.addEventListener('pointermove', e => {
+    const p = vpPos(e); mouse = p;
+    if (pan) { const z = VW / cam.w; cam.x -= (p[0] - pan[0]) / z; cam.y -= (p[1] - pan[1]) / z; pan = p; clampCam(); }
+  });
+  vp.addEventListener('pointerup', () => pan = null);
+  vp.addEventListener('pointercancel', () => pan = null);
+  vp.addEventListener('pointerleave', () => { if (!pan) mouse = null; });
+
+  // keyboard (only while the game view has focus, so arrows still scroll the page elsewhere)
+  const KEYS = { ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right', ArrowUp: 'jump', w: 'jump', W: 'jump', ' ': 'jump' };
+  vp.addEventListener('keydown', e => {
+    const k = KEYS[e.key]; if (!k) return; e.preventDefault();
+    if (k === 'jump') { if (!input.jump) input.jumpQ = true; input.jump = true; } else input[k] = true;
+  });
+  vp.addEventListener('keyup', e => { const k = KEYS[e.key]; if (k) input[k] = false; });
+  const fs = $('#camFocus'), fsIdle = fs.innerHTML;
+  vp.addEventListener('focus', () => { fs.classList.add('on'); fs.textContent = 'Ovládání aktivní: šipky nebo WASD, skok mezerníkem'; });
+  vp.addEventListener('blur', () => { fs.classList.remove('on'); fs.innerHTML = fsIdle; input.left = input.right = input.jump = false; });
+  $$('.pad [data-k]', lab).forEach(b => {
+    const k = b.dataset.k;
+    const on = e => { e.preventDefault(); if (k === 'jump') input.jumpQ = true; input[k] = true; b.setPointerCapture && b.setPointerCapture(e.pointerId); };
+    const off = () => { input[k] = false; };
+    b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
+  });
+
+  const m2 = (x, y) => [(x - MAP.x0) * ms, (y - MAP.y0) * ms];
+  function voidFill(ctx, w, h, step) {
+    ctx.fillStyle = TOK.void; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = -h; i < w; i += step) { ctx.moveTo(i, h); ctx.lineTo(i + h, 0); }
+    ctx.stroke();
+  }
+  const ro = { pos: $('#roPos'), size: $('#roSize'), zoom: $('#roZoom'), mouse: $('#roMouse'), warn: $('#roWarn'), sizeV: $('#camSizeV'), code: $('#camCode') };
+  const setTxt = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const vis = visible(lab);
+
+  tickers.push(dt => {
+    if (!vis.v) return;
+    if (mode === 'follow') {
+      const tx = player.x + player.w / 2 - cam.w / 2, ty = player.y + player.h / 2 - cam.h / 2;
+      const a = smooth ? Math.min(1, dt * 6) : 1;
+      cam.x += (tx - cam.x) * a; cam.y += (ty - cam.y) * a; clampCam();
+    }
+    // ---- map
+    const MW = map.width, MH = map.height;
+    voidFill(mctx, MW, MH, 14);
+    mctx.imageSmoothingEnabled = false;
+    const [rx, ry] = m2(0, 0);
+    mctx.drawImage(world, rx, ry, RW * ms, RH * ms);
+    mctx.strokeStyle = TOK['c-room']; mctx.lineWidth = 2; mctx.strokeRect(rx - 1, ry - 1, RW * ms + 2, RH * ms + 2);
+    mctx.fillStyle = TOK['c-room']; mctx.font = '600 15px "JetBrains Mono", monospace';
+    mctx.fillText('rm_level1  (0, 0)', rx, ry - 10);
+    mctx.textAlign = 'end'; mctx.fillText('(1920, 480)', rx + RW * ms, ry + RH * ms + 22); mctx.textAlign = 'start';
+    const [cx, cy] = m2(cam.x, cam.y), cw = cam.w * ms, ch = cam.h * ms;
+    mctx.fillStyle = 'rgba(0,0,0,.38)'; mctx.beginPath(); mctx.rect(0, 0, MW, MH); mctx.rect(cx, cy, cw, ch); mctx.fill('evenodd');
+    mctx.strokeStyle = TOK['c-camera']; mctx.lineWidth = 4; mctx.strokeRect(cx, cy, cw, ch);
+    const lbl = `view_camera[0]  ${Math.round(cam.x)}, ${Math.round(cam.y)}`;
+    mctx.font = '600 15px "JetBrains Mono", monospace';
+    const lw = mctx.measureText(lbl).width + 14, ly = cy - 26 < 0 ? cy + ch + 4 : cy - 26;
+    mctx.fillStyle = TOK['c-camera']; mctx.fillRect(cx - 2, ly, lw, 22);
+    mctx.fillStyle = '#1a1206'; mctx.fillText(lbl, cx + 5, ly + 16);
+    if (mouse) {
+      const z = VW / cam.w, [mx, my] = m2(cam.x + mouse[0] / z, cam.y + mouse[1] / z);
+      mctx.strokeStyle = '#ffffff'; mctx.lineWidth = 2; mctx.beginPath(); mctx.moveTo(mx - 8, my); mctx.lineTo(mx + 8, my); mctx.moveTo(mx, my - 8); mctx.lineTo(mx, my + 8); mctx.stroke();
+    }
+    // ---- viewport
+    voidFill(vctx, VW, VH, 28);
+    const z = VW / cam.w;
+    const sx0 = Math.max(0, cam.x), sy0 = Math.max(0, cam.y), sx1 = Math.min(RW, cam.x + cam.w), sy1 = Math.min(RH, cam.y + cam.h);
+    vctx.imageSmoothingEnabled = false;
+    if (sx1 > sx0 && sy1 > sy0) vctx.drawImage(world, sx0, sy0, sx1 - sx0, sy1 - sy0, (sx0 - cam.x) * z, (sy0 - cam.y) * z, (sx1 - sx0) * z, (sy1 - sy0) * z);
+    // Draw GUI: fixed to the screen
+    vctx.fillStyle = 'rgba(16,20,28,.72)'; vctx.fillRect(16, 16, 230, 48);
+    drawImg(vctx, SPRITES.spr_mince.frames[0], 28, 24, 32, 32);
+    vctx.fillStyle = '#ffffff'; vctx.font = '700 30px "Pixelify Sans", monospace'; vctx.fillText(`MINCE ${collected}/12`, 70, 51);
+    if (collected === 12) { vctx.fillStyle = 'rgba(16,20,28,.72)'; vctx.fillRect(VW / 2 - 220, VH / 2 - 40, 440, 80); vctx.fillStyle = '#f7c948'; vctx.textAlign = 'center'; vctx.fillText('Všechny mince sebrány!', VW / 2, VH / 2 + 10); vctx.textAlign = 'start'; }
+    // ---- readouts
+    const X = Math.round(cam.x), Y = Math.round(cam.y);
+    setTxt(ro.pos, `${X}, ${Y}`);
+    setTxt(ro.size, `${cam.w} × ${cam.h}`);
+    setTxt(ro.sizeV, `${cam.w} × ${cam.h}`);
+    setTxt(ro.zoom, `${(VW / cam.w).toFixed(2)}× (1 px spritu = ${(VW / cam.w).toFixed(1)} px na obrazovce)`);
+    setTxt(ro.mouse, mouse ? `obrazovka ${Math.round(mouse[0])}, ${Math.round(mouse[1])} → scéna ${Math.round(cam.x + mouse[0] / z)}, ${Math.round(cam.y + mouse[1] / z)}` : 'najeď myší na obraz');
+    const out = cam.x < -.5 || cam.y < -.5 || cam.x + cam.w > RW + .5 || cam.y + cam.h > RH + .5;
+    if (ro.warn.hidden === out) { ro.warn.hidden = !out; ro.warn.classList.toggle('warn', out); }
+    setCode(ro.code, (mode === 'follow' ? '// režim: kamera sleduje obj_hrac (Step event)\n' : '// režim: kameru posouváš ručně\n')
+      + `camera_set_view_size(view_camera[0], ${cam.w}, ${cam.h});\ncamera_set_view_pos(view_camera[0], ${X}, ${Y});\n// viewport 0 je 960 × 540 → zvětšení ${(VW / cam.w).toFixed(2)}×`
+      + (out ? '\n// pozor: kamera je mimo scénu, tam se nic nekreslí' : ''));
+  });
+})();
+
+/* =========================================================
+   DIAGRAM
+   ========================================================= */
+(function diagram() {
+  const svg = $('#dia'), info = $('#diaInfo');
+  const TXT = {
+    zvuk: ['Zvuk', 'k-asset', 'Asset se zvukem. Sám nic nedělá, přehraje ho až objekt (třeba mince při sebrání).'],
+    sprite: ['Sprite', 'k-sprite', 'Obrázek nebo animace. Objekt ho používá, aby měl jak vypadat. Jeden sprite může sdílet víc objektů.'],
+    objekt: ['Objekt', 'k-object', 'Předpis v projektu. Používá sprite a zvuky a popisuje chování. Ve scéně z něj vznikají instance.'],
+    instance: ['Instance', 'k-instance', 'Konkrétní kus objektu se svou polohou a proměnnými. Žije ve scéně.'],
+    scena: ['Scéna', 'k-room', 'Je to taky asset. Obsahuje vrstvy a instance. Kamera snímá její část.'],
+    kamera: ['Kamera', 'k-camera', 'Obdélník ve scéně, který určuje, co je vidět. Přes viewport to pošle na obrazovku.'],
+    obrazovka: ['Obrazovka', '', 'Okno hry. Viewport určuje, kam a jak velký se záběr kamery vykreslí.']
+  };
+  const edges = $$('.edge', svg), nodes = $$('.node', svg);
+  function focus(n) {
+    if (!n) { svg.classList.remove('focus'); [...edges, ...nodes].forEach(e => e.classList.remove('hot')); info.className = 'diagram-info'; info.textContent = 'Najeď na kterýkoli pojem.'; return; }
+    svg.classList.add('focus');
+    const linked = new Set([n]);
+    edges.forEach(e => { const on = e.dataset.a === n || e.dataset.b === n; e.classList.toggle('hot', on); if (on) { linked.add(e.dataset.a); linked.add(e.dataset.b); } });
+    nodes.forEach(nd => nd.classList.toggle('hot', linked.has(nd.dataset.n)));
+    const [t, k, d] = TXT[n];
+    info.className = 'diagram-info ' + k;
+    info.innerHTML = `<b>${t}</b><br>${d}`;
+  }
+  nodes.forEach(nd => {
+    nd.addEventListener('mouseenter', () => focus(nd.dataset.n));
+    nd.addEventListener('focus', () => focus(nd.dataset.n));
+    nd.addEventListener('click', () => focus(nd.dataset.n));
+    nd.addEventListener('blur', () => focus(null));
+  });
+  svg.addEventListener('mouseleave', () => { if (!svg.contains(document.activeElement)) focus(null); });
+})();
+
+/* =========================================================
+   QUIZ
+   ========================================================= */
+(function quiz() {
+  const Q = [
+    ['Obrázek mince se čtyřmi snímky otáčení je…', ['sprite', 'objekt', 'scéna'], 0, 'Sprite je obrázek, i když má víc snímků. Chování k němu přidává až objekt.'],
+    ['Ve scéně je 12 mincí. Kolik objektů obj_mince k tomu potřebuješ?', ['1', '12', '13'], 0, 'Jeden objekt a 12 jeho instancí.'],
+    ['Slizounovi #2 snížíš hp na 1. Co se stane s ostatními slizouny?', ['Nic, hp má každá instance svoje', 'Taky budou mít hp 1', 'Zmizí'], 0, 'hp je proměnná instance, ne objektu.'],
+    ['Hráč běží doprava a svět na obrazovce ujíždí doleva. Co se doopravdy hýbe?', ['Kamera (a hráč)', 'Celá scéna', 'Všechny instance'], 0, 'Scéna stojí. Kamera se posouvá za hráčem.'],
+    ['Kamera je 480 × 270, viewport 960 × 540. Jak velký bude jeden pixel spritu na obrazovce?', ['1 × 1', '2 × 2', '4 × 4'], 1, '960 / 480 = 2, takže každý pixel se zdvojí.'],
+    ['Origin spritu určuje…', ['bod, kterým sprite „sedí“ na x, y instance', 'barvu pozadí', 'rychlost animace'], 0, 'Kolem originu se sprite i otáčí.'],
+    ['Co z toho NENÍ asset?', ['spr_hrac', 'rm_level1', 'instance slizouna ve scéně'], 2, 'Instance vzniká až ve scéně nebo za běhu hry. Asset je její objekt obj_slime.'],
+    ['Kam patří ukazatel skóre, který se nemá hýbat s kamerou?', ['Do Draw GUI (na obrazovku)', 'Do vrstvy Background', 'Do spritu hráče'], 0, 'Draw GUI kreslí v souřadnicích obrazovky, ne scény.']
+  ];
+  const box = $('#quiz'), score = $('#quizScore');
+  let answered = 0, right = 0;
+  function render() {
+    answered = right = 0; box.innerHTML = '';
+    Q.forEach(([q, opts, ok, why], qi) => {
+      const el = document.createElement('div'); el.className = 'q';
+      el.innerHTML = `<div class="q-t">${qi + 1}. ${q}</div><div class="q-opts"></div><div class="q-fb" aria-live="polite"></div>`;
+      const ob = $('.q-opts', el), fb = $('.q-fb', el);
+      opts.forEach((o, oi) => {
+        const b = document.createElement('button'); b.className = 'btn'; b.textContent = o;
+        b.onclick = () => {
+          $$('button', ob).forEach(x => x.disabled = true);
+          $$('button', ob)[ok].classList.add('ok');
+          if (oi !== ok) b.classList.add('no'); else right++;
+          answered++;
+          fb.textContent = (oi === ok ? 'Správně. ' : 'Ne tak docela. ') + why;
+          upd();
+        };
+        ob.appendChild(b);
+      });
+      box.appendChild(el);
+    });
+    upd();
+  }
+  const upd = () => score.textContent = `${right} / ${Q.length}` + (answered === Q.length ? (right === Q.length ? '  · bez chyby!' : '  · hotovo') : '');
+  $('#quizReset').onclick = render;
+  render();
+})();
+
+/* ---------- toc highlight ---------- */
+(function toc() {
+  const links = $$('.toc a'), map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  if (!('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { links.forEach(l => l.classList.remove('on')); const a = map.get(e.target.id); a && a.classList.add('on'); }
+  }), { rootMargin: '-40% 0px -55% 0px' });
+  $$('section.lesson').forEach(s => io.observe(s));
+})();
+
+requestAnimationFrame(loop);
+})();
+</script>

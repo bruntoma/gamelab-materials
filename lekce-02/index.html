@@ -1,0 +1,1719 @@
+<title>Jak se věci hýbou</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: same system as Lesson 1. One reading column on a 32px "room editor" grid; labs are editor windows. Each concept owns one colour, reused in its canvas overlays. */
+:root {
+  --bg: #eef1f5;
+  --bg-grid: rgba(40, 60, 110, .06);
+  --surface: #ffffff;
+  --surface-2: #f4f6f9;
+  --ink: #172031;
+  --muted: #566173;
+  --line: #d6dce5;
+  --line-strong: #b6c0ce;
+  --c-pos: #2b63d9;
+  --c-vel: #0a8aa3;
+  --c-acc: #7048e8;
+  --c-grav: #c2255c;
+  --c-col: #e03131;
+  --c-fix: #d27200;
+  --c-room: #2b8a3e;
+  --code-bg: #172031;
+  --code-fg: #e4e9f1;
+  --code-com: #8d9ab0;
+  --code-str: #a6e39a;
+  --code-num: #ffc86b;
+  --code-kw: #93b9ff;
+  --code-fn: #f7a8cb;
+  --ok: #2b8a3e;
+  --bad: #c92a2a;
+
+  --f-display: "Pixelify Sans", "Courier New", monospace;
+  --f-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  --step--1: .875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.25rem;
+  --step-2: 1.6rem;
+  --step-3: 2.2rem;
+  --step-4: clamp(2.4rem, 6vw, 3.6rem);
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
+    --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
+    --c-pos: #6e9dff; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-col: #ff6b6b; --c-fix: #ffa94d; --c-room: #5fd06f;
+    --code-bg: #0b0f15; --ok: #5fd06f; --bad: #ff6b6b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
+  --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
+  --c-pos: #6e9dff; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-col: #ff6b6b; --c-fix: #ffa94d; --c-room: #5fd06f;
+  --code-bg: #0b0f15; --ok: #5fd06f; --bad: #ff6b6b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--bg-grid) 1px, transparent 1px), linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.1; text-wrap: balance; margin: 0; letter-spacing: .01em; }
+h2 { font-size: var(--step-3); }
+p { margin: 0; }
+a { color: var(--c-pos); }
+code { font-family: var(--f-mono); font-size: .88em; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: .05em .35em; }
+:focus-visible { outline: 3px solid var(--c-pos); outline-offset: 2px; }
+
+.k-pos { --kc: var(--c-pos); } .k-vel { --kc: var(--c-vel); } .k-acc { --kc: var(--c-acc); }
+.k-grav { --kc: var(--c-grav); } .k-col { --kc: var(--c-col); } .k-fix { --kc: var(--c-fix); } .k-room { --kc: var(--c-room); }
+.sq { display: inline-block; width: .7em; height: .7em; background: var(--kc); flex: none; }
+
+/* hero */
+.hero { padding-block: clamp(32px, 6vw, 64px) 24px; display: grid; gap: 28px; }
+.eyebrow { font-family: var(--f-mono); font-size: var(--step--1); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.eyebrow a { color: inherit; }
+.hero h1 { font-size: var(--step-4); max-width: 16ch; }
+.lead { font-size: var(--step-1); max-width: 60ch; }
+.lead + .lead { font-size: var(--step-0); color: var(--muted); }
+.goals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.goal { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; color: inherit; }
+.goal:hover { border-color: var(--kc); }
+.goal b { font-family: var(--f-display); font-size: var(--step-1); }
+.goal span:last-child { grid-column: 2; color: var(--muted); font-size: var(--step--1); line-height: 1.45; }
+
+/* toc */
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.toc .wrap { display: flex; gap: 6px; overflow-x: auto; padding-block: 10px; scrollbar-width: thin; }
+.toc a { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 6px 12px; border-radius: 999px; text-decoration: none; color: var(--ink); font-size: var(--step--1); border: 1px solid transparent; }
+.toc a:hover, .toc a.on { border-color: var(--line-strong); background: var(--surface); }
+
+/* sections */
+section.lesson { padding-block: clamp(40px, 7vw, 72px) 8px; display: grid; gap: 22px; scroll-margin-top: 56px; }
+.sec-head { display: grid; gap: 10px; }
+.sec-head .eyebrow { color: var(--kc); font-weight: 600; }
+.prose { display: grid; gap: 14px; max-width: 68ch; }
+.prose ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.term { font-weight: 700; color: var(--kc); }
+.callout { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 14px 18px; background: var(--surface); border: 1px dashed var(--line-strong); border-radius: var(--radius); max-width: 68ch; }
+.callout .ic { font-family: var(--f-display); font-size: var(--step-1); color: var(--kc, var(--ink)); line-height: 1.2; }
+.callout p { font-size: var(--step--1); line-height: 1.55; }
+.analogy { font-family: var(--f-display); font-size: var(--step-1); line-height: 1.35; max-width: 42ch; color: var(--kc); }
+
+/* lab window */
+.lab { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 12px 32px -18px rgba(10, 20, 40, .35); }
+.lab-bar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-family: var(--f-mono); font-size: .8rem; color: var(--muted); flex-wrap: wrap; }
+.lab-bar .t { color: var(--ink); font-weight: 600; }
+.lab-bar .hint { margin-left: auto; font-family: var(--f-body); }
+.lab-body { padding: 16px; display: grid; gap: 16px; }
+.lab canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; border-radius: 4px; touch-action: none; }
+.lab canvas[tabindex]:focus-visible { outline: 3px solid var(--kc, var(--c-pos)); outline-offset: 2px; }
+.split { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(250px, 1fr); gap: 16px; align-items: start; }
+.split > * { min-width: 0; }
+.panel { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.panel h4 { margin: 0; font-family: var(--f-mono); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.cap { font-size: var(--step--1); color: var(--muted); line-height: 1.45; }
+
+.btn { font: inherit; font-size: var(--step--1); padding: 7px 12px; border-radius: 5px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; line-height: 1.2; }
+.btn:hover { border-color: var(--ink); }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn:disabled { opacity: .45; cursor: default; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 6px; overflow: hidden; }
+.seg .btn { border: 0; border-radius: 0; font-family: var(--f-mono); font-size: .8rem; }
+.seg .btn + .btn { border-left: 1px solid var(--line-strong); }
+label.ctl { display: grid; gap: 2px; font-size: var(--step--1); }
+label.ctl > span { display: flex; justify-content: space-between; gap: 8px; }
+label.ctl output { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+label.chk { display: flex; gap: 8px; align-items: center; font-size: var(--step--1); cursor: pointer; }
+input[type="range"] { width: 100%; accent-color: var(--kc, var(--ink)); }
+input[type="checkbox"] { accent-color: var(--kc, var(--ink)); width: 1.05em; height: 1.05em; }
+
+.readout { font-family: var(--f-mono); font-size: .8rem; font-variant-numeric: tabular-nums; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 0; }
+.readout dt { color: var(--muted); }
+.readout dd { margin: 0; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: .75rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); }
+.pill.on { color: var(--ok); border-color: var(--ok); }
+.pad { display: flex; gap: 8px; }
+.pad .btn { min-width: 54px; padding-block: 10px; font-size: 1rem; user-select: none; -webkit-user-select: none; touch-action: none; }
+.kbd { font-family: var(--f-mono); font-size: .75rem; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; }
+.focus-state { font-size: .8rem; color: var(--muted); }
+.focus-state.on { color: var(--ok); }
+
+/* code */
+pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font-family: var(--f-mono); font-size: .8rem; line-height: 1.6; tab-size: 4; }
+pre.code code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit; }
+.tc { color: var(--code-com); font-style: italic; } .ts { color: var(--code-str); } .tn { color: var(--code-num); } .tk { color: var(--code-kw); } .tf { color: var(--code-fn); }
+
+/* engine tabs */
+.eng { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.eng-head { display: flex; align-items: center; gap: 12px; padding: 0 0 0 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.eng-head .lbl { font-family: var(--f-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.eng-tabs { display: flex; overflow-x: auto; }
+.eng-tabs button { font: inherit; font-size: var(--step--1); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.eng-tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
+.eng-panel { padding: 16px; display: grid; gap: 12px; }
+.eng-panel > p { font-size: var(--step--1); line-height: 1.55; max-width: 72ch; }
+
+/* scratch blocks */
+.scratch { display: grid; gap: 3px; justify-items: start; font-size: .82rem; font-weight: 700; }
+.sb { color: #fff; padding: 6px 12px; border-radius: 5px; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18); }
+.sb.ev { background: #c88a00; border-radius: 14px 14px 5px 5px; }
+.sb.mo { background: #3d7fe0; } .sb.co { background: #d98200; } .sb.va { background: #e0661a; } .sb.se { background: #2e9fc9; }
+.sb.i1 { margin-left: 18px; } .sb.i2 { margin-left: 36px; }
+
+/* checks list (AABB) */
+.checks { display: grid; gap: 4px; font-family: var(--f-mono); font-size: .8rem; font-variant-numeric: tabular-nums; }
+.checks div { display: grid; grid-template-columns: 1.4em 1fr; gap: 6px; padding: 4px 8px; border-radius: 4px; background: var(--surface-2); }
+.checks .y::before { content: "✓"; color: var(--ok); font-weight: 700; }
+.checks .n::before { content: "✗"; color: var(--bad); font-weight: 700; }
+.verdict { font-family: var(--f-display); font-size: var(--step-2); }
+.verdict.hit { color: var(--c-col); }
+
+/* pipeline */
+ol.pipe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 8px; counter-reset: p; }
+ol.pipe li { counter-increment: p; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--kc); border-radius: 6px; display: grid; gap: 4px; font-size: var(--step--1); line-height: 1.4; }
+ol.pipe li::before { content: counter(p); font-family: var(--f-display); font-size: var(--step-1); color: var(--kc); }
+ol.pipe li b { font-weight: 700; }
+ol.pipe li code { font-size: .78em; }
+
+/* presets */
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* table, quiz, steps */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table.terms { border-collapse: collapse; width: 100%; min-width: 720px; font-size: var(--step--1); }
+table.terms th, table.terms td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.terms thead th { font-family: var(--f-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--surface-2); }
+table.terms tbody th { font-family: var(--f-display); font-size: var(--step-0); white-space: nowrap; }
+table.terms tbody th .sq { margin-right: 8px; }
+table.terms tr:last-child th, table.terms tr:last-child td { border-bottom: 0; }
+.quiz { display: grid; gap: 14px; }
+.q { padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; display: grid; gap: 10px; }
+.q-t { font-weight: 700; }
+.q-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.q-opts .btn.ok { background: var(--ok); color: var(--surface); border-color: var(--ok); opacity: 1; }
+.q-opts .btn.no { border-color: var(--bad); color: var(--bad); text-decoration: line-through; opacity: 1; }
+.q-fb { font-size: var(--step--1); color: var(--muted); }
+.score { font-family: var(--f-display); font-size: var(--step-2); }
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; max-width: 72ch; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 2.2em 1fr; gap: 10px; align-items: baseline; }
+ol.steps li::before { content: counter(s); font-family: var(--f-display); font-size: var(--step-1); font-weight: 700; color: var(--muted); }
+footer { padding-block: 48px; color: var(--muted); font-size: var(--step--1); }
+
+@media (max-width: 760px) {
+  .split { grid-template-columns: 1fr; }
+}
+</style>
+
+<nav class="toc" aria-label="Obsah lekce">
+  <div class="wrap">
+    <a href="#pozice" class="k-pos"><span class="sq"></span>Souřadnice</a>
+    <a href="#rychlost" class="k-acc"><span class="sq"></span>Rychlost a setrvačnost</a>
+    <a href="#gravitace" class="k-grav"><span class="sq"></span>Gravitace a skok</a>
+    <a href="#kolize" class="k-col"><span class="sq"></span>Kolize</a>
+    <a href="#reseni" class="k-fix"><span class="sq"></span>Řešení kolize</a>
+    <a href="#hriste" class="k-room"><span class="sq"></span>Hřiště</a>
+    <a href="#enginy">Názvy v enginech</a>
+    <a href="#kviz">Kvíz</a>
+    <a href="#ukol">Úkol</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="hero">
+    <div class="eyebrow"><span>Herní dílna</span><span>Lekce 2</span><a href="https://claude.ai/artifact/5nrWg9iaRXQMdfFJyExEbW">← Lekce 1: Z čeho se skládá hra</a></div>
+    <h1>Jak se věci hýbou</h1>
+    <p class="lead">Postavička, která běží, skáče a nepropadne podlahou, se skládá ze tří kousků: pohybu, gravitace a kolizí. Žádné kouzlo, jen pár řádků, které se opakují šedesátkrát za sekundu.</p>
+    <p class="lead">Každý kousek si nejdřív vyzkoušíš samostatně a nakonec je spojíš na hřišti, kde si můžeš sám vyladit, jak se postava ovládá. Ukázky kódu jsou v GameMakeru, přepínač nabízí i Godot, Unity a Scratch.</p>
+    <div class="goals">
+      <a class="goal k-pos" href="#pozice"><span class="sq"></span><b>Souřadnice</b><span>Kde věc je. Pohyb je jen změna x a y v každém snímku.</span></a>
+      <a class="goal k-vel" href="#rychlost"><span class="sq"></span><b>Rychlost</b><span>O kolik pixelů se věc posune za jeden snímek.</span></a>
+      <a class="goal k-acc" href="#rychlost"><span class="sq"></span><b>Zrychlení a tření</b><span>Jak rychle se rozjede a zastaví. Dělá pohyb „těžkým“ nebo „lehkým“.</span></a>
+      <a class="goal k-grav" href="#gravitace"><span class="sq"></span><b>Gravitace</b><span>Každý snímek přidá kousek rychlosti směrem dolů.</span></a>
+      <a class="goal k-col" href="#kolize"><span class="sq"></span><b>Kolize</b><span>Zjištění, jestli se dvě věci překrývají.</span></a>
+      <a class="goal k-fix" href="#reseni"><span class="sq"></span><b>Řešení kolize</b><span>Co udělat, aby postava stála u zdi a ne v ní.</span></a>
+    </div>
+  </header>
+
+  <!-- ================= 1 POZICE ================= -->
+  <section class="lesson k-pos" id="pozice">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 1 · Souřadnice a snímky</div>
+      <h2>Pohyb je série malých skoků</h2>
+    </div>
+    <div class="prose">
+      <p>Každá instance má <span class="term">polohu</span> <code>x</code> a <code>y</code> v pixelech. Bod (0, 0) je v levém horním rohu scény. <code>x</code> roste doprava a <strong><code>y</code> roste dolů</strong>, ne nahoru jako v matematice.</p>
+      <p>Hra se překresluje zhruba 60× za sekundu. Každému překreslení se říká <strong>snímek</strong> (frame) a v každém snímku se spustí událost <em>Step</em>. Když v ní napíšeš <code>x += 3</code>, instance se každý snímek posune o 3 pixely doprava. Za sekundu urazí 180 pixelů a oku to splyne v plynulý pohyb.</p>
+      <p class="analogy">Jako kreslená knížka: každá stránka je jen o kousek jiná.</p>
+    </div>
+
+    <div class="lab k-pos">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Step event</span><span>obj_mince</span><span class="hint">Zastav čas a krokuj po snímcích</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="posCv" width="720" height="320" aria-label="Mince se pohybuje po snímcích, za ní zůstávají tečky předchozích poloh"></canvas>
+            <p class="cap">Tečky ukazují, kde mince byla v předchozích snímcích. Šipka je rychlost (zvětšená 10×).</p>
+          </div>
+          <div class="panel">
+            <label class="ctl"><span>Vodorovná rychlost (hsp) <output id="posHspV">3</output></span><input type="range" id="posHsp" min="-8" max="8" step="0.5" value="3"></label>
+            <label class="ctl"><span>Svislá rychlost (vsp) <output id="posVspV">-1</output></span><input type="range" id="posVsp" min="-8" max="8" step="0.5" value="-1"></label>
+            <div class="row">
+              <button class="btn" id="posRun" aria-pressed="true">Běží</button>
+              <button class="btn" id="posStep">+1 snímek</button>
+              <button class="btn" id="posReset">Vrátit na start</button>
+            </div>
+            <dl class="readout"><dt>snímek</dt><dd id="posFrame">0</dd><dt>x, y</dt><dd id="posXY"></dd><dt>myš</dt><dd id="posMouse">najeď na plátno</dd></dl>
+            <pre class="code"><code id="posCode"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-pos">
+      <div class="ic">60</div>
+      <p>GameMaker počítá rychlost v <strong>pixelech za snímek</strong>. Godot a Unity častěji v <strong>jednotkách za sekundu</strong> a násobí ji časem snímku (<code>delta</code>). Rychlost 3 px/snímek při 60 FPS je totéž co 180 px/s.</p>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Poloha je ve vestavěných proměnných <code>x</code> a <code>y</code>. Pohyb píšeš do události <em>Step</em>. GameMaker má i vestavěné <code>hspeed</code>/<code>vspeed</code>, které posouvají instanci samy, ale vlastní proměnné máš víc pod kontrolou.</p>
+        <pre class="code"><code data-lang="gml">// Create
+hsp = 3;   // vodorovná rychlost v px za snímek
+vsp = -1;  // svislá rychlost (záporná = nahoru!)
+
+// Step
+x += hsp;
+y += vsp;</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Poloha uzlu je <code>position</code> (Vector2). Osa y také roste dolů. Pohyb násob <code>delta</code> (doba snímku v sekundách), aby byl stejně rychlý na pomalém i rychlém počítači.</p>
+        <pre class="code"><code data-lang="gd">var rychlost = Vector2(180, -60)   # px za sekundu
+
+func _process(delta):
+    position += rychlost * delta</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Poloha je <code>transform.position</code> (Vector3). Pozor: v Unity <strong>y roste nahoru</strong> a jednotkou nejsou pixely, ale „metry“ (obvykle 1 jednotka = 100 px spritu).</p>
+        <pre class="code"><code data-lang="cs">public Vector2 rychlost = new Vector2(1.8f, 0.6f);   // jednotek za sekundu
+
+void Update() {
+    transform.position += (Vector3)(rychlost * Time.deltaTime);
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Ve Scratchi je bod (0, 0) <strong>uprostřed scény</strong> a <strong>y roste nahoru</strong>. Scéna sahá od x −240 do 240 a od y −180 do 180.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb co">opakuj stále</span><span class="sb mo i1">změň x o (3)</span><span class="sb mo i1">změň y o (1)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2 RYCHLOST ================= -->
+  <section class="lesson k-acc" id="rychlost">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 2 · Rychlost, zrychlení a tření</div>
+      <h2>Rozjezd a brzdění dělají pocit z ovládání</h2>
+    </div>
+    <div class="prose">
+      <p>Nejjednodušší ovládání: držíš šipku, postava jede plnou <span class="term k-vel">rychlostí</span>. Pustíš ji a postava stojí. Funguje to, ale působí to tvrdě, jako by postava neměla žádnou váhu.</p>
+      <p>Lepší je měnit rychlost postupně. <span class="term">Zrychlení</span> říká, o kolik rychlost přibude v každém snímku, dokud držíš šipku. <strong>Tření</strong> říká, o kolik ubude, když šipku pustíš. Malé tření = klouže to jako po ledu. Velké tření = zastaví se hned.</p>
+    </div>
+
+    <div class="lab k-acc">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Porovnání</span><span>dvě postavy, stejné klávesy</span><span class="hint">Klikni do obrazu a řiď šipkami</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="mvCv" width="720" height="230" tabindex="0" aria-label="Dvě postavy: nahoře bez zrychlení, dole se zrychlením a třením"></canvas>
+            <canvas id="mvGraph" width="720" height="150" aria-label="Graf rychlosti obou postav v čase"></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="mvCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button></div>
+              <span class="focus-state" id="mvFocus">Ukázka jede sama. Klikni do obrazu a řiď <span class="kbd">←</span> <span class="kbd">→</span></span>
+            </div>
+          </div>
+          <div class="panel">
+            <label class="ctl"><span>Max. rychlost <output id="mvMaxV">4</output></span><input type="range" id="mvMax" min="1" max="10" step="0.5" value="4"></label>
+            <label class="ctl"><span>Zrychlení <output id="mvAccV">0.3</output></span><input type="range" id="mvAcc" min="0.05" max="2" step="0.05" value="0.3"></label>
+            <label class="ctl"><span>Tření <output id="mvFricV">0.15</output></span><input type="range" id="mvFric" min="0.02" max="2" step="0.01" value="0.15"></label>
+            <p class="cap">Graf ukazuje rychlost <code>hsp</code> obou postav za poslední 4 sekundy. Horní postava skáče mezi 0 a maximem, dolní se rozjíždí a dobíhá.</p>
+            <pre class="code"><code id="mvCode"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p><code>keyboard_check</code> vrací 1, když je klávesa držená, jinak 0. Rozdíl pravé a levé šipky dá směr −1, 0 nebo 1.</p>
+        <pre class="code"><code data-lang="gml">var smer = keyboard_check(vk_right) - keyboard_check(vk_left);
+
+if (smer != 0) {
+    hsp += smer * zrychleni;                       // rozjíždění
+    hsp = clamp(hsp, -max_rychlost, max_rychlost); // nepřekroč maximum
+} else {
+    hsp = max(abs(hsp) - treni, 0) * sign(hsp);    // brzdění k nule
+}
+x += hsp;</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p><code>move_toward(a, b, krok)</code> posune hodnotu <code>a</code> k <code>b</code> nejvýš o <code>krok</code>. Na rozjezd i brzdění stačí jedna funkce.</p>
+        <pre class="code"><code data-lang="gd">const MAX_RYCHLOST = 240.0   # px/s
+const ZRYCHLENI = 1080.0     # px/s za sekundu
+const TRENI = 540.0
+
+func _physics_process(delta):
+    var smer = Input.get_axis("ui_left", "ui_right")
+    if smer:
+        velocity.x = move_toward(velocity.x, smer * MAX_RYCHLOST, ZRYCHLENI * delta)
+    else:
+        velocity.x = move_toward(velocity.x, 0, TRENI * delta)
+    move_and_slide()</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Stejný princip s <code>Mathf.MoveTowards</code>. U postavy s <code>Rigidbody2D</code> nastavuješ <code>linearVelocity</code> (ve starších verzích Unity <code>velocity</code>).</p>
+        <pre class="code"><code data-lang="cs">float smer = Input.GetAxisRaw("Horizontal");   // −1, 0 nebo 1
+float cil = smer * maxRychlost;
+float krok = (smer != 0 ? zrychleni : treni) * Time.deltaTime;
+Vector2 v = rb.linearVelocity;
+v.x = Mathf.MoveTowards(v.x, cil, krok);
+rb.linearVelocity = v;</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Ve Scratchi se tření často dělá násobením: rychlost se každý snímek vynásobí třeba 0,8, takže pomalu klesá k nule.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb co">opakuj stále</span><span class="sb co i1">pokud &lt;klávesa [šipka vpravo] stisknuta?&gt; tak</span><span class="sb va i2">změň [rychlost] o (1)</span><span class="sb va i1">nastav [rychlost] na ((rychlost) * (0.8))</span><span class="sb mo i1">změň x o (rychlost)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3 GRAVITACE ================= -->
+  <section class="lesson k-grav" id="gravitace">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 3 · Gravitace a skok</div>
+      <h2>Gravitace je jeden řádek kódu</h2>
+    </div>
+    <div class="prose">
+      <p><span class="term">Gravitace</span> v plošinovce není nic složitého: v každém snímku přičteš ke svislé rychlosti <code>vsp</code> malé číslo. Postava padá čím dál rychleji, stejně jako kámen.</p>
+      <p><strong>Skok</strong> je opak: jednou nastavíš <code>vsp</code> na záporné číslo (nahoru) a gravitace ho postupně „sežere“. Postava zpomalí, na vrcholu se na chvilku zastaví a začne padat. Vznikne oblouk, kterému se říká parabola.</p>
+      <p>Aby postava nepadala nekonečně rychle, rychlost pádu se omezí <strong>maximem</strong>.</p>
+    </div>
+
+    <div class="lab k-grav">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Simulace skoku</span><span>obj_hrac</span><span class="hint">Mezerník, klik do obrazu nebo tlačítko Skok</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="jpCv" width="720" height="330" tabindex="0" aria-label="Postava skáče, tečkovaná čára ukazuje dráhu skoku"></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="jpCv"><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="jpFocus">Tečky jsou polohy v jednotlivých snímcích.</span>
+            </div>
+          </div>
+          <div class="panel">
+            <label class="ctl"><span>Gravitace <output id="jpGV">0.5</output></span><input type="range" id="jpG" min="0.1" max="1.5" step="0.05" value="0.5"></label>
+            <label class="ctl"><span>Síla skoku <output id="jpJV">10</output></span><input type="range" id="jpJ" min="4" max="16" step="0.5" value="10"></label>
+            <label class="ctl"><span>Max. rychlost pádu <output id="jpCapV">12</output></span><input type="range" id="jpCap" min="3" max="20" step="1" value="12"></label>
+            <label class="chk"><input type="checkbox" id="jpAuto" checked> Skákat automaticky</label>
+            <label class="chk"><input type="checkbox" id="jpVar"> Krátký skok, když pustíš tlačítko dřív</label>
+            <dl class="readout"><dt>vsp teď</dt><dd id="jpVsp"></dd><dt>max. výška</dt><dd id="jpH"></dd><dt>ve vzduchu</dt><dd id="jpT"></dd></dl>
+            <pre class="code"><code id="jpCode"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-grav">
+      <div class="ic">≈</div>
+      <p>Výška skoku je přibližně <code>síla² / (2 × gravitace)</code>. Při síle 10 a gravitaci 0,5 je to asi 100 px. Dvojnásobná síla skoku dá čtyřnásobnou výšku. Zkus to.</p>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>GameMaker má i vestavěnou proměnnou <code>gravity</code>, ale v plošinovkách se skoro vždy píše vlastní, aby šla gravitace vypnout na zemi a omezit maximem.</p>
+        <pre class="code"><code data-lang="gml">vsp = min(vsp + gravitace, max_pad);   // gravitace + max. rychlost pádu
+
+if (na_zemi && keyboard_check_pressed(vk_space)) {
+    vsp = -sila_skoku;                 // záporně = nahoru
+}
+if (keyboard_check_released(vk_space) && vsp < 0) {
+    vsp *= 0.5;                        // krátký skok
+}
+y += vsp;</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p><code>CharacterBody2D</code> má rychlost ve <code>velocity</code>. Gravitace projektu (Project Settings → Physics → 2D) se získá přes <code>get_gravity()</code>.</p>
+        <pre class="code"><code data-lang="gd">const SILA_SKOKU = -600.0
+
+func _physics_process(delta):
+    if not is_on_floor():
+        velocity += get_gravity() * delta
+    if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+        velocity.y = SILA_SKOKU
+    if Input.is_action_just_released("ui_accept") and velocity.y < 0:
+        velocity.y *= 0.5
+    move_and_slide()</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>S komponentou <code>Rigidbody2D</code> gravitaci počítá fyzika sama, sílu nastavíš polem <em>Gravity Scale</em>. Skok je jednorázový „kopanec“ nahoru.</p>
+        <pre class="code"><code data-lang="cs">void Update() {
+    if (Input.GetButtonDown("Jump") &amp;&amp; naZemi) {
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, silaSkoku);   // + je nahoru
+    }
+    if (Input.GetButtonUp("Jump") &amp;&amp; rb.linearVelocity.y > 0) {
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
+    }
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Ve Scratchi roste y nahoru, takže gravitace rychlost <strong>odečítá</strong> a skok nastaví kladné číslo.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb co">opakuj stále</span><span class="sb va i1">změň [vy] o (-1)</span><span class="sb mo i1">změň y o (vy)</span><span class="sb co i1">pokud &lt;dotýkám se barvy [zelená]?&gt; tak</span><span class="sb mo i2">změň y o ((0) - (vy))</span><span class="sb va i2">nastav [vy] na (0)</span><span class="sb co i2">pokud &lt;klávesa [mezerník] stisknuta?&gt; tak</span><span class="sb va i2">nastav [vy] na (12)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4 KOLIZE ================= -->
+  <section class="lesson k-col" id="kolize">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 4 · Detekce kolize</div>
+      <h2>Dotýkají se? Stačí čtyři porovnání</h2>
+    </div>
+    <div class="prose">
+      <p><span class="term">Kolize</span> znamená, že se dvě věci překrývají. Engine to většinou nepočítá z obrázku, ale z <strong>kolizní masky</strong>, což bývá obyčejný obdélník kolem postavy (znáš ho ze spritu v lekci 1). Říká se mu <em>bounding box</em> nebo AABB.</p>
+      <p>Dva obdélníky se překrývají, právě když platí všechny čtyři podmínky najednou: A začíná před koncem B, A končí za začátkem B, a totéž svisle. Když neplatí jediná, mezi nimi je mezera.</p>
+    </div>
+
+    <div class="lab k-col">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Collision Mask</span><span>obj_hrac × obj_slime</span><span class="hint">Táhni postavy myší</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="abCv" width="720" height="330" aria-label="Dvě postavy s kolizními obdélníky, které jde přetahovat"></canvas>
+          </div>
+          <div class="panel">
+            <div class="verdict" id="abVerdict">Kolize: ne</div>
+            <div class="checks" id="abChecks"></div>
+            <label class="chk"><input type="checkbox" id="abPix"> Přesná maska (po pixelech)</label>
+            <p class="cap" id="abNote">Obdélník je rychlý, ale nepřesný. Zkus postavy přisunout rohy k sobě: obdélníky se překrývají, i když se postavy nedotýkají.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Masku nastavíš v Sprite Editoru (<em>Collision Mask</em>). Hranice masky instance najdeš v <code>bbox_left</code>, <code>bbox_right</code>, <code>bbox_top</code>, <code>bbox_bottom</code>. Nejčastěji ale použiješ hotovou funkci:</p>
+        <pre class="code"><code data-lang="gml">// byla by kolize, kdybych stál o 4 px vpravo?
+if (place_meeting(x + 4, y, obj_zed)) { ... }
+
+// kterou instanci jsem zasáhl?
+var s = instance_place(x, y, obj_slime);
+if (s != noone) s.hp -= 1;
+
+// nebo událost Collision → obj_mince v objektu hráče</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Tvar kolize je samostatný uzel <code>CollisionShape2D</code> (obdélník, kruh, kapsle…). Na „dotkl se mě někdo?“ slouží <code>Area2D</code> a jeho signál <code>body_entered</code>.</p>
+        <pre class="code"><code data-lang="gd"># skript na mince (Area2D), signál body_entered připojený v editoru
+func _on_body_entered(body):
+    if body.name == "Hrac":
+        queue_free()   # mince zmizí</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Tvar kolize je komponenta <code>BoxCollider2D</code>, <code>CircleCollider2D</code> a další. Collider se zaškrtnutým <em>Is Trigger</em> jen hlásí dotyk, jinak se tělesa od sebe odráží.</p>
+        <pre class="code"><code data-lang="cs">void OnTriggerEnter2D(Collider2D other) {
+    if (other.CompareTag("Player")) {
+        Destroy(gameObject);   // mince zmizí
+    }
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Scratch kolize počítá rovnou <strong>po pixelech</strong> podle kostýmu. Proto je přesný, ale u velkých her pomalý.</p>
+        <div class="scratch"><span class="sb co">pokud &lt;dotýkám se [Slizoun]?&gt; tak</span><span class="sb se i1">řekni [Au!] na (1) sekund</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5 ŘEŠENÍ ================= -->
+  <section class="lesson k-fix" id="reseni">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 5 · Řešení kolize</div>
+      <h2>Stůj u zdi, ne ve zdi</h2>
+    </div>
+    <div class="prose">
+      <p>Vědět, že se něco překrývá, nestačí. Musíš rozhodnout, co s tím. Pro zdi a podlahu se osvědčil jednoduchý postup: <strong>než se pohneš, podívej se, kam se chystáš</strong>. Když by tam byla zeď, přisuň se k ní po jednom pixelu a zastav.</p>
+      <p>Níž jsou tři postavičky, které běží proti zdi a každá to řeší jinak. Pak zkus rychlost nad 72 (třeba 80) a sleduj, co se stane se všemi třemi.</p>
+    </div>
+
+    <div class="lab k-fix">
+      <div class="lab-bar"><span class="sq"></span><span class="t">Tři přístupy</span><span>obj_zed</span><span class="hint">Přerušovaný rámeček = kam se chce postava pohnout</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="svCv" width="720" height="340" aria-label="Tři postavy běží proti zdi a každá řeší kolizi jinak"></canvas>
+          </div>
+          <div class="panel">
+            <label class="ctl"><span>Rychlost (px za snímek) <output id="svSpdV">7</output></span><input type="range" id="svSpd" min="1" max="100" step="1" value="7"></label>
+            <label class="chk"><input type="checkbox" id="svSlow" checked> Zpomalit (1 krok za 8 snímků)</label>
+            <div class="row"><button class="btn" id="svRun" aria-pressed="true">Běží</button><button class="btn" id="svStep">+1 krok</button><button class="btn" id="svReset">Znovu</button></div>
+            <pre class="code"><code id="svCode"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-fix">
+      <div class="ic">!</div>
+      <p><strong>Tunelování.</strong> Hra kontroluje kolize jen v jednotlivých snímcích. Postava mezi nimi „skáče“ a neprochází místy uprostřed. Když je skok delší než tloušťka zdi plus šířka postavy (tady 32 + 40 = 72 px), cílové místo může ležet až za zdí. Kontrola cíle pak nic nenajde a projdou i přístupy 2 a 3. Pomůže omezit maximální rychlost, rozdělit rychlý pohyb na víc menších kroků za snímek, nebo nechat engine kontrolovat celou dráhu: v Unity <em>Collision Detection: Continuous</em>.</p>
+    </div>
+
+    <div class="prose">
+      <h3>GameMaker: přisouvání přes <code>while</code>, nebo <code>move_and_collide</code>?</h3>
+      <p>Novější verze GameMakeru mají hotovou funkci <code>move_and_collide(dx, dy, obj)</code>. Nedělá ale přesně totéž co ruční přisouvání. Pohyb rozdělí na několik dílčích kroků (výchozí jsou 4) a po každém zkontroluje kolizi. Když narazí, zkusí se pohnout kolmo, takže postava sklouzne po svahu nebo vyjde malý schod.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="terms">
+        <thead><tr><th scope="col"></th><th scope="col">Přisouvání přes <code>while</code></th><th scope="col"><code>move_and_collide</code></th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Jak se pohne</th><td>Zkontroluje cíl. Když je volný, skočí tam celým krokem. Když ne, přisouvá se po 1 px.</td><td>Rozdělí pohyb na <code>num_iterations</code> dílů (výchozí 4) a kontroluje po každém. Při 8 px za snímek tedy po 2 px.</td></tr>
+          <tr><th scope="row">Přesnost u zdi</th><td>Na pixel přesně.</td><td>Po dílčích krocích, takže nemusí dojet úplně na pixel. Víc přesnosti dá vyšší <code>num_iterations</code>.</td></tr>
+          <tr><th scope="row">Svahy a schody</th><td>Neumí, postava se o šikmou plochu zasekne. Musíš dopsat vlastní kód.</td><td>Umí. Při nárazu zkusí uhnout kolmo (nebo směrem <code>xoff</code>, <code>yoff</code>) a sklouzne.</td></tr>
+          <tr><th scope="row">Tunelování</th><td>Hrozí, když je krok delší než zeď plus postava, protože se kontroluje jen cíl.</td><td>Menší riziko, kontroluje i mezikroky. U hodně rychlých věcí zvyš <code>num_iterations</code>.</td></tr>
+          <tr><th scope="row">Rychlost</th><td>Nuluješ sám (<code>hsp = 0</code>) přesně ve chvíli nárazu.</td><td>Proměnné rychlosti nemění. Sám musíš zjistit, že stojíš na zemi, a vynulovat <code>vsp</code>, jinak gravitace roste dál.</td></tr>
+          <tr><th scope="row">Co vrací</th><td>Nic, vše vidíš v kódu.</td><td>Pole instancí (a tile map), do kterých narazil.</td></tr>
+          <tr><th scope="row">Kdy použít</th><td>Když chceš rozumět každému řádku, nebo potřebuješ pixelovou přesnost. Funguje v každé verzi GameMakeru.</td><td>Když chceš rychle hotový pohyb se svahy. Na tile mapy funguje přímo (místo objektu předáš ID tile mapy).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Klasický postup: vodorovně a svisle zvlášť. Kód je delší, ale vidíš v něm, co se přesně děje.</p>
+        <pre class="code"><code data-lang="gml">// vodorovně
+if (place_meeting(x + hsp, y, obj_zed)) {
+    while (!place_meeting(x + sign(hsp), y, obj_zed)) {
+        x += sign(hsp);   // přisouvej po 1 px
+    }
+    hsp = 0;
+}
+x += hsp;
+
+// svisle
+if (place_meeting(x, y + vsp, obj_zed)) {
+    while (!place_meeting(x, y + sign(vsp), obj_zed)) {
+        y += sign(vsp);
+    }
+    vsp = 0;
+}
+y += vsp;</code></pre>
+        <p>Totéž s <code>move_and_collide</code>. Funkce sama posune <code>x</code> i <code>y</code>, ale rychlosti nastavuješ ty:</p>
+        <pre class="code"><code data-lang="gml">// pohyb s kolizí: 4 dílčí kroky, vodorovně nejvýš o max_rychlost
+move_and_collide(hsp, vsp, obj_zed, 4, 0, 0, max_rychlost, -1);
+
+// rychlosti funkce nemění, vynuluj je sám
+if (vsp > 0 && place_meeting(x, y + 1, obj_zed)) vsp = 0;            // dopadl na zem
+if (vsp < 0 && place_meeting(x, y - 1, obj_zed)) vsp = 0;            // narazil hlavou
+if (hsp != 0 && place_meeting(x + sign(hsp), y, obj_zed)) hsp = 0;   // narazil do zdi</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p><code>move_and_slide()</code> pohne tělesem podle <code>velocity</code>, vyřeší kolize a nechá postavu klouzat podél zdí a po svazích. Pak víš i <code>is_on_floor()</code> a <code>is_on_wall()</code>.</p>
+        <pre class="code"><code data-lang="gd">move_and_slide()
+if is_on_wall():
+    print("narazil jsem do zdi")
+
+# nebo ručně: pohne a vrátí, do čeho narazil
+var kolize = move_and_collide(velocity * delta)
+if kolize:
+    print(kolize.get_collider().name)</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>S <code>Rigidbody2D</code> (Body Type: <em>Dynamic</em>) a colliderem řeší zdi fyzikální engine sám. Proti tunelování přepni <em>Collision Detection</em> na <strong>Continuous</strong>.</p>
+        <pre class="code"><code data-lang="cs">void OnCollisionEnter2D(Collision2D kolize) {
+    // normála ukazuje od zdi k nám: (0, 1) = stojím na podlaze
+    if (kolize.GetContact(0).normal.y > 0.5f) naZemi = true;
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Ve Scratchi se postava po pohybu „vytlačí“ ze zdi zpátky po jednom kroku.</p>
+        <div class="scratch"><span class="sb mo">změň x o (rychlost)</span><span class="sb co">opakuj dokud &lt;ne &lt;dotýkám se [Zeď]?&gt;&gt;</span><span class="sb mo i1">změň x o ((0) - (znaménko rychlosti))</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 6 HŘIŠTĚ ================= -->
+  <section class="lesson k-room" id="hriste">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Všechno dohromady</div>
+      <h2>Hřiště: vylaď si vlastní plošinovku</h2>
+    </div>
+    <div class="prose">
+      <p>Tady jsou všechny kousky spojené. V každém snímku proběhne stejný postup, vždy ve stejném pořadí:</p>
+    </div>
+    <ol class="pipe">
+      <li class="k-acc"><b>Vstup</b><span>Které klávesy jsou stisknuté?</span></li>
+      <li class="k-vel"><b>Rychlost</b><span>Zrychlení nebo tření změní <code>hsp</code>.</span></li>
+      <li class="k-grav"><b>Gravitace a skok</b><span>Změní <code>vsp</code>.</span></li>
+      <li class="k-fix"><b>Pohyb a kolize v x</b><span>Přisuň se ke zdi, pohni se.</span></li>
+      <li class="k-fix"><b>Pohyb a kolize v y</b><span>Totéž svisle. Teď víš, jestli stojíš na zemi.</span></li>
+      <li class="k-pos"><b>Kreslení</b><span>Engine nakreslí sprite na nové <code>x</code>, <code>y</code>.</span></li>
+    </ol>
+
+    <div class="lab k-room">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_hriste</span><span>960 × 384 px</span><span class="hint">Klikni do hry: ← → pohyb, mezerník nebo ↑ skok, ↓ seskok z plošiny</span></div>
+      <div class="lab-body">
+        <canvas id="plCv" width="960" height="384" tabindex="0" aria-label="Malá plošinovka. Klikni a ovládej šipkami a mezerníkem."></canvas>
+        <div class="row" style="justify-content:space-between">
+          <div class="pad" data-for="plCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="down" aria-label="Seskočit z plošiny">▼</button><button class="btn" data-k="jump">Skok</button></div>
+          <span class="focus-state" id="plFocus">Klikni do hry a ovládej <span class="kbd">←</span> <span class="kbd">→</span> <span class="kbd">mezerník</span></span>
+          <div class="row"><span class="pill" id="plGround">ve vzduchu</span><span class="pill" id="plCoins">mince 0/14</span><button class="btn" id="plReset">Začít znovu</button></div>
+        </div>
+        <div class="split">
+          <div class="panel">
+            <h4>Řešení kolizí</h4>
+            <div class="row">
+              <div class="seg" role="group" aria-label="Způsob řešení kolize">
+                <button class="btn" id="plModeWhile" aria-pressed="true">přisouvání (while)</button><button class="btn" id="plModeMac" aria-pressed="false">move_and_collide</button>
+              </div>
+              <label class="chk k-fix"><input type="checkbox" id="plOneway" checked> Polopropustné plošiny (one-way)</label>
+            </div>
+            <p class="cap" id="plModeNote"></p>
+            <h4>Nastavení postavy</h4>
+            <div class="presets" id="plPresets"></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px 18px">
+              <label class="ctl k-vel"><span>Max. rychlost <output id="plMaxV"></output></span><input type="range" id="plMax" min="1" max="9" step="0.5"></label>
+              <label class="ctl k-acc"><span>Zrychlení <output id="plAccV"></output></span><input type="range" id="plAcc" min="0.05" max="2" step="0.05"></label>
+              <label class="ctl k-acc"><span>Tření <output id="plFricV"></output></span><input type="range" id="plFric" min="0.02" max="2" step="0.01"></label>
+              <label class="ctl k-grav"><span>Gravitace <output id="plGV"></output></span><input type="range" id="plG" min="0.1" max="1.5" step="0.05"></label>
+              <label class="ctl k-grav"><span>Síla skoku <output id="plJV"></output></span><input type="range" id="plJ" min="4" max="16" step="0.5"></label>
+              <label class="ctl k-grav"><span>Max. rychlost pádu <output id="plCapV"></output></span><input type="range" id="plCap" min="3" max="20" step="1"></label>
+            </div>
+            <div class="row">
+              <label class="chk k-grav"><input type="checkbox" id="plVar" checked> Krátký skok</label>
+              <label class="chk k-col"><input type="checkbox" id="plBox" checked> Kolizní maska</label>
+              <label class="chk k-vel"><input type="checkbox" id="plVec" checked> Šipka rychlosti</label>
+              <label class="chk"><input type="checkbox" id="plSnd" checked> Zvuky</label>
+            </div>
+            <dl class="readout"><dt>hsp</dt><dd id="plHsp"></dd><dt>vsp</dt><dd id="plVsp"></dd><dt>x, y</dt><dd id="plXY"></dd></dl>
+          </div>
+          <div class="panel">
+            <h4>Create event obj_hrac (živě)</h4>
+            <pre class="code"><code id="plCreate"></code></pre>
+            <h4>Step event obj_hrac (živě)</h4>
+            <pre class="code"><code id="plCode"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Celý ovladač hráče z hřiště. Potřebuješ objekt <code>obj_hrac</code> a objekt <code>obj_zed</code> se spritem čtverce, kterým postavíš podlahu a plošiny.</p>
+        <pre class="code"><code data-lang="gml">// ===== Create =====
+hsp = 0; vsp = 0;
+max_rychlost = 4; zrychleni = 0.6; treni = 0.4;
+gravitace = 0.5; sila_skoku = 10; max_pad = 12;
+
+// ===== Step =====
+var smer = keyboard_check(vk_right) - keyboard_check(vk_left);
+if (smer != 0) hsp = clamp(hsp + smer * zrychleni, -max_rychlost, max_rychlost);
+else hsp = max(abs(hsp) - treni, 0) * sign(hsp);
+
+vsp = min(vsp + gravitace, max_pad);
+var na_zemi = place_meeting(x, y + 1, obj_zed);
+if (na_zemi && keyboard_check_pressed(vk_space)) vsp = -sila_skoku;
+if (keyboard_check_released(vk_space) && vsp < 0) vsp *= 0.5;
+
+if (place_meeting(x + hsp, y, obj_zed)) {
+    while (!place_meeting(x + sign(hsp), y, obj_zed)) x += sign(hsp);
+    hsp = 0;
+}
+x += hsp;
+
+if (place_meeting(x, y + vsp, obj_zed)) {
+    while (!place_meeting(x, y + sign(vsp), obj_zed)) y += sign(vsp);
+    vsp = 0;
+}
+y += vsp;</code></pre>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Uzel <code>CharacterBody2D</code> s potomky <code>Sprite2D</code> a <code>CollisionShape2D</code>. Podlaha je <code>StaticBody2D</code> nebo <code>TileMapLayer</code> s kolizemi. Hodnoty jsou v px za sekundu (GameMaker × 60).</p>
+        <pre class="code"><code data-lang="gd">extends CharacterBody2D
+
+const MAX_RYCHLOST = 240.0
+const ZRYCHLENI = 2160.0
+const TRENI = 1440.0
+const SILA_SKOKU = -600.0
+
+func _physics_process(delta):
+    if not is_on_floor():
+        velocity += get_gravity() * delta
+    if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+        velocity.y = SILA_SKOKU
+    if Input.is_action_just_released("ui_accept") and velocity.y < 0:
+        velocity.y *= 0.5
+
+    var smer = Input.get_axis("ui_left", "ui_right")
+    if smer:
+        velocity.x = move_toward(velocity.x, smer * MAX_RYCHLOST, ZRYCHLENI * delta)
+    else:
+        velocity.x = move_toward(velocity.x, 0, TRENI * delta)
+
+    move_and_slide()   # pohyb + kolize v jednom</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>GameObject se <code>SpriteRenderer</code>, <code>Rigidbody2D</code> (Freeze Rotation Z) a <code>BoxCollider2D</code>. Podlaha má jen collider. Gravitaci řeší Rigidbody2D, kontrolu země malý paprsek dolů.</p>
+        <pre class="code"><code data-lang="cs">using UnityEngine;
+
+public class Hrac : MonoBehaviour {
+    public float maxRychlost = 5f, zrychleni = 40f, treni = 30f, silaSkoku = 12f;
+    public LayerMask zem;
+    Rigidbody2D rb;
+
+    void Awake() { rb = GetComponent&lt;Rigidbody2D&gt;(); }
+
+    void Update() {
+        bool naZemi = Physics2D.Raycast(transform.position, Vector2.down, 0.6f, zem);
+        Vector2 v = rb.linearVelocity;
+
+        float smer = Input.GetAxisRaw("Horizontal");
+        float krok = (smer != 0 ? zrychleni : treni) * Time.deltaTime;
+        v.x = Mathf.MoveTowards(v.x, smer * maxRychlost, krok);
+
+        if (Input.GetButtonDown("Jump") &amp;&amp; naZemi) v.y = silaSkoku;
+        if (Input.GetButtonUp("Jump") &amp;&amp; v.y > 0) v.y *= 0.5f;
+
+        rb.linearVelocity = v;
+    }
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Celá plošinovka ve Scratchi: podlaha je zelená barva v pozadí. Proměnné <code>vx</code> a <code>vy</code> patří jen postavě.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb va">nastav [vx] na (0)</span><span class="sb co">opakuj stále</span><span class="sb co i1">pokud &lt;klávesa [šipka vpravo] stisknuta?&gt; tak</span><span class="sb va i2">změň [vx] o (1)</span><span class="sb co i1">pokud &lt;klávesa [šipka vlevo] stisknuta?&gt; tak</span><span class="sb va i2">změň [vx] o (-1)</span><span class="sb va i1">nastav [vx] na ((vx) * (0.8))</span><span class="sb mo i1">změň x o (vx)</span><span class="sb va i1">změň [vy] o (-1)</span><span class="sb mo i1">změň y o (vy)</span><span class="sb co i1">pokud &lt;dotýkám se barvy [zelená]?&gt; tak</span><span class="sb mo i2">změň y o ((0) - (vy))</span><span class="sb va i2">nastav [vy] na (0)</span><span class="sb co i2">pokud &lt;klávesa [mezerník] stisknuta?&gt; tak</span><span class="sb va i2">nastav [vy] na (12)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ENGINY ================= -->
+  <section class="lesson" id="enginy">
+    <div class="sec-head">
+      <div class="eyebrow">Slovníček</div>
+      <h2>Stejné principy, jiná jména</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="terms">
+        <thead><tr><th scope="col">Pojem</th><th scope="col">GameMaker</th><th scope="col">Godot</th><th scope="col">Unity</th><th scope="col">Scratch</th></tr></thead>
+        <tbody>
+          <tr class="k-pos"><th scope="row"><span class="sq"></span>Poloha</th><td><code>x</code>, <code>y</code> · y dolů</td><td><code>position</code> · y dolů</td><td><code>transform.position</code> · y nahoru</td><td>x, y · (0,0) uprostřed, y nahoru</td></tr>
+          <tr class="k-vel"><th scope="row"><span class="sq"></span>Rychlost</th><td>vlastní <code>hsp</code>, <code>vsp</code> (px/snímek)</td><td><code>velocity</code> (px/s)</td><td><code>rb.linearVelocity</code> (jednotky/s)</td><td>vlastní proměnné</td></tr>
+          <tr class="k-pos"><th scope="row"><span class="sq"></span>Snímek</th><td>událost Step</td><td><code>_physics_process(delta)</code></td><td><code>Update()</code> / <code>FixedUpdate()</code></td><td>smyčka „opakuj stále“</td></tr>
+          <tr class="k-grav"><th scope="row"><span class="sq"></span>Gravitace</th><td>vlastní <code>vsp += g</code></td><td><code>get_gravity()</code></td><td>Rigidbody2D · Gravity Scale</td><td>vlastní <code>změň vy o -1</code></td></tr>
+          <tr class="k-col"><th scope="row"><span class="sq"></span>Kolizní tvar</th><td>Collision Mask spritu</td><td><code>CollisionShape2D</code></td><td><code>BoxCollider2D</code> a další</td><td>kostým (po pixelech)</td></tr>
+          <tr class="k-col"><th scope="row"><span class="sq"></span>Test kolize</th><td><code>place_meeting</code></td><td><code>Area2D</code>, <code>is_on_floor()</code></td><td><code>OnCollisionEnter2D</code>, Raycast</td><td>„dotýkám se?“</td></tr>
+          <tr class="k-fix"><th scope="row"><span class="sq"></span>Pohyb s kolizí</th><td>přisouvání / <code>move_and_collide</code></td><td><code>move_and_slide()</code></td><td>Rigidbody2D sám</td><td>vytlačení po krocích</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= KVIZ ================= -->
+  <section class="lesson" id="kviz">
+    <div class="sec-head">
+      <div class="eyebrow">Ověř si to</div>
+      <h2>Rychlý kvíz</h2>
+    </div>
+    <div class="row"><span class="score" id="quizScore">0 / 0</span><button class="btn" id="quizReset">Zkusit znovu</button></div>
+    <div class="quiz" id="quiz"></div>
+  </section>
+
+  <!-- ================= UKOL ================= -->
+  <section class="lesson" id="ukol">
+    <div class="sec-head">
+      <div class="eyebrow">Do příště · GameMaker</div>
+      <h2>Úkol: vlastní plošinovka</h2>
+    </div>
+    <ol class="steps">
+      <li><span>Vytvoř sprite <code>spr_zed</code> (čtverec 32 × 32) a objekt <code>obj_zed</code>. Ve scéně z něj postav podlahu a pár plošin.</span></li>
+      <li><span>Do <code>obj_hrac</code> z minulé lekce zkopíruj ovladač ze záložky GameMaker v sekci Hřiště.</span></li>
+      <li><span>Zkontroluj, že má sprite hráče origin <em>Bottom Centre</em> a že kolizní maska je obdélník. Co se stane, když necháš masku podle pixelů?</span></li>
+      <li><span>Vylaď čísla tak, aby hra působila podle tebe. Zapiš si, jaké hodnoty jsi zvolil a proč.</span></li>
+      <li><span>Bonus: přidej mince s událostí <em>Collision</em> s <code>obj_hrac</code>, které zahrají zvuk a zmizí (<code>instance_destroy()</code>).</span></li>
+    </ol>
+  </section>
+</main>
+
+<footer class="wrap">Herní dílna · Lekce 2: Pohyb, gravitace a kolize. Všechna fyzika v ukázkách běží po snímcích (60 za sekundu) stejně jako v GameMakeru.</footer>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+/* ---------- theme tokens for canvas ---------- */
+const TOK = {};
+function readTokens() {
+  const cs = getComputedStyle(document.documentElement);
+  ['ink', 'muted', 'line', 'line-strong', 'surface', 'surface-2', 'c-pos', 'c-vel', 'c-acc', 'c-grav', 'c-col', 'c-fix', 'c-room']
+    .forEach(k => TOK[k] = cs.getPropertyValue('--' + k).trim() || '#888');
+}
+readTokens();
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTokens); } catch (e) {}
+new MutationObserver(readTokens).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+
+/* ---------- pixel art (same characters as lesson 1) ---------- */
+const PAL = { k: '#1d2433', y: '#f7c948', o: '#d9890b', w: '#ffffff', g: '#5cb85c', G: '#2e7d32', b: '#9a6640', d: '#6e4529', r: '#e5484d', p: '#3c7bf0', P: '#2a56b0', s: '#f4c7a1', S: '#8a8f99', T: '#b8bcc4' };
+function bake(rows) {
+  const c = document.createElement('canvas'); c.width = rows[0].length; c.height = rows.length;
+  const x = c.getContext('2d');
+  rows.forEach((row, j) => [...row].forEach((ch, i) => { if (ch !== '.') { x.fillStyle = PAL[ch]; x.fillRect(i, j, 1, 1); } }));
+  c.rows = rows;
+  return c;
+}
+const mir = rows => rows.map(r => [...r].reverse().join(''));
+const COIN = [
+  ['..kkkk..', '.kyyyyk.', 'kyywyyok', 'kywyyyok', 'kyyyyyok', 'kyyyyook', '.kyoook.', '..kkkk..'],
+  ['...kk...', '..kyyk..', '..kwyk..', '..kyok..', '..kyok..', '..kyok..', '..kook..', '...kk...'],
+  ['...kk...', '...ko...', '...ko...', '...ko...', '...ko...', '...ko...', '...ko...', '...kk...']
+];
+COIN.push(mir(COIN[1]));
+const HERO_TOP = ['..rrrr..', '.rrrrrrr', '..ssss..', '..sksk..', '..ssss..', '.pppppp.', 'spppppps', '.pPPPPp.'];
+const IMG = {
+  coin: COIN.map(bake),
+  hero: [bake(HERO_TOP.concat(['..p..p..', '.kk..kk.'])), bake(HERO_TOP.concat(['.p....p.', 'kk....kk']))],
+  heroJump: bake(HERO_TOP.concat(['.p....p.', '.k....k.'])),
+  slime: [bake(['........', '..kkkk..', '.kggggk.', 'kgkggkgk', 'kggggggk', '.kkkkkk.']), bake(['........', '........', '.kkkkkk.', 'kgkggkgk', 'kggggggk', 'kkkkkkkk'])],
+  grass: bake(['gggggggg', 'gGggggGg', 'GbGbbGbG', 'bbbbbbbb', 'bbdbbbbb', 'bbbbbdbb', 'bdbbbbbb', 'bbbbbbdb']),
+  dirt: bake(['bbbbbbbb', 'bbdbbbbb', 'bbbbbbdb', 'bbbbbbbb', 'bdbbbbbb', 'bbbbbdbb', 'bbbbbbbb', 'bbbdbbbb']),
+  stone: bake(['TTTTTTTS', 'TSSSTSSS', 'TSSSTSSS', 'SSSSSSSS', 'TTTSTTTT', 'SSTSSSST', 'SSTSSSST', 'SSSSSSSS'])
+};
+const cyc = (arr, t, fps) => arr[((Math.floor(t * fps) % arr.length) + arr.length) % arr.length];
+function drawImg(ctx, img, x, y, w, h, flip) {
+  if (!img) return;
+  ctx.imageSmoothingEnabled = false;
+  if (!flip) { ctx.drawImage(img, x, y, w, h); return; }
+  ctx.save(); ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(img, 0, 0, w, h); ctx.restore();
+}
+function arrow(ctx, x0, y0, x1, y1, col, wdt) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+  if (L < 2) return;
+  const ux = dx / L, uy = dy / L, hs = Math.min(10, L * .5);
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = wdt || 3;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * hs * .6, y1 - uy * hs * .6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * hs - uy * hs * .6, y1 - uy * hs + ux * hs * .6); ctx.lineTo(x1 - ux * hs + uy * hs * .6, y1 - uy * hs - ux * hs * .6); ctx.closePath(); ctx.fill();
+}
+function gridBg(ctx, W, H, step) {
+  ctx.fillStyle = TOK['surface-2']; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = TOK.line; ctx.lineWidth = 1; ctx.beginPath();
+  for (let x = 0; x <= W; x += step) { ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); }
+  for (let y = 0; y <= H; y += step) { ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); }
+  ctx.stroke();
+}
+const mono = (ctx, px, w) => ctx.font = `${w || 600} ${px}px "JetBrains Mono", ui-monospace, monospace`;
+const fmt = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toFixed(d).replace('-0.0', '0.0');
+const canvasPos = (cv, e) => { const r = cv.getBoundingClientRect(), k = cv.width / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k]; };
+
+/* ---------- sound ---------- */
+let AC = null, soundOn = true;
+function beep(kind) {
+  if (!soundOn) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(), n = AC.currentTime;
+    o.type = 'square';
+    if (kind === 'coin') { o.frequency.setValueAtTime(988, n); o.frequency.setValueAtTime(1319, n + .07); }
+    else if (kind === 'bump') { o.frequency.setValueAtTime(140, n); o.frequency.exponentialRampToValueAtTime(70, n + .1); }
+    else { o.frequency.setValueAtTime(300, n); o.frequency.exponentialRampToValueAtTime(700, n + .14); }
+    g.gain.setValueAtTime(.045, n); g.gain.exponentialRampToValueAtTime(.001, n + .26);
+    o.connect(g); g.connect(AC.destination); o.start(n); o.stop(n + .28);
+  } catch (e) {}
+}
+
+/* ---------- fixed-step loop: physics at 60 steps/s like GameMaker ---------- */
+const STEP = 1 / 60, widgets = [];
+let lastT = performance.now(), acc = 0;
+function safe(w, fn, ...a) { try { w[fn](...a); } catch (e) { w.dead = true; console.error(e); } }
+function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.max(0, Math.min(.1, (now - lastT) / 1000)); lastT = Math.max(lastT, now);
+  acc += dt;
+  let n = 0;
+  while (acc >= STEP && n < 6) { for (const w of widgets) if (!w.dead && w.step) safe(w, 'step'); acc -= STEP; n++; }
+  if (n === 6) acc = 0;
+  const t = now / 1000;
+  for (const w of widgets) if (!w.dead && w.draw) safe(w, 'draw', t);
+}
+
+/* ---------- keyboard + touch input bound to a focused canvas ---------- */
+const KEYMAP = { ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right', ArrowUp: 'jump', w: 'jump', W: 'jump', ' ': 'jump', ArrowDown: 'down', s: 'down', S: 'down' };
+function makeInput(cv, focusEl, activeText) {
+  const inp = { left: false, right: false, jump: false, down: false, pressed: false, released: false, focused: false, touched: false };
+  const idle = focusEl ? focusEl.innerHTML : '';
+  cv.addEventListener('keydown', e => {
+    const k = KEYMAP[e.key]; if (!k) return; e.preventDefault();
+    if (k === 'jump' && !inp.jump) inp.pressed = true;
+    inp[k] = true;
+  });
+  cv.addEventListener('keyup', e => {
+    const k = KEYMAP[e.key]; if (!k) return;
+    if (k === 'jump') inp.released = true;
+    inp[k] = false;
+  });
+  cv.addEventListener('focus', () => { inp.focused = true; if (focusEl) { focusEl.classList.add('on'); focusEl.textContent = activeText; } });
+  cv.addEventListener('blur', () => { inp.focused = false; inp.left = inp.right = inp.jump = inp.down = false; if (focusEl) { focusEl.classList.remove('on'); focusEl.innerHTML = idle; } });
+  cv.addEventListener('pointerdown', () => cv.focus({ preventScroll: true }));
+  $$(`.pad[data-for="${cv.id}"] [data-k]`).forEach(b => {
+    const k = b.dataset.k;
+    const on = e => { e.preventDefault(); inp.touched = true; if (k === 'jump' && !inp.jump) inp.pressed = true; inp[k] = true; try { b.setPointerCapture(e.pointerId); } catch (_) {} };
+    const off = () => { if (!inp[k]) return; if (k === 'jump') inp.released = true; inp[k] = false; };
+    b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off);
+  });
+  inp.consume = () => { const r = { pressed: inp.pressed, released: inp.released }; inp.pressed = inp.released = false; return r; };
+  inp.active = () => inp.focused || inp.touched;
+  return inp;
+}
+function slider(id, fmtFn, onChange) {
+  const el = $('#' + id), out = $('#' + id + 'V');
+  const upd = () => { const v = +el.value; if (out) out.textContent = fmtFn ? fmtFn(v) : v; onChange && onChange(v); };
+  el.addEventListener('input', upd); upd();
+  return el;
+}
+
+/* ---------- engine tabs ---------- */
+const ENG = [['gm', 'GameMaker'], ['godot', 'Godot'], ['unity', 'Unity'], ['scratch', 'Scratch']];
+$$('.eng').forEach((box, bi) => {
+  const head = document.createElement('div'); head.className = 'eng-head';
+  head.innerHTML = '<span class="lbl">V enginu</span>';
+  const tabs = document.createElement('div'); tabs.className = 'eng-tabs'; tabs.setAttribute('role', 'tablist');
+  ENG.forEach(([id, name], i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.dataset.e = id; b.textContent = name; b.id = `eng-${bi}-${id}`;
+    b.addEventListener('click', () => setEngine(id));
+    b.addEventListener('keydown', e => {
+      const j = e.key === 'ArrowRight' ? (i + 1) % 4 : e.key === 'ArrowLeft' ? (i + 3) % 4 : -1;
+      if (j >= 0) { e.preventDefault(); setEngine(ENG[j][0]); tabs.children[j].focus(); }
+    });
+    tabs.appendChild(b);
+  });
+  head.appendChild(tabs); box.prepend(head);
+  $$('.eng-panel', box).forEach(p => { p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-labelledby', `eng-${bi}-${p.dataset.e}`); });
+});
+function setEngine(id) {
+  store.set('eng', id);
+  $$('.eng').forEach(box => {
+    $$('[role=tab]', box).forEach(b => { const on = b.dataset.e === id; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
+    $$('.eng-panel', box).forEach(p => p.hidden = p.dataset.e !== id);
+  });
+}
+const savedEng = store.get('eng');
+setEngine(ENG.some(e => e[0] === savedEng) ? savedEng : 'gm');
+
+/* ---------- syntax highlight ---------- */
+const KW = {
+  gml: 'var|if|else|with|return|function|for|while|repeat|true|false|self|other|noone|exit',
+  gd: 'var|const|func|if|else|elif|return|extends|true|false|self|for|in|and|or|not',
+  cs: 'void|public|private|new|var|float|int|bool|return|if|else|class|true|false|using|null'
+};
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+function highlight(src, lang) {
+  const com = lang === 'gd' ? '#.*$' : '\\/\\/.*$';
+  const re = new RegExp(`(${com})|("(?:[^"\\\\]|\\\\.)*")|(\\b\\d+(?:\\.\\d+)?f?\\b)|\\b(${KW[lang] || KW.gml})\\b|\\b([A-Za-z_]\\w*)(?=\\s*\\()`, 'gm');
+  let out = '', i = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(i, m.index));
+    const cls = m[1] ? 'tc' : m[2] ? 'ts' : m[3] ? 'tn' : m[4] ? 'tk' : 'tf';
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    i = m.index + m[0].length;
+  }
+  return out + esc(src.slice(i));
+}
+$$('pre code[data-lang]').forEach(el => el.innerHTML = highlight(el.textContent, el.dataset.lang));
+const setCode = (el, src) => { if (el._src !== src) { el._src = src; el.innerHTML = highlight(src, 'gml'); } };
+const setTxt = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+
+/* =========================================================
+   1. POSITION: x += hsp, frame by frame
+   ========================================================= */
+(function positionLab() {
+  const cv = $('#posCv'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const st = { x: 120, y: 220, hsp: 3, vsp: -1, frame: 0, run: true, trail: [], tick: 0, mouse: null };
+  slider('posHsp', null, v => st.hsp = v);
+  slider('posVsp', null, v => st.vsp = v);
+  const runBtn = $('#posRun');
+  const setRun = r => { st.run = r; runBtn.setAttribute('aria-pressed', r); runBtn.textContent = r ? 'Běží' : 'Zastaveno'; $('#posStep').disabled = r; };
+  runBtn.onclick = () => setRun(!st.run);
+  $('#posStep').onclick = () => advance();
+  $('#posReset').onclick = () => { Object.assign(st, { x: 120, y: 220, frame: 0, trail: [] }); };
+  setRun(true);
+  cv.addEventListener('pointermove', e => st.mouse = canvasPos(cv, e));
+  cv.addEventListener('pointerleave', () => st.mouse = null);
+  function advance() {
+    st.trail.push({ x: st.x, y: st.y, f: st.frame });
+    if (st.trail.length > 45) st.trail.shift();
+    st.x += st.hsp; st.y += st.vsp; st.frame++;
+    // wrap around the room like move_wrap()
+    let wrapped = false;
+    if (st.x > W + 16) { st.x -= W + 32; wrapped = true; } else if (st.x < -16) { st.x += W + 32; wrapped = true; }
+    if (st.y > H + 16) { st.y -= H + 32; wrapped = true; } else if (st.y < -16) { st.y += H + 32; wrapped = true; }
+    if (wrapped) st.trail.push(null);
+  }
+  widgets.push({
+    step() { if (st.run && ++st.tick % 2 === 0) advance(); },   // 30 steps/s so the dots stay readable
+    draw(t) {
+      gridBg(ctx, W, H, 40);
+      // axes
+      ctx.fillStyle = TOK.ink; mono(ctx, 13);
+      arrow(ctx, 6, 6, 150, 6, TOK.ink, 2); arrow(ctx, 6, 6, 6, 130, TOK.ink, 2);
+      ctx.fillText('(0, 0)', 12, 24); ctx.fillText('x roste →', 156, 12);
+      ctx.save(); ctx.translate(20, 140); ctx.fillText('y roste ↓', 0, 0); ctx.restore();
+      // trail
+      let prev = null;
+      st.trail.forEach((p, i) => {
+        if (!p) { prev = null; return; }
+        const a = .25 + .75 * i / st.trail.length;
+        ctx.globalAlpha = a; ctx.fillStyle = TOK['c-pos'];
+        ctx.beginPath(); ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2); ctx.fill();
+        if (p.f % 10 === 0) { mono(ctx, 11); ctx.fillStyle = TOK.muted; ctx.fillText(p.f, p.x + 6, p.y - 6); }
+        prev = p;
+      });
+      ctx.globalAlpha = 1;
+      drawImg(ctx, cyc(IMG.coin, t, 8), Math.round(st.x - 16), Math.round(st.y - 16), 32, 32);
+      arrow(ctx, st.x, st.y, st.x + st.hsp * 10, st.y + st.vsp * 10, TOK['c-vel'], 3);
+      mono(ctx, 12); ctx.fillStyle = TOK.ink;
+      ctx.fillText(`x ${Math.round(st.x)}, y ${Math.round(st.y)}`, st.x + 20, st.y + 30);
+      if (st.mouse) {
+        const [mx, my] = st.mouse;
+        ctx.strokeStyle = TOK.muted; ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(mx, 0); ctx.lineTo(mx, my); ctx.moveTo(0, my); ctx.lineTo(mx, my); ctx.stroke(); ctx.setLineDash([]);
+        setTxt($('#posMouse'), `x ${Math.round(mx)}, y ${Math.round(my)}`);
+      }
+      setTxt($('#posFrame'), String(st.frame));
+      setTxt($('#posXY'), `${fmt(st.x)}, ${fmt(st.y)}`);
+      setCode($('#posCode'), `// Step: běží v každém snímku\nx += ${st.hsp};   // hsp\ny += ${st.vsp};   // vsp${st.vsp < 0 ? ' (záporné = nahoru)' : st.vsp > 0 ? ' (kladné = dolů)' : ''}`);
+    }
+  });
+})();
+
+/* =========================================================
+   2. MOVEMENT: instant vs. acceleration + friction
+   ========================================================= */
+(function moveLab() {
+  const cv = $('#mvCv'), ctx = cv.getContext('2d'), gr = $('#mvGraph'), gctx = gr.getContext('2d'), W = cv.width, H = cv.height;
+  const P = { max: 4, acc: .3, fric: .15 };
+  slider('mvMax', null, v => P.max = v);
+  slider('mvAcc', null, v => P.acc = v);
+  slider('mvFric', null, v => P.fric = v);
+  const inp = makeInput(cv, $('#mvFocus'), 'Řídíš ty: šipky vlevo a vpravo');
+  const A = { x: 120, hsp: 0, face: 1, lane: 90 }, B = { x: 120, hsp: 0, face: 1, lane: 195 };
+  const hist = [];
+  let tick = 0, dirShown = 0;
+  function move(o) {
+    o.x += o.hsp;
+    if (o.x < 20) { o.x = 20; o.hsp = 0; } if (o.x > W - 20) { o.x = W - 20; o.hsp = 0; }
+    if (o.hsp) o.face = Math.sign(o.hsp);
+  }
+  widgets.push({
+    step() {
+      tick++;
+      let dir;
+      if (inp.active()) dir = inp.right - inp.left;
+      else { const p = tick % 300; dir = p < 80 ? 1 : p < 150 ? 0 : p < 230 ? -1 : 0; }
+      dirShown = dir;
+      A.hsp = dir * P.max;
+      if (dir !== 0) B.hsp = Math.max(-P.max, Math.min(P.max, B.hsp + dir * P.acc));
+      else B.hsp = Math.max(Math.abs(B.hsp) - P.fric, 0) * Math.sign(B.hsp);
+      move(A); move(B);
+      hist.push([A.hsp, B.hsp]); if (hist.length > 240) hist.shift();
+    },
+    draw(t) {
+      ctx.fillStyle = TOK['surface-2']; ctx.fillRect(0, 0, W, H);
+      [[A, 'Okamžitě: hsp = směr × max', TOK['c-vel']], [B, 'Se zrychlením a třením', TOK['c-acc']]].forEach(([o, label, col]) => {
+        for (let x = 0; x < W; x += 32) drawImg(ctx, IMG.grass, x, o.lane, 32, 16);
+        ctx.fillStyle = col; mono(ctx, 13); ctx.fillText(label, 12, o.lane - 62);
+        const f = Math.abs(o.hsp) > .2 ? cyc(IMG.hero, t, 4 + Math.abs(o.hsp) * 2) : IMG.hero[0];
+        drawImg(ctx, f, Math.round(o.x - 16), o.lane - 40, 32, 40, o.face < 0);
+        arrow(ctx, o.x, o.lane - 50, o.x + o.hsp * 12, o.lane - 50, col, 3);
+        mono(ctx, 12); ctx.fillStyle = TOK.ink; ctx.fillText(`hsp ${fmt(o.hsp)}`, W - 110, o.lane - 62);
+      });
+      mono(ctx, 12); ctx.fillStyle = TOK.muted;
+      ctx.fillText(`směr: ${dirShown > 0 ? '→ (1)' : dirShown < 0 ? '← (−1)' : '· (0)'}`, W / 2 - 40, 18);
+      // graph
+      const GW = gr.width, GH = gr.height, mid = GH / 2, sc = (mid - 14) / 10;
+      gctx.fillStyle = TOK.surface; gctx.fillRect(0, 0, GW, GH);
+      gctx.strokeStyle = TOK.line; gctx.lineWidth = 1; gctx.beginPath();
+      [-10, -5, 0, 5, 10].forEach(v => { const y = Math.round(mid - v * sc) + .5; gctx.moveTo(34, y); gctx.lineTo(GW, y); });
+      gctx.stroke();
+      mono(gctx, 11); gctx.fillStyle = TOK.muted; gctx.textAlign = 'right';
+      [-10, -5, 0, 5, 10].forEach(v => gctx.fillText(v, 28, mid - v * sc + 4));
+      gctx.textAlign = 'start';
+      [[0, TOK['c-vel']], [1, TOK['c-acc']]].forEach(([i, col]) => {
+        gctx.strokeStyle = col; gctx.lineWidth = 2.5; gctx.beginPath();
+        hist.forEach((h, k) => { const x = 34 + (GW - 40) * k / 239, y = mid - h[i] * sc; k ? gctx.lineTo(x, y) : gctx.moveTo(x, y); });
+        gctx.stroke();
+        if (hist.length) { const h = hist[hist.length - 1]; gctx.fillStyle = col; gctx.beginPath(); gctx.arc(34 + (GW - 40) * (hist.length - 1) / 239, mid - h[i] * sc, 4, 0, 7); gctx.fill(); }
+      });
+      gctx.fillStyle = TOK.ink; gctx.fillText('hsp v čase (posledních 240 snímků)', 40, 14);
+      setCode($('#mvCode'), `var smer = keyboard_check(vk_right) - keyboard_check(vk_left);\nif (smer != 0) {\n    hsp += smer * ${P.acc};\n    hsp = clamp(hsp, -${P.max}, ${P.max});\n} else {\n    hsp = max(abs(hsp) - ${P.fric}, 0) * sign(hsp);\n}\nx += hsp;`);
+    }
+  });
+})();
+
+/* =========================================================
+   3. GRAVITY + JUMP
+   ========================================================= */
+(function jumpLab() {
+  const cv = $('#jpCv'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height, GY = 290, RUN = 2.5;
+  const P = { g: .5, j: 10, cap: 12, auto: true, vary: false };
+  slider('jpG', null, v => P.g = v);
+  slider('jpJ', null, v => P.j = v);
+  slider('jpCap', null, v => P.cap = v);
+  $('#jpAuto').addEventListener('change', e => P.auto = e.target.checked);
+  $('#jpVar').addEventListener('change', e => P.vary = e.target.checked);
+  const inp = makeInput(cv, $('#jpFocus'), 'Mezerník = skok. Drž ho déle pro vyšší skok.');
+  cv.addEventListener('pointerdown', () => { inp.pressed = true; inp.jump = true; });
+  cv.addEventListener('pointerup', () => { inp.jump = false; inp.released = true; });
+  const p = { x: 80, y: GY, vsp: 0, ground: true, wait: 0, takeoff: null, held: false };
+  // simulate a whole jump with the current settings: list of [frame, height]
+  function predict() {
+    let y = 0, v = -P.j; const pts = [[0, 0]];
+    for (let i = 1; i < 400; i++) { v = Math.min(v + P.g, P.cap); y += v; if (y >= 0) { pts.push([i, 0]); break; } pts.push([i, y]); }
+    return pts;
+  }
+  widgets.push({
+    step() {
+      const ev = inp.consume();
+      if (ev.pressed) p.held = true;
+      if (ev.released) { p.held = false; if (P.vary && p.vsp < 0) p.vsp *= .5; }
+      p.x += RUN; if (p.x > W + 20) { p.x = -20; p.takeoff = null; }
+      let jump = ev.pressed;
+      if (P.auto && p.ground && !inp.active() && ++p.wait > 45) jump = true;
+      if (jump && p.ground) { p.vsp = -P.j; p.ground = false; p.wait = 0; p.takeoff = p.x; beep('jump'); }
+      if (!p.ground) {
+        p.vsp = Math.min(p.vsp + P.g, P.cap);
+        p.y += p.vsp;
+        if (p.y >= GY) { p.y = GY; p.vsp = 0; p.ground = true; }
+      }
+    },
+    draw(t) {
+      gridBg(ctx, W, H, 32);
+      for (let x = 0; x < W; x += 32) { drawImg(ctx, IMG.grass, x, GY, 32, 32); drawImg(ctx, IMG.dirt, x, GY + 32, 32, 32); }
+      const pts = predict(), top = Math.min(...pts.map(q => q[1])), air = pts[pts.length - 1][0];
+      const x0 = p.takeoff !== null && !p.ground ? p.takeoff : p.x;
+      // predicted arc
+      ctx.fillStyle = TOK['c-grav'];
+      pts.forEach(([f, y]) => { ctx.globalAlpha = .55; ctx.beginPath(); ctx.arc(x0 + f * RUN, GY - 20 + y, 2.6, 0, 7); ctx.fill(); });
+      ctx.globalAlpha = 1;
+      // max height marker
+      const ty = GY + top;
+      ctx.strokeStyle = TOK['c-grav']; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(0, ty); ctx.lineTo(W, ty); ctx.stroke(); ctx.setLineDash([]);
+      mono(ctx, 12); ctx.fillStyle = TOK['c-grav'];
+      ctx.fillText(`max. výška ${Math.round(-top)} px`, 10, ty - 8);
+      if (ty < 40) { ctx.fillText('↑ výš, než je vidět', W - 160, 18); }
+      // player
+      const f = p.ground ? cyc(IMG.hero, t, 8) : IMG.heroJump;
+      drawImg(ctx, f, Math.round(p.x - 16), Math.round(p.y - 40), 32, 40);
+      if (!p.ground) arrow(ctx, p.x + 26, p.y - 20, p.x + 26, p.y - 20 + p.vsp * 5, p.vsp < 0 ? TOK['c-vel'] : TOK['c-grav'], 3);
+      arrow(ctx, W - 40, 40, W - 40, 40 + P.g * 50, TOK['c-grav'], 3);
+      mono(ctx, 12); ctx.fillStyle = TOK.ink; ctx.fillText('gravitace', W - 110, 30);
+      setTxt($('#jpVsp'), `${fmt(p.vsp)} ${p.ground ? '(na zemi)' : p.vsp < 0 ? '(letí nahoru)' : '(padá)'}`);
+      setTxt($('#jpH'), `${Math.round(-top)} px (vzorec: ${Math.round(P.j * P.j / (2 * P.g))} px)`);
+      setTxt($('#jpT'), `${air} snímků = ${(air / 60).toFixed(2).replace('.', ',')} s`);
+      setCode($('#jpCode'), `vsp = min(vsp + ${P.g}, ${P.cap});\nif (na_zemi && keyboard_check_pressed(vk_space)) {\n    vsp = -${P.j};\n}` + (P.vary ? `\nif (keyboard_check_released(vk_space) && vsp < 0) {\n    vsp *= 0.5;\n}` : '') + `\ny += vsp;`);
+    }
+  });
+})();
+
+/* =========================================================
+   4. AABB collision
+   ========================================================= */
+(function aabbLab() {
+  const cv = $('#abCv'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height, S = 8;
+  const mk = (img, x, y, name) => {
+    const rows = img.rows; let x0 = 99, y0 = 99, x1 = 0, y1 = 0;
+    rows.forEach((r, j) => [...r].forEach((ch, i) => { if (ch !== '.') { x0 = Math.min(x0, i); y0 = Math.min(y0, j); x1 = Math.max(x1, i + 1); y1 = Math.max(y1, j + 1); } }));
+    return { img, rows, x, y, m: [x0, y0, x1, y1], name };
+  };
+  const A = mk(IMG.hero[0], 180, 90, 'A (hráč)'), B = mk(IMG.slime[0], 420, 170, 'B (slizoun)');
+  let pix = false, drag = null;
+  $('#abPix').addEventListener('change', e => { pix = e.target.checked; });
+  const box = o => ({ l: o.x + o.m[0] * S, t: o.y + o.m[1] * S, r: o.x + o.m[2] * S, b: o.y + o.m[3] * S });
+  const opaque = (o, wx, wy) => { const i = Math.floor((wx - o.x) / S), j = Math.floor((wy - o.y) / S); return j >= 0 && j < o.rows.length && i >= 0 && i < o.rows[0].length && o.rows[j][i] !== '.'; };
+  cv.addEventListener('pointerdown', e => {
+    const [mx, my] = canvasPos(cv, e);
+    const hit = [B, A].find(o => { const q = box(o); return mx >= q.l - 8 && mx <= q.r + 8 && my >= q.t - 8 && my <= q.b + 8; });
+    if (hit) { drag = { o: hit, dx: mx - hit.x, dy: my - hit.y }; cv.setPointerCapture(e.pointerId); e.preventDefault(); }
+  });
+  cv.addEventListener('pointermove', e => {
+    const [mx, my] = canvasPos(cv, e);
+    if (drag) {
+      const o = drag.o, w = o.rows[0].length * S, h = o.rows.length * S;
+      o.x = Math.round(Math.max(0, Math.min(W - w, mx - drag.dx))); o.y = Math.round(Math.max(0, Math.min(H - h, my - drag.dy)));
+    }
+    cv.style.cursor = drag ? 'grabbing' : [A, B].some(o => { const q = box(o); return mx >= q.l && mx <= q.r && my >= q.t && my <= q.b; }) ? 'grab' : 'default';
+  });
+  const end = () => drag = null;
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  const checksEl = $('#abChecks'), verdict = $('#abVerdict'), note = $('#abNote');
+  let lastHtml = '';
+  widgets.push({
+    draw() {
+      gridBg(ctx, W, H, 32);
+      const a = box(A), b = box(B);
+      const c = [a.r > b.l, a.l < b.r, a.b > b.t, a.t < b.b], boxHit = c.every(Boolean);
+      // pixel overlap
+      const cells = [];
+      if (boxHit) {
+        const ox0 = Math.max(a.l, b.l), ox1 = Math.min(a.r, b.r), oy0 = Math.max(a.t, b.t), oy1 = Math.min(a.b, b.b);
+        for (let y = oy0; y < oy1; y += 2) for (let x = ox0; x < ox1; x += 2) if (opaque(A, x + 1, y + 1) && opaque(B, x + 1, y + 1)) cells.push([x, y]);
+      }
+      const hit = pix ? cells.length > 0 : boxHit;
+      drawImg(ctx, B.img, B.x, B.y, B.rows[0].length * S, B.rows.length * S);
+      drawImg(ctx, A.img, A.x, A.y, A.rows[0].length * S, A.rows.length * S);
+      if (boxHit) {
+        ctx.fillStyle = TOK['c-col']; ctx.globalAlpha = pix ? .12 : .3;
+        ctx.fillRect(Math.max(a.l, b.l), Math.max(a.t, b.t), Math.min(a.r, b.r) - Math.max(a.l, b.l), Math.min(a.b, b.b) - Math.max(a.t, b.t));
+        ctx.globalAlpha = 1;
+      }
+      if (pix) { ctx.fillStyle = TOK['c-col']; cells.forEach(([x, y]) => ctx.fillRect(x, y, 2, 2)); }
+      [[A, a], [B, b]].forEach(([o, q]) => {
+        ctx.strokeStyle = hit ? TOK['c-col'] : TOK.muted; ctx.lineWidth = 2; ctx.setLineDash(pix ? [4, 4] : []);
+        ctx.strokeRect(q.l + 1, q.t + 1, q.r - q.l - 2, q.b - q.t - 2); ctx.setLineDash([]);
+        mono(ctx, 12); ctx.fillStyle = TOK.ink;
+        ctx.fillText(o.name, q.l, q.t - 22);
+        ctx.fillStyle = TOK.muted; mono(ctx, 11, 400);
+        ctx.fillText(`left ${q.l}  right ${q.r}`, q.l, q.t - 8);
+        ctx.fillText(`top ${q.t}  bottom ${q.b}`, q.l, q.b + 16);
+      });
+      const html = [
+        [c[0], `A.right ${a.r} &gt; B.left ${b.l}`],
+        [c[1], `A.left ${a.l} &lt; B.right ${b.r}`],
+        [c[2], `A.bottom ${a.b} &gt; B.top ${b.t}`],
+        [c[3], `A.top ${a.t} &lt; B.bottom ${b.b}`]
+      ].map(([ok, s]) => `<div class="${ok ? 'y' : 'n'}"><span>${s}</span></div>`).join('')
+        + (pix ? `<div class="${cells.length ? 'y' : 'n'}"><span>překrývají se pixely</span></div>` : '');
+      if (html !== lastHtml) { checksEl.innerHTML = html; lastHtml = html; }
+      setTxt(verdict, hit ? 'Kolize: ano' : 'Kolize: ne');
+      verdict.classList.toggle('hit', hit);
+      setTxt(note, pix
+        ? (boxHit && !cells.length ? 'Obdélníky se překrývají, ale pixely ne. Přesná maska je pravdivější, jenže stojí víc výpočtů.' : 'Přesná maska porovnává každý pixel obou obrázků. Je pomalejší, proto se používá jen tam, kde je opravdu potřeba.')
+        : (boxHit && !cells.length ? 'Pozor: obdélníky se překrývají, i když postavy se nedotýkají. Zapni přesnou masku a porovnej.' : 'Obdélník je rychlý, ale nepřesný. Zkus postavy přisunout rohy k sobě: obdélníky se překrývají, i když se postavy nedotýkají.'));
+    }
+  });
+})();
+
+/* =========================================================
+   5. RESOLVING: three strategies against a wall
+   ========================================================= */
+(function solveLab() {
+  const cv = $('#svCv'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const WL = 470, WR = 502, SZ = 40, X0 = 30;
+  const LANES = [
+    { y: 30, name: '1 · Pohni se a nekontroluj nic', col: 'c-col' },
+    { y: 140, name: '2 · Nepohni se, když bys narazil', col: 'c-acc' },
+    { y: 250, name: '3 · Přisuň se až ke zdi', col: 'c-fix' }
+  ];
+  let v = 7, slow = true, run = true, tick = 0, doneAt = -1;
+  slider('svSpd', null, x => { v = x; reset(); });
+  $('#svSlow').addEventListener('change', e => slow = e.target.checked);
+  const runBtn = $('#svRun');
+  const setRun = r => { run = r; runBtn.setAttribute('aria-pressed', r); runBtn.textContent = r ? 'Běží' : 'Zastaveno'; $('#svStep').disabled = r; };
+  runBtn.onclick = () => setRun(!run);
+  $('#svStep').onclick = () => advance();
+  $('#svReset').onclick = () => reset();
+  const meet = nx => nx < WR && nx + SZ > WL;
+  function reset() { LANES.forEach(l => Object.assign(l, { x: X0, done: false, inside: false, wasInside: false, passed: false, gap: null, steps: 0 })); doneAt = -1; }
+  function advance() {
+    LANES.forEach((l, i) => {
+      if (l.done) return;
+      l.steps++;
+      if (i === 0) {
+        l.x += v;
+      } else if (i === 1) {
+        if (!meet(l.x + v)) l.x += v; else { l.done = true; l.gap = WL - (l.x + SZ); beep('bump'); }
+      } else {
+        if (meet(l.x + v)) { let n = 0; while (!meet(l.x + 1) && n++ < 100) l.x += 1; l.done = true; l.gap = WL - (l.x + SZ); }
+        else l.x += v;
+      }
+      l.inside = meet(l.x); if (l.inside) l.wasInside = true;
+      // got past the wall without a single frame touching it = tunnelled
+      if (l.x >= WR && !l.wasInside) l.passed = true;
+      if (l.x > W) l.done = true;
+    });
+  }
+  reset(); setRun(true);
+  widgets.push({
+    step() {
+      tick++;
+      if (!run) return;
+      if (LANES.every(l => l.done)) { if (doneAt < 0) doneAt = tick; else if (tick - doneAt > 100) reset(); return; }
+      if (!slow || tick % 8 === 0) advance();
+    },
+    draw(t) {
+      gridBg(ctx, W, H, 20);
+      for (let y = 0; y < H; y += 32) drawImg(ctx, IMG.stone, WL, y, 32, 32);
+      mono(ctx, 12); ctx.fillStyle = TOK.muted; ctx.fillText('obj_zed', WL - 4, H - 6);
+      LANES.forEach((l, i) => {
+        const col = TOK[l.col], by = l.y + 36;
+        ctx.fillStyle = TOK.ink; mono(ctx, 13); ctx.fillText(l.name, 10, l.y + 14);
+        ctx.strokeStyle = TOK.line; ctx.beginPath(); ctx.moveTo(0, by + SZ + .5); ctx.lineTo(W, by + SZ + .5); ctx.stroke();
+        // planned position
+        if (!l.done) {
+          ctx.strokeStyle = col; ctx.setLineDash([4, 4]); ctx.lineWidth = 2;
+          ctx.strokeRect(l.x + v + 1, by + 1, SZ - 2, SZ - 2); ctx.setLineDash([]);
+        }
+        const inside = i === 0 && l.inside;
+        ctx.fillStyle = inside ? TOK['c-col'] : col; ctx.globalAlpha = .18; ctx.fillRect(l.x, by, SZ, SZ); ctx.globalAlpha = 1;
+        drawImg(ctx, l.done && i ? IMG.hero[0] : cyc(IMG.hero, t, 8), Math.round(l.x + 4), by, 32, 40);
+        ctx.strokeStyle = inside ? TOK['c-col'] : col; ctx.lineWidth = 2; ctx.strokeRect(l.x + 1, by + 1, SZ - 2, SZ - 2);
+        // status
+        mono(ctx, 12); let msg = '', mc = TOK.muted;
+        if (l.passed) { msg = 'přeskočil zeď, kontrola nic nenašla'; mc = TOK['c-col']; }
+        else if (i === 0) {
+          if (l.inside) { msg = 'je ve zdi!'; mc = TOK['c-col']; }
+          else if (l.x >= WR) { msg = 'prošel zdí'; mc = TOK['c-col']; }
+        } else if (l.done) {
+          if (l.gap > 0.5) { msg = `zastavil, mezera ${Math.round(l.gap)} px`; mc = TOK['c-acc']; }
+          else { msg = 'stojí přesně u zdi ✓'; mc = TOK.ink; }
+        }
+        if (msg) { const far = i === 0 || l.passed; ctx.fillStyle = mc; ctx.fillText(msg, far ? WR + 14 : Math.max(10, l.x - 10), far ? by + 24 : by - 6); }
+        if (l.done && !l.passed && l.gap > 0.5) {
+          ctx.strokeStyle = TOK['c-acc']; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(l.x + SZ, by + SZ / 2); ctx.lineTo(WL, by + SZ / 2); ctx.stroke();
+        }
+      });
+      setCode($('#svCode'), `// přístup 3, rychlost ${v}\nif (place_meeting(x + ${v}, y, obj_zed)) {\n    while (!place_meeting(x + 1, y, obj_zed)) {\n        x += 1;\n    }\n    hsp = 0;\n} else {\n    x += ${v};\n}`);
+    }
+  });
+})();
+
+/* =========================================================
+   6. PLAYGROUND
+   ========================================================= */
+(function playground() {
+  const cv = $('#plCv'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height, T = 32, PH = 12;
+  // '#' = obj_zed (solid tile), '=' = obj_platforma (thin plank, 32 × 12), 'o' = coin, 'P' = player start
+  const MAP = [
+    '..............................',
+    '..............................',
+    '..............................',
+    '........oo.........oo.........',
+    '.......====........====.......',
+    '..............................',
+    '...oo........ooo.........oo...',
+    '..####......=====.......####..',
+    '..............................',
+    '.P.......................o....',
+    '######.o..########.o..########',
+    '##############################'
+  ].map(r => r.padEnd(30, '.').slice(0, 30));
+  const solid = MAP.map(r => [...r].map(ch => ch === '#'));
+  const planks = [];
+  let start = [0, 0];
+  const coinsInit = [];
+  MAP.forEach((r, j) => [...r].forEach((ch, i) => {
+    if (ch === 'o') coinsInit.push([i * T, j * T]);
+    if (ch === '=') planks.push({ x: i * T, y: j * T, w: T, h: PH });
+    if (ch === 'P') start = [i * T + 5, j * T + (T - 38)];
+  }));
+  const PLANK = bake(['bbbbbbbb', 'bdbbbdbb', 'dddddddd']);
+  const tiles = document.createElement('canvas'); tiles.width = W; tiles.height = H;
+  (function () {
+    const x = tiles.getContext('2d');
+    const sky = x.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#6fbdf0'); sky.addColorStop(1, '#d6f0ff');
+    x.fillStyle = sky; x.fillRect(0, 0, W, H);
+    x.fillStyle = '#a9d9bd';
+    for (let i = 0; i < W; i += 16) { const hy = Math.round((250 + 30 * Math.sin(i / 110) + 14 * Math.sin(i / 37)) / 8) * 8; x.fillRect(i, hy, 16, H - hy); }
+    solid.forEach((row, j) => row.forEach((s, i) => { if (s) drawImg(x, j === 0 || !solid[j - 1][i] ? IMG.grass : IMG.dirt, i * T, j * T, T, T); }));
+    planks.forEach(p => drawImg(x, PLANK, p.x, p.y, T, PH));
+  })();
+
+  const DEF = { max: 4, acc: .6, fric: .4, g: .5, j: 11, cap: 12 };
+  const PRESETS = [
+    ['Výchozí', DEF],
+    ['Měsíc', { max: 3, acc: .4, fric: .3, g: .15, j: 6, cap: 5 }],
+    ['Led', { max: 5, acc: .12, fric: .03, g: .5, j: 10, cap: 12 }],
+    ['Těžkopádný', { max: 2.5, acc: .15, fric: .2, g: .9, j: 12, cap: 16 }],
+    ['Raketa', { max: 8, acc: 2, fric: 2, g: .7, j: 14, cap: 18 }]
+  ];
+  const P = Object.assign({}, DEF), OPT = { vary: true, box: true, vec: true, mode: 'while', oneway: true };
+  const STEPS = 4;   // num_iterations for move_and_collide
+  const KEYS = [['plMax', 'max'], ['plAcc', 'acc'], ['plFric', 'fric'], ['plG', 'g'], ['plJ', 'j'], ['plCap', 'cap']];
+  KEYS.forEach(([id, k]) => { $('#' + id).value = P[k]; slider(id, null, v => P[k] = v); });
+  const pre = $('#plPresets');
+  PRESETS.forEach(([name, vals]) => {
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = name;
+    b.onclick = () => { KEYS.forEach(([id, k]) => { const el = $('#' + id); el.value = vals[k]; el.dispatchEvent(new Event('input')); }); $$('button', pre).forEach(x => x.setAttribute('aria-pressed', x === b)); };
+    pre.appendChild(b);
+  });
+  pre.firstChild.setAttribute('aria-pressed', 'true');
+  KEYS.forEach(([id]) => $('#' + id).addEventListener('input', e => { if (e.isTrusted) $$('button', pre).forEach(x => x.setAttribute('aria-pressed', 'false')); }));
+  $('#plVar').addEventListener('change', e => OPT.vary = e.target.checked);
+  $('#plBox').addEventListener('change', e => OPT.box = e.target.checked);
+  $('#plVec').addEventListener('change', e => OPT.vec = e.target.checked);
+  $('#plSnd').addEventListener('change', e => soundOn = e.target.checked);
+  $('#plOneway').addEventListener('change', e => { OPT.oneway = e.target.checked; note(); });
+  const setMode = m => {
+    OPT.mode = m;
+    $('#plModeWhile').setAttribute('aria-pressed', m === 'while');
+    $('#plModeMac').setAttribute('aria-pressed', m === 'mac');
+    note();
+  };
+  $('#plModeWhile').onclick = () => setMode('while');
+  $('#plModeMac').onclick = () => setMode('mac');
+  function note() {
+    const a = OPT.mode === 'while'
+      ? 'Přisouvání: zkontroluje cíl, a když je obsazený, dojede ke zdi po 1 px. Vodorovně a svisle zvlášť.'
+      : 'move_and_collide: pohyb rozdělí na 4 dílčí kroky a po každém kontroluje kolizi. Rychlosti pak nuluješ sám. V prohlížeči je funkce napodobená zjednodušeně, skutečný GameMaker se může v detailech lišit.';
+    const b = OPT.oneway
+      ? ' Dřevěné plošiny jsou polopropustné: zespodu jimi proskočíš, shora na nich stojíš, šipkou dolů seskočíš.'
+      : ' Dřevěné plošiny jsou obyčejné zdi: zespodu se o ně praštíš hlavou.';
+    setTxt($('#plModeNote'), a + b);
+  }
+  note();
+
+  const inp = makeInput(cv, $('#plFocus'), 'Ovládání aktivní: ← → pohyb, mezerník skok, ↓ seskok');
+  const pl = { x: 0, y: 0, w: 22, h: 38, hsp: 0, vsp: 0, face: 1, ground: false };
+  let coins = [], got = 0;
+  function reset() { Object.assign(pl, { x: start[0], y: start[1], hsp: 0, vsp: 0, face: 1 }); coins = coinsInit.map(([x, y]) => ({ x, y, taken: false })); got = 0; }
+  $('#plReset').onclick = reset;
+  reset();
+
+  const overlap = (x, y, r) => x < r.x + r.w && x + pl.w > r.x && y < r.y + r.h && y + pl.h > r.y;
+  // place_meeting(x, y, obj_platforma)
+  const meetPlat = (x, y) => planks.some(r => overlap(x, y, r));
+  // place_meeting(x, y, obj_zed); with one-way off the planks are ordinary walls
+  function meetWall(x, y) {
+    const l = Math.floor(x / T), r = Math.floor((x + pl.w - .001) / T), t = Math.floor(y / T), b = Math.floor((y + pl.h - .001) / T);
+    for (let j = t; j <= b; j++) for (let i = l; i <= r; i++) {
+      if (i < 0 || i >= 30 || j >= 12) return true;
+      if (j >= 0 && solid[j][i]) return true;
+    }
+    return !OPT.oneway && meetPlat(x, y);
+  }
+  const sgn = Math.sign;
+  // simplified move_and_collide: STEPS sub-steps with a collision check after each;
+  // a blocked sub-step slides along each axis separately, up to contact
+  function moveAndCollide(dx, dy, hit) {
+    dx = Math.max(-P.max, Math.min(P.max, dx));
+    const sx = dx / STEPS, sy = dy / STEPS;
+    for (let k = 0; k < STEPS; k++) {
+      if (!hit(pl.x + sx, pl.y + sy)) { pl.x += sx; pl.y += sy; continue; }
+      if (sx) {
+        if (!hit(pl.x + sx, pl.y)) pl.x += sx;
+        else { let r = Math.abs(sx); while (r > 0 && !hit(pl.x + sgn(sx) * Math.min(1, r), pl.y)) { pl.x += sgn(sx) * Math.min(1, r); r -= 1; } }
+      }
+      if (sy) {
+        if (!hit(pl.x, pl.y + sy)) pl.y += sy;
+        else { let r = Math.abs(sy); while (r > 0 && !hit(pl.x, pl.y + sgn(sy) * Math.min(1, r))) { pl.y += sgn(sy) * Math.min(1, r); r -= 1; } }
+      }
+    }
+  }
+  const onPlank = () => OPT.oneway && meetPlat(pl.x, pl.y + 1) && !meetPlat(pl.x, pl.y);
+
+  widgets.push({
+    step() {
+      const ev = inp.consume();
+      const dir = inp.right - inp.left;
+      if (dir !== 0) pl.hsp = Math.max(-P.max, Math.min(P.max, pl.hsp + dir * P.acc));
+      else pl.hsp = Math.max(Math.abs(pl.hsp) - P.fric, 0) * sgn(pl.hsp);
+      if (dir) pl.face = dir;
+      pl.vsp = Math.min(pl.vsp + P.g, P.cap);
+      let naPlosine = onPlank();
+      const naZemi = meetWall(pl.x, pl.y + 1) || naPlosine;
+      if (naZemi && ev.pressed) { pl.vsp = -P.j; beep('jump'); }
+      if (OPT.vary && ev.released && pl.vsp < 0) pl.vsp *= .5;
+      if (naPlosine && inp.down) pl.y += 1;   // drop through
+
+      if (OPT.mode === 'while') {
+        let n = 0;
+        if (meetWall(pl.x + pl.hsp, pl.y)) { while (!meetWall(pl.x + sgn(pl.hsp), pl.y) && n++ < 64) pl.x += sgn(pl.hsp); pl.hsp = 0; }
+        pl.x += pl.hsp;
+        n = 0;
+        if (OPT.oneway && pl.vsp > 0 && !meetPlat(pl.x, pl.y) && meetPlat(pl.x, pl.y + pl.vsp)) {
+          while (!meetPlat(pl.x, pl.y + 1) && n++ < 64) pl.y += 1;
+          pl.vsp = 0;
+        }
+        n = 0;
+        if (meetWall(pl.x, pl.y + pl.vsp)) { while (!meetWall(pl.x, pl.y + sgn(pl.vsp)) && n++ < 64) pl.y += sgn(pl.vsp); pl.vsp = 0; }
+        pl.y += pl.vsp;
+      } else {
+        const withPlanks = OPT.oneway && pl.vsp > 0 && !meetPlat(pl.x, pl.y);
+        moveAndCollide(pl.hsp, pl.vsp, (x, y) => meetWall(x, y) || (withPlanks && meetPlat(x, y)));
+        naPlosine = onPlank();
+        if (pl.vsp > 0 && (meetWall(pl.x, pl.y + 1) || naPlosine)) pl.vsp = 0;
+        if (pl.vsp < 0 && meetWall(pl.x, pl.y - 1)) pl.vsp = 0;
+        if (pl.hsp !== 0 && meetWall(pl.x + sgn(pl.hsp), pl.y)) pl.hsp = 0;
+      }
+      pl.ground = meetWall(pl.x, pl.y + 1) || onPlank();
+      for (const c of coins) if (!c.taken && pl.x < c.x + 26 && pl.x + pl.w > c.x + 6 && pl.y < c.y + 28 && pl.y + pl.h > c.y + 4) { c.taken = true; got++; beep('coin'); }
+    },
+    draw(t) {
+      ctx.drawImage(tiles, 0, 0);
+      if (OPT.oneway) {
+        // small "pass through from below" marks under the planks
+        ctx.fillStyle = 'rgba(255,255,255,.75)';
+        planks.forEach(p => { const cx = p.x + T / 2, y = p.y + PH + 6; ctx.beginPath(); ctx.moveTo(cx, y); ctx.lineTo(cx - 4, y + 6); ctx.lineTo(cx + 4, y + 6); ctx.closePath(); ctx.fill(); });
+      }
+      for (const c of coins) if (!c.taken) drawImg(ctx, cyc(IMG.coin, t + c.x * .001, 8), c.x, c.y, 32, 32);
+      const f = !pl.ground ? IMG.heroJump : Math.abs(pl.hsp) > .2 ? cyc(IMG.hero, t, 4 + Math.abs(pl.hsp) * 2) : IMG.hero[0];
+      drawImg(ctx, f, Math.round(pl.x - 5), Math.round(pl.y - 2), 32, 40, pl.face < 0);
+      if (OPT.box) {
+        ctx.strokeStyle = TOK['c-col']; ctx.lineWidth = 2; ctx.strokeRect(Math.round(pl.x) + 1, Math.round(pl.y) + 1, pl.w - 2, pl.h - 2);
+        ctx.fillStyle = pl.ground ? '#2b8a3e' : '#c92a2a'; ctx.fillRect(Math.round(pl.x), Math.round(pl.y + pl.h), pl.w, 3);
+        ctx.strokeStyle = OPT.oneway ? '#f08c00' : TOK['c-col']; ctx.setLineDash(OPT.oneway ? [4, 3] : []); ctx.lineWidth = 1.5;
+        planks.forEach(p => ctx.strokeRect(p.x + .75, p.y + .75, p.w - 1.5, p.h - 1.5)); ctx.setLineDash([]);
+      }
+      if (OPT.vec) {
+        const cx = pl.x + pl.w / 2, cy = pl.y + pl.h / 2;
+        arrow(ctx, cx, cy, cx + pl.hsp * 8, cy + pl.vsp * 8, '#0b7285', 3);
+      }
+      ctx.fillStyle = 'rgba(16,20,28,.72)'; ctx.fillRect(12, 12, 170, 40);
+      drawImg(ctx, IMG.coin[0], 20, 16, 32, 32);
+      ctx.fillStyle = '#fff'; ctx.font = '700 24px "Pixelify Sans", monospace'; ctx.fillText(`${got} / ${coinsInit.length}`, 60, 41);
+      if (got === coinsInit.length) { ctx.fillStyle = 'rgba(16,20,28,.72)'; ctx.fillRect(W / 2 - 200, H / 2 - 36, 400, 72); ctx.fillStyle = '#f7c948'; ctx.textAlign = 'center'; ctx.fillText('Všechny mince sebrány!', W / 2, H / 2 + 8); ctx.textAlign = 'start'; }
+      const g = $('#plGround'); setTxt(g, pl.ground ? 'na zemi' : 've vzduchu'); g.classList.toggle('on', pl.ground);
+      setTxt($('#plCoins'), `mince ${got}/${coinsInit.length}`);
+      setTxt($('#plHsp'), fmt(pl.hsp, 2)); setTxt($('#plVsp'), fmt(pl.vsp, 2)); setTxt($('#plXY'), `${Math.round(pl.x)}, ${Math.round(pl.y)}`);
+      setCode($('#plCreate'), createCode());
+      setCode($('#plCode'), stepCode());
+    }
+  });
+
+  function createCode() {
+    let s = 'hsp = 0;\nvsp = 0;\n'
+      + `max_rychlost = ${P.max};\nzrychleni = ${P.acc};\ntreni = ${P.fric};\n`
+      + `gravitace = ${P.g};\nsila_skoku = ${P.j};\nmax_pad = ${P.cap};`;
+    if (OPT.mode === 'mac') s += `\nkroky = ${STEPS};   // num_iterations pro move_and_collide`;
+    s += OPT.oneway
+      ? '\n\n// ve scéně: obj_zed = pevné zdi,\n// obj_platforma = polopropustné plošiny (sprite 32 × 12)'
+      : '\n\n// ve scéně: obj_zed = všechny zdi i plošiny';
+    return s;
+  }
+  function stepCode() {
+    const ow = OPT.oneway, mac = OPT.mode === 'mac';
+    const L = [];
+    L.push('var smer = keyboard_check(vk_right) - keyboard_check(vk_left);');
+    L.push('if (smer != 0) hsp = clamp(hsp + smer * zrychleni, -max_rychlost, max_rychlost);');
+    L.push('else hsp = max(abs(hsp) - treni, 0) * sign(hsp);');
+    L.push('');
+    L.push('vsp = min(vsp + gravitace, max_pad);');
+    if (ow) {
+      L.push('var na_plosine = place_meeting(x, y + 1, obj_platforma) && !place_meeting(x, y, obj_platforma);');
+      L.push('var na_zemi = place_meeting(x, y + 1, obj_zed) || na_plosine;');
+    } else {
+      L.push('var na_zemi = place_meeting(x, y + 1, obj_zed);');
+    }
+    L.push('if (na_zemi && keyboard_check_pressed(vk_space)) vsp = -sila_skoku;');
+    if (OPT.vary) L.push('if (keyboard_check_released(vk_space) && vsp < 0) vsp *= 0.5;');
+    if (ow) L.push('if (na_plosine && keyboard_check(vk_down)) y += 1;   // seskok skrz plošinu');
+    L.push('');
+    if (!mac) {
+      L.push('// vodorovně');
+      L.push('if (place_meeting(x + hsp, y, obj_zed)) {');
+      L.push('    while (!place_meeting(x + sign(hsp), y, obj_zed)) x += sign(hsp);');
+      L.push('    hsp = 0;');
+      L.push('}');
+      L.push('x += hsp;');
+      L.push('');
+      if (ow) {
+        L.push('// polopropustná plošina zastaví jen pád shora');
+        L.push('if (vsp > 0 && !place_meeting(x, y, obj_platforma) && place_meeting(x, y + vsp, obj_platforma)) {');
+        L.push('    while (!place_meeting(x, y + 1, obj_platforma)) y += 1;');
+        L.push('    vsp = 0;');
+        L.push('}');
+        L.push('');
+      }
+      L.push('// svisle');
+      L.push('if (place_meeting(x, y + vsp, obj_zed)) {');
+      L.push('    while (!place_meeting(x, y + sign(vsp), obj_zed)) y += sign(vsp);');
+      L.push('    vsp = 0;');
+      L.push('}');
+      L.push('y += vsp;');
+    } else {
+      if (ow) {
+        L.push('// plošiny jsou překážkou jen při pádu, a jen když v nich zrovna nejsem');
+        L.push('var prekazky = [obj_zed];');
+        L.push('if (vsp > 0 && !place_meeting(x, y, obj_platforma)) array_push(prekazky, obj_platforma);');
+        L.push('move_and_collide(hsp, vsp, prekazky, kroky, 0, 0, max_rychlost, -1);');
+        L.push('na_plosine = place_meeting(x, y + 1, obj_platforma) && !place_meeting(x, y, obj_platforma);');
+      } else {
+        L.push('move_and_collide(hsp, vsp, obj_zed, kroky, 0, 0, max_rychlost, -1);');
+      }
+      L.push('');
+      L.push('// move_and_collide rychlosti nemění, vynuluj je sám');
+      L.push(`if (vsp > 0 && (place_meeting(x, y + 1, obj_zed)${ow ? ' || na_plosine' : ''})) vsp = 0;`);
+      L.push('if (vsp < 0 && place_meeting(x, y - 1, obj_zed)) vsp = 0;');
+      L.push('if (hsp != 0 && place_meeting(x + sign(hsp), y, obj_zed)) hsp = 0;');
+    }
+    return L.join('\n');
+  }
+})();
+
+/* =========================================================
+   QUIZ
+   ========================================================= */
+(function quiz() {
+  const Q = [
+    ['V GameMakeru má instance y = 100. Po příkazu y += 20 bude…', ['níž na obrazovce', 'výš na obrazovce', 'na stejném místě'], 0, 'V GameMakeru (i Godotu) roste y dolů.'],
+    ['Postava má hsp = 3 a hra běží 60 snímků za sekundu. Kolik pixelů urazí za sekundu?', ['3', '60', '180'], 2, '3 px × 60 snímků = 180 px.'],
+    ['Postava po puštění šipky ještě dlouho klouže. Co máš zvětšit?', ['tření', 'zrychlení', 'gravitaci'], 0, 'Tření říká, jak rychle rychlost klesá k nule.'],
+    ['Co přesně dělá gravitace v každém snímku?', ['přičte kousek k vsp', 'posune postavu o pevný kus dolů', 'nastaví vsp na nulu'], 0, 'Mění rychlost, ne polohu. Proto postava padá čím dál rychleji.'],
+    ['Zdvojnásobíš sílu skoku a gravitaci necháš. Jak vysoko postava vyskočí?', ['2× výš', '4× výš', 'stejně'], 1, 'Výška ≈ síla² / (2 × gravitace), takže 2² = 4.'],
+    ['Dva obdélníky: A.right = 100, B.left = 120. Můžou se překrývat?', ['ne', 'ano', 'záleží na y'], 0, 'A končí dřív, než B začne. Jedna nesplněná podmínka stačí.'],
+    ['Proč postava „přisouvaná po 1 px“ stojí přesně u zdi, a ta, co se „nepohne, když by narazila“, ne?', ['první dojede až na hranu, druhá zůstane stát o kus dřív', 'druhá je pomalejší', 'není v tom rozdíl'], 0, 'Druhá se zastaví, i když by zbývalo pár pixelů.'],
+    ['Velmi rychlá střela občas proletí tenkou zdí. Jak se tomu říká?', ['tunelování', 'tření', 'origin'], 0, 'Pomůže menší krok (víc kontrol za snímek), nižší max. rychlost nebo „continuous“ detekce.']
+  ];
+  const box = $('#quiz'), score = $('#quizScore');
+  let answered = 0, right = 0;
+  function upd() { score.textContent = `${right} / ${Q.length}` + (answered === Q.length ? (right === Q.length ? '  · bez chyby!' : '  · hotovo') : ''); }
+  function render() {
+    answered = right = 0; box.innerHTML = '';
+    Q.forEach(([q, opts, ok, why], qi) => {
+      const el = document.createElement('div'); el.className = 'q';
+      el.innerHTML = `<div class="q-t">${qi + 1}. ${q}</div><div class="q-opts"></div><div class="q-fb" aria-live="polite"></div>`;
+      const ob = $('.q-opts', el), fb = $('.q-fb', el);
+      opts.forEach((o, oi) => {
+        const b = document.createElement('button'); b.className = 'btn'; b.textContent = o;
+        b.onclick = () => {
+          $$('button', ob).forEach(x => x.disabled = true);
+          $$('button', ob)[ok].classList.add('ok');
+          if (oi !== ok) b.classList.add('no'); else right++;
+          answered++;
+          fb.textContent = (oi === ok ? 'Správně. ' : 'Ne tak docela. ') + why;
+          upd();
+        };
+        ob.appendChild(b);
+      });
+      box.appendChild(el);
+    });
+    upd();
+  }
+  $('#quizReset').onclick = render;
+  render();
+})();
+
+/* ---------- toc highlight ---------- */
+(function toc() {
+  if (!('IntersectionObserver' in window)) return;
+  const links = $$('.toc a'), map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { links.forEach(l => l.classList.remove('on')); const a = map.get(e.target.id); a && a.classList.add('on'); }
+  }), { rootMargin: '-40% 0px -55% 0px' });
+  $$('section.lesson').forEach(s => io.observe(s));
+})();
+
+requestAnimationFrame(loop);
+})();
+</script>
