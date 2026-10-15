@@ -1033,7 +1033,7 @@ void LateUpdate() {
       <h2>Úkol: první scéna s kamerou</h2>
     </div>
     <ol class="steps">
-      <li><span>V Asset Browseru vytvoř složky <code>sprites</code> a <code>objects</code>. Do <code>sprites</code> přidej sprite <code>s_player</code> (obrázek <code>s_player_strip2.png</code> z <code>Materiály/Lekce/Díl 1</code>, nebo stačí čtverec 32 × 32) a nastav mu origin na <em>Bottom Centre</em>, aby postava stála přesně na zemi.</span></li>
+      <li><span>V Asset Browseru vytvoř složky <code>sprites</code> a <code>objects</code>. Do <code>sprites</code> přidej sprite <code>s_player</code> (obrázek <code>s_player_strip2.png</code> z <code>Materialy/Lekce/Dil 1</code>, nebo stačí čtverec 32 × 32) a nastav mu origin na <em>Bottom Centre</em>, aby postava stála přesně na zemi.</span></li>
       <li><span>Do <code>objects</code> přidej objekt <code>o_player</code>, přiřaď mu sprite a do události <em>Step</em> napiš pohyb šipkami: <code>x += (keyboard_check(vk_right) - keyboard_check(vk_left)) * 4;</code></span></li>
       <li><span>Vytvoř sprite <code>s_coin</code> (<code>s_coin_strip4.png</code>) a objekt <code>o_coin</code>. Do scény polož 1 hráče a aspoň 5 mincí. Kolik máš objektů a kolik instancí?</span></li>
       <li><span>Zvětši scénu na 2000 × 768 px. V <em>Viewports and Cameras</em> zapni viewport 0, kameru 640 × 360, viewport 1280 × 720 a <em>Object Following</em> nastav na <code>o_player</code>.</span></li>
@@ -1763,7 +1763,7 @@ public class Hrac : MonoBehaviour {
       <h2>Úkol: vlastní plošinovka</h2>
     </div>
     <ol class="steps">
-      <li><span>Pokračuj v projektu z dílu 1. Do <code>sprites</code> přidej <code>s_wall</code> (čtverec 32 × 32) a <code>s_oneway</code> (32 × 12), obojí najdeš v <code>Materiály/Lekce/Díl 2</code>. Do <code>objects</code> objekty <code>o_wall</code> a <code>o_oneway</code>. Ve scéně z nich postav podlahu a pár plošin.</span></li>
+      <li><span>Pokračuj v projektu z dílu 1. Do <code>sprites</code> přidej <code>s_wall</code> (čtverec 32 × 32) a <code>s_oneway</code> (32 × 12), obojí najdeš v <code>Materialy/Lekce/Dil 2</code>. Do <code>objects</code> objekty <code>o_wall</code> a <code>o_oneway</code>. Ve scéně z nich postav podlahu a pár plošin.</span></li>
       <li><span>V <code>o_player</code> nahraď pohyb z dílu 1 ovladačem z hřiště: Create a Step zkopíruj tlačítkem <em>Kopírovat</em> v okně s kódem.</span></li>
       <li><span>Zkontroluj, že má sprite hráče origin <em>Bottom Centre</em> a že kolizní maska je obdélník. Co se stane, když necháš masku podle pixelů?</span></li>
       <li><span>Vylaď čísla tak, aby hra působila podle tebe. Zapiš si, jaké hodnoty jsi zvolil a proč.</span></li>
@@ -2271,7 +2271,7 @@ public class HracAnimace : MonoBehaviour {
       <h2>Úkol: postava s animacemi ve vlastním levelu</h2>
     </div>
     <ol class="steps">
-      <li><span>Vezmi arch <code>hrac_sheet_4x.png</code> a tileset <code>ts_zem.png</code> ze složky <code>Materiály/Lekce/Díl 3</code>, nebo najdi či nakresli vlastní spritesheet postavy a dlaždic. Další grafika je v <code>Materiály/Improvizace</code>, zdarma a s volnou licencí je najdeš třeba na kenney.nl nebo opengameart.org. Pixelovou postavu si můžeš nakreslit v Piskelu.</span></li>
+      <li><span>Vezmi arch <code>hrac_sheet_4x.png</code> a tileset <code>ts_zem.png</code> ze složky <code>Materialy/Lekce/Dil 3</code>, nebo najdi či nakresli vlastní spritesheet postavy a dlaždic. Další grafika je v <code>Materialy/Improvizace</code>, zdarma a s volnou licencí je najdeš třeba na kenney.nl nebo opengameart.org. Pixelovou postavu si můžeš nakreslit v Piskelu.</span></li>
       <li><span>Přes <em>Import Strip Image</em> vytvoř sprity <code>s_player_idle</code>, <code>s_player_run</code>, <code>s_player_jump</code> a <code>s_player_fall</code>. Všem dej stejnou velikost a origin <em>Bottom Centre</em>. Přidej obdélníkový <code>s_player_mask</code> a v Create ho nastav do <code>mask_index</code>.</span></li>
       <li><span>Vytvoř Tile Set, v místnosti vrstvu Tiles <code>Zem</code> a nakresli level. Nad ni přidej vrstvu instancí <code>Kolize</code> a dlaždice překryj neviditelnými <code>o_wall</code> a <code>o_oneway</code>. Pro smrtící místa použij objekty s parentem <code>o_death</code> a na konec Step hráče přidej <code>if (place_meeting(x, y, o_death)) room_restart();</code>.</span></li>
       <li><span>V <a href="#konfigurator">Konfigurátoru</a> zvol přístup B, zaškrtni, co tvůj projekt má, a přepiš názvy spritů na ty svoje. Okna Create, Step a End Step zkopíruj do stejnojmenných událostí <code>o_player</code>.</span></li>
