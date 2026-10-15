@@ -3,4 +3,6 @@ není tedy zaručena stoprocentní funkčnost a pravdivost uvedených informací
 
 V každé lekci je dostupný ke stažení soubor index.html obsahující lekce s potřebnou teorií a úkoly k procvičení.
 Seznam úkolů je uveden vždy na konci lekce, zkuste si je splnit.
-Potřebné assety jsou vždy dostupné ve složce Materiály, ale pokud chcete, můžete použít vlastní.
+Potřebné assety jsou vždy ve složce Materiály, ale pokud chcete, můžete použít vlastní:
+- Materiály/Lekce: přesně ta grafika a zvuky, které jsou v ukázkách v lekcích. S nimi se dá lekce sledovat krok za krokem.
+- Materiály/Improvizace: další volně licencované grafiky, hudba a zvuky pro vlastní nápady.

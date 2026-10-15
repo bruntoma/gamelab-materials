@@ -6,7 +6,7 @@
 
 /* Layout: one tutorial in three parts. One reading column on a 32px "room editor" grid; labs are editor windows. Each concept owns one colour, reused in its canvas overlays. */
 :root {
-  --c-asset: #5d6a80; --c-sprite: #c2255c; --c-object: #2b63d9; --c-instance: #0a8aa3; --c-room: #2b8a3e; --c-camera: #d27200; --mask: #e03131; --check-a: #e4e8ef; --check-b: #f6f8fb; --void: #222833; --c-vel: #0a8aa3; --c-acc: #7048e8; --c-grav: #c2255c; --c-fix: #d27200;
+  --c-asset: #5d6a80; --c-sprite: #c2255c; --c-object: #2b63d9; --c-instance: #0a8aa3; --c-room: #2b8a3e; --c-camera: #d27200; --mask: #e03131; --check-a: #e4e8ef; --check-b: #f6f8fb; --void: #222833; --c-vel: #0a8aa3; --c-acc: #7048e8; --c-grav: #c2255c; --c-fix: #d27200; --c-coin: #b07800; --c-death: #c92a2a;
   --bg: #eef1f5;
   --bg-grid: rgba(40, 60, 110, .06);
   --surface: #ffffff;
@@ -48,7 +48,7 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-  --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b; --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-fix: #ffa94d;
+  --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b; --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-fix: #ffa94d; --c-coin: #ffd43b; --c-death: #ff6b6b;
     --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
     --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
     --c-pos: #6e9dff; --c-sheet: #f06595; --c-tile: #ffa94d; --c-level: #5fd06f; --c-anim: #9775fa; --c-state: #3bc9db; --c-col: #ff6b6b;
@@ -56,7 +56,7 @@
   }
 }
 :root[data-theme="dark"] {
-  --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b; --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-fix: #ffa94d;
+  --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b; --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-fix: #ffa94d; --c-coin: #ffd43b; --c-death: #ff6b6b;
   --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
   --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
   --c-pos: #6e9dff; --c-sheet: #f06595; --c-tile: #ffa94d; --c-level: #5fd06f; --c-anim: #9775fa; --c-state: #3bc9db; --c-col: #ff6b6b;
@@ -74,6 +74,8 @@ body {
   font-size: var(--step-0);
   line-height: 1.6;
 }
+/* žádné ligatury: >= != == se mají psát i zobrazovat jako dva znaky */
+*, *::before, *::after, button, input, select, textarea { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 .wrap { max-width: 1120px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
 h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.1; text-wrap: balance; margin: 0; letter-spacing: .01em; }
 h2 { font-size: var(--step-3); }
@@ -118,6 +120,13 @@ section.lesson { padding-block: clamp(40px, 7vw, 72px) 8px; display: grid; gap: 
 .callout p { font-size: var(--step--1); line-height: 1.55; }
 .callouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
 .callouts .callout { max-width: none; }
+/* important callout: solid frame in the step colour, tinted background, normal text size */
+.callout.key { border: 2px solid var(--kc); border-left-width: 8px; background: color-mix(in srgb, var(--kc) 12%, var(--surface)); max-width: 76ch; margin-block: 8px; }
+.callout.key .ic { font-size: var(--step-2); }
+.callout.key > div { display: grid; gap: 8px; }
+.callout.key h3 { font-size: var(--step-1); }
+.callout.key p { font-size: var(--step-0); margin: 0; }
+.callout.key ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
 .analogy { font-family: var(--f-display); font-size: var(--step-1); line-height: 1.35; max-width: 42ch; color: var(--kc); }
 
 /* lab window */
@@ -286,10 +295,40 @@ footer { padding-block: 48px; color: var(--muted); font-size: var(--step--1); }
 .k-grav { --kc: var(--c-grav); }
 .k-fix { --kc: var(--c-fix); }
 .k-room { --kc: var(--c-room); }
+.k-coin { --kc: var(--c-coin); }
+.k-death { --kc: var(--c-death); }
+.parents { display: grid; gap: 6px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius); font-size: var(--step--1); }
+.parents b { font-family: var(--f-mono); }
+.parents .kid { display: flex; align-items: center; gap: 8px; padding-left: 18px; font-family: var(--f-mono); }
+.evlog { display: grid; gap: 4px; min-height: 5.6em; font-family: var(--f-mono); font-size: .78rem; color: var(--muted); }
+.evlog div:first-child { color: var(--ink); }
 .prose ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
 .sb.se { background: #2e9fc9; }
 .verdict.hit { color: var(--c-col); }
 .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+/* konfigurátor */
+.kf { display: grid; gap: 16px; }
+.kf-top { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
+.kf-set { columns: 2 300px; column-gap: 12px; }
+.kf-set > .kf-card { break-inside: avoid; margin-bottom: 12px; }
+.kf-card .seg { flex-wrap: wrap; }
+.kf-card { padding: 12px 14px 14px; border: 1px solid var(--line); border-top: 4px solid var(--kc, var(--line-strong)); border-radius: 8px; background: var(--surface); display: grid; gap: 10px; min-width: 0; }
+.kf-card h3 { font-size: var(--step-1); }
+.kf-grid { display: grid; grid-template-columns: minmax(6.5em, auto) minmax(0, 1fr); gap: 6px 10px; align-items: center; font-size: var(--step--1); }
+.kf-grid > .sub { padding-left: 1.5em; }
+.kf-grid > .full { grid-column: 1 / -1; }
+.kf input[type="text"] { font: inherit; font-family: var(--f-mono); font-size: .8rem; padding: 4px 8px; border: 1px solid var(--line-strong); border-radius: 5px; background: var(--surface-2); color: var(--ink); min-width: 0; width: 100%; }
+.kf input[type="text"][aria-invalid="true"] { border-color: var(--bad); }
+.kf input:disabled, .kf label.chk:has(input:disabled) { opacity: .45; }
+.kf-sliders { display: grid; gap: 6px; }
+.kf-side { position: sticky; top: 64px; display: grid; gap: 12px; min-width: 0; }
+.kf-side canvas { width: 100%; height: auto; }
+.kf-need { padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); display: grid; gap: 8px; }
+.kf-need h3 { font-size: var(--step-0); }
+.kf-need ul { margin: 0; padding-left: 1.2em; font-size: var(--step--1); display: grid; gap: 6px; }
+.kf-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.kf-bar p { margin: 0; flex: 1 1 260px; }
+@media (max-width: 980px) { .kf-top { grid-template-columns: 1fr; } .kf-side { position: static; } }
 
 /* from part 1 */
 .k-asset { --kc: var(--c-asset); }
@@ -411,6 +450,46 @@ table.terms td code { font-size: .8em; }
 .toc a.toc-part { font-weight: 700; margin-left: 10px; gap: 6px; }
 .toc a.toc-part:first-child { margin-left: 0; }
 .toc a.toc-part b { font-family: var(--f-display); }
+/* side tree: where am I, what is left */
+.side { display: none; flex-direction: column; gap: 14px; background: var(--bg); border-right: 1px solid var(--line); padding: 18px 14px 24px; overflow-y: auto; scrollbar-width: thin; }
+.side-top { display: grid; gap: 8px; padding-inline: 6px; }
+.side-top b { font-family: var(--f-display); font-size: var(--step-1); }
+.side-sum { font-size: var(--step--1); color: var(--muted); }
+.bar { display: block; height: 6px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+.side-part { display: grid; gap: 2px; }
+.side-ph { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; align-items: center; padding: 8px 6px; border-radius: var(--radius); text-decoration: none; color: var(--ink); }
+.side-ph:hover { background: var(--surface); }
+.side-ph .no { font-family: var(--f-display); font-size: var(--step-1); width: 1.4em; text-align: center; }
+.side-ph .nm { font-weight: 700; font-size: var(--step--1); line-height: 1.3; }
+.side-ph .ct { font-family: var(--f-mono); font-size: .75rem; color: var(--muted); }
+.side-ph .bar { grid-column: 2 / 4; height: 4px; }
+.side-part.cur .side-ph .no { color: var(--c-pos); }
+.side-part.done .side-ph .ct { color: var(--ok); }
+.side ul { list-style: none; margin: 0 0 6px 17px; padding: 0 0 0 10px; display: grid; gap: 1px; border-left: 1px solid var(--line); }
+.side li { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 2px; }
+.side li a { display: block; padding: 4px 8px; border-radius: var(--radius); text-decoration: none; color: var(--muted); font-size: var(--step--1); line-height: 1.35; }
+.side li a:hover { background: var(--surface); color: var(--ink); }
+.side li .st { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; background: none; border: 0; cursor: pointer; border-radius: var(--radius); }
+.side li .st::before { content: ""; width: 14px; height: 14px; border: 2px solid var(--line-strong); border-radius: 4px; display: grid; place-items: center; font-size: 10px; line-height: 1; color: #fff; font-weight: 700; box-sizing: border-box; }
+.side li .st:hover::before { border-color: var(--ok); }
+.side li .st[aria-pressed="true"]::before { content: "✓"; background: var(--ok); border-color: var(--ok); }
+.side li.done a { color: var(--ink); }
+.side li a.on { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: inset 3px 0 0 var(--kc, var(--c-pos)); }
+.side-foot { padding-inline: 6px; display: grid; gap: 4px; font-size: .8rem; color: var(--muted); }
+.side-foot button { justify-self: start; font: inherit; color: var(--muted); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+.side-btn { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 30; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font: 700 var(--step--1) var(--f-body); box-shadow: 0 6px 20px rgba(0, 0, 0, .18); cursor: pointer; }
+.side-btn .bar { width: 48px; }
+.side-back { position: fixed; inset: 0; z-index: 39; background: rgba(10, 14, 20, .45); }
+.side-x { justify-self: end; font: inherit; background: none; border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--ink); padding: 2px 10px; cursor: pointer; }
+@media (min-width: 1280px) {
+  body { padding-left: 288px; }
+  .side { display: flex; position: fixed; top: 0; left: 0; bottom: 0; width: 288px; z-index: 25; }
+  .side-btn, .side-back, .side-x { display: none !important; }
+}
+@media (max-width: 1279.98px) {
+  .side.open { display: flex; position: fixed; top: 0; left: 0; bottom: 0; width: min(320px, 88vw); z-index: 40; box-shadow: 0 0 40px rgba(0, 0, 0, .3); }
+}
 table.terms tr.grp th { font-family: var(--f-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--surface-2); white-space: normal; }
 </style>
 
@@ -431,6 +510,9 @@ table.terms tr.grp th { font-family: var(--f-mono); font-size: .75rem; text-tran
     <a href="#gravitace" class="k-grav"><span class="sq"></span>Gravitace a skok</a>
     <a href="#kolize" class="k-col"><span class="sq"></span>Kolize</a>
     <a href="#reseni" class="k-fix"><span class="sq"></span>Řešení kolize</a>
+    <a href="#mince" class="k-coin"><span class="sq"></span>Mince</a>
+    <a href="#smrt" class="k-death"><span class="sq"></span>Smrt</a>
+    <a href="#plosiny" class="k-fix"><span class="sq"></span>Plošiny</a>
     <a href="#hriste" class="k-room"><span class="sq"></span>Hřiště</a>
     <a href="#kviz-2">Kvíz</a>
     <a href="#ukol-2">Úkol</a>
@@ -440,12 +522,16 @@ table.terms tr.grp th { font-family: var(--f-mono); font-size: .75rem; text-tran
     <a href="#level" class="k-level"><span class="sq"></span>Level design</a>
     <a href="#animace" class="k-anim"><span class="sq"></span>Animace</a>
     <a href="#ovladani" class="k-state"><span class="sq"></span>Ovládání animací</a>
-    <a href="#dilna" class="k-level"><span class="sq"></span>Dílna</a>
     <a href="#kviz-3">Kvíz</a>
     <a href="#ukol-3">Úkol</a>
+    <a href="#konfigurator" class="toc-part">Konfigurátor</a>
     <a href="#slovnicek" class="toc-part">Slovníček</a>
   </div>
 </nav>
+
+<aside class="side" id="side" aria-label="Obsah lekce a postup"></aside>
+<div class="side-back" id="sideBack" hidden></div>
+<button class="side-btn" id="sideBtn" type="button" aria-controls="side" aria-expanded="false"><span>Obsah</span><span class="bar"><i></i></span></button>
 
 <main class="wrap">
   <header class="hero" id="uvod">
@@ -457,6 +543,7 @@ table.terms tr.grp th { font-family: var(--f-mono); font-size: .75rem; text-tran
       <a class="part-card" href="#dil-1"><span class="part-no">Díl 1</span><b>Z čeho se skládá hra</b><span>Assety, sprity, objekty a instance, scéna a kamera. Založíš projekt a <code>o_player</code>.</span></a>
       <a class="part-card" href="#dil-2"><span class="part-no">Díl 2</span><b>Jak se věci hýbou</b><span>Rychlost, zrychlení, gravitace, skok a kolize se zdí. Hráč začne běhat a skákat.</span></a>
       <a class="part-card" href="#dil-3"><span class="part-no">Díl 3</span><b>Jak oživit svět</b><span>Spritesheet, dlaždice, level design a animace. Level dostane grafiku a postava pohyby.</span></a>
+      <a class="part-card" href="#konfigurator"><span class="part-no">Nástroj</span><b>Konfigurátor</b><span>Naklikej si pohyb, kolize, plošiny, mince, smrt a animace s vlastními názvy spritů a zkopíruj hotový kód.</span></a>
     </div>
     <div class="rules">
       <h3>Pravidla projektu</h3>
@@ -946,9 +1033,9 @@ void LateUpdate() {
       <h2>Úkol: první scéna s kamerou</h2>
     </div>
     <ol class="steps">
-      <li><span>V Asset Browseru vytvoř složky <code>sprites</code> a <code>objects</code>. Do <code>sprites</code> přidej sprite <code>s_player</code> (stačí čtverec 32 × 32) a nastav mu origin na <em>Bottom Centre</em>, aby postava stála přesně na zemi.</span></li>
+      <li><span>V Asset Browseru vytvoř složky <code>sprites</code> a <code>objects</code>. Do <code>sprites</code> přidej sprite <code>s_player</code> (obrázek <code>s_player_strip2.png</code> z <code>Materiály/Lekce/Díl 1</code>, nebo stačí čtverec 32 × 32) a nastav mu origin na <em>Bottom Centre</em>, aby postava stála přesně na zemi.</span></li>
       <li><span>Do <code>objects</code> přidej objekt <code>o_player</code>, přiřaď mu sprite a do události <em>Step</em> napiš pohyb šipkami: <code>x += (keyboard_check(vk_right) - keyboard_check(vk_left)) * 4;</code></span></li>
-      <li><span>Vytvoř sprite <code>s_coin</code> a objekt <code>o_coin</code>. Do scény polož 1 hráče a aspoň 5 mincí. Kolik máš objektů a kolik instancí?</span></li>
+      <li><span>Vytvoř sprite <code>s_coin</code> (<code>s_coin_strip4.png</code>) a objekt <code>o_coin</code>. Do scény polož 1 hráče a aspoň 5 mincí. Kolik máš objektů a kolik instancí?</span></li>
       <li><span>Zvětši scénu na 2000 × 768 px. V <em>Viewports and Cameras</em> zapni viewport 0, kameru 640 × 360, viewport 1280 × 720 a <em>Object Following</em> nastav na <code>o_player</code>.</span></li>
       <li><span>Bonus: zmenši kameru na 320 × 180. Co se stalo s obrazem a proč?</span></li>
     </ol>
@@ -969,6 +1056,9 @@ void LateUpdate() {
       <a class="goal k-grav" href="#gravitace"><span class="sq"></span><b>Gravitace</b><span>Každý snímek přidá kousek rychlosti směrem dolů.</span></a>
       <a class="goal k-col" href="#kolize"><span class="sq"></span><b>Kolize</b><span>Zjištění, jestli se dvě věci překrývají.</span></a>
       <a class="goal k-fix" href="#reseni"><span class="sq"></span><b>Řešení kolize</b><span>Co udělat, aby postava stála u zdi a ne v ní.</span></a>
+      <a class="goal k-coin" href="#mince"><span class="sq"></span><b>Mince</b><span>Událost Collision: dotkneš se a mince zmizí a přičte se.</span></a>
+      <a class="goal k-death" href="#smrt"><span class="sq"></span><b>Smrt</b><span>Bodáky a slizouni pod jedním rodičem o_death a hra začne znovu.</span></a>
+      <a class="goal k-fix" href="#plosiny"><span class="sq"></span><b>Polopropustné plošiny</b><span>Zespodu proskočíš, shora stojíš, šipkou dolů seskočíš.</span></a>
     </div>
   </header>
 
@@ -1120,14 +1210,14 @@ rb.linearVelocity = v;</code></pre>
     </div>
 
     <div class="lab k-grav">
-      <div class="lab-bar"><span class="sq"></span><span class="t">Simulace skoku</span><span>o_player</span><span class="hint">Mezerník, klik do obrazu nebo tlačítko Skok</span></div>
+      <div class="lab-bar"><span class="sq"></span><span class="t">Simulace skoku</span><span>o_player</span><span class="hint">Klikni do obrazu: ← → pohyb, mezerník skok</span></div>
       <div class="lab-body">
         <div class="split">
           <div class="panel">
             <canvas id="jpCv" width="720" height="330" tabindex="0" aria-label="Postava skáče, tečkovaná čára ukazuje dráhu skoku"></canvas>
             <div class="row" style="justify-content:space-between">
-              <div class="pad" data-for="jpCv"><button class="btn" data-k="jump">Skok</button></div>
-              <span class="focus-state" id="jpFocus">Tečky jsou polohy v jednotlivých snímcích.</span>
+              <div class="pad" data-for="jpCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="jpFocus">Autopilot drží šipku doprava. Tečky jsou polohy v jednotlivých snímcích.</span>
             </div>
           </div>
           <div class="panel">
@@ -1144,7 +1234,7 @@ rb.linearVelocity = v;</code></pre>
 
     <div class="eng">
       <div class="eng-panel" data-e="gm">
-        <p>GameMaker má i vestavěnou proměnnou <code>gravity</code>, ale v plošinovkách se skoro vždy píše vlastní, aby šla gravitace vypnout na zemi a omezit maximem. Podlaha je zatím jen čára <code>y = 290</code>, pořádné kolize přidáš v kroku 5. V ukázce postava běží sama doprava, ty ovládáš jen skok.</p>
+        <p>GameMaker má i vestavěnou proměnnou <code>gravity</code>, ale v plošinovkách se skoro vždy píše vlastní, aby šla gravitace vypnout na zemi a omezit maximem. Podlaha je zatím jen čára <code>y = 290</code>, pořádné kolize přidáš v kroku 5. Když do ukázky neklikneš, autopilot drží šipku doprava a skáče sám. Po kliknutí ovládáš šipkami i skok.</p>
         <div class="gml" id="jpGml"></div>
       </div>
       <div class="eng-panel" data-e="godot" hidden>
@@ -1213,23 +1303,19 @@ func _physics_process(delta):
 
     <div class="eng">
       <div class="eng-panel" data-e="gm">
-        <p>Masku nastavíš v Sprite Editoru (<em>Collision Mask</em>). Hranice masky instance najdeš v <code>bbox_left</code>, <code>bbox_right</code>, <code>bbox_top</code> a <code>bbox_bottom</code>, takže čtyři porovnání z ukázky jdou napsat ručně. Většinou ale použiješ hotovou funkci <code>place_meeting(x, y, obj)</code>. Ta zjistí, jestli by došlo ke kolizi, kdyby instance stála na <code>x</code>, <code>y</code>. Když potřebuješ vědět, <em>kterou</em> instanci jsi zasáhl, použij <code>instance_place</code>. Na sbírání mincí stačí událost <em>Collision</em> v objektu hráče.</p>
-        <p><strong>Parent.</strong> Smrtících věcí bývá ve hře víc (slizoun, bodáky, láva). Vytvoř prázdný objekt <code>o_death</code> a všem smrtícím objektům ho v Object Editoru nastav jako <em>Parent</em>. <code>place_meeting(x, y, o_death)</code> pak najde kteréhokoli z nich. Stejně fungují zdi: cokoli s parentem <code>o_wall</code> je pevné.</p>
+        <p>Masku nastavíš v Sprite Editoru (<em>Collision Mask</em>). Hranice masky instance najdeš v <code>bbox_left</code>, <code>bbox_right</code>, <code>bbox_top</code> a <code>bbox_bottom</code>, takže čtyři porovnání z ukázky jdou napsat ručně. Většinou ale použiješ hotovou funkci <code>place_meeting(x, y, obj)</code>. Ta zjistí, jestli by došlo ke kolizi, kdyby instance stála na <code>x</code>, <code>y</code>. Když potřebuješ vědět, <em>kterou</em> instanci jsi zasáhl, použij <code>instance_place</code>. Tady zatím jen zjišťujeme, <em>jestli</em> se dotýkáme. Co se má pak stát, přijde v kroku 6 (mince zmizí) a v kroku 7 (slizoun zabije).</p>
         <div class="gml" id="abGml"></div>
       </div>
       <div class="eng-panel" data-e="godot" hidden>
         <p>Tvar kolize je samostatný uzel <code>CollisionShape2D</code> (obdélník, kruh, kapsle…). Na „dotkl se mě někdo?“ slouží <code>Area2D</code> a jeho signál <code>body_entered</code>.</p>
-        <pre class="code"><code data-lang="gd"># skript na mince (Area2D), signál body_entered připojený v editoru
+        <pre class="code"><code data-lang="gd"># Area2D, signál body_entered připojený v editoru
 func _on_body_entered(body):
-    if body.name == "Hrac":
-        queue_free()   # mince zmizí</code></pre>
+    print(body.name, " se mě dotkl")</code></pre>
       </div>
       <div class="eng-panel" data-e="unity" hidden>
         <p>Tvar kolize je komponenta <code>BoxCollider2D</code>, <code>CircleCollider2D</code> a další. Collider se zaškrtnutým <em>Is Trigger</em> jen hlásí dotyk, jinak se tělesa od sebe odráží.</p>
         <pre class="code"><code data-lang="cs">void OnTriggerEnter2D(Collider2D other) {
-    if (other.CompareTag("Player")) {
-        Destroy(gameObject);   // mince zmizí
-    }
+    Debug.Log(other.name + " se mě dotkl");
 }</code></pre>
       </div>
       <div class="eng-panel" data-e="scratch" hidden>
@@ -1263,9 +1349,9 @@ func _on_body_entered(body):
             <div class="row"><button class="btn" id="svRun" aria-pressed="true">Běží</button><button class="btn" id="svStep">+1 krok</button><button class="btn" id="svReset">Znovu</button></div>
             <h4>Kód v GameMakeru</h4>
             <div class="seg" role="group" aria-label="Varianta kódu">
-              <button class="btn" id="svVarWhile" aria-pressed="true">přisouvání (while)</button><button class="btn" id="svVarMac" aria-pressed="false">move_and_collide</button>
+              <button class="btn" id="svVarWhile" data-coll="while" aria-pressed="true">přisouvání (while)</button><button class="btn" id="svVarMac" data-coll="mac" aria-pressed="false">move_and_collide</button>
             </div>
-            <p class="cap">Přisouvání je přístup 3 z ukázky. Druhá varianta je hotová funkce GameMakeru, rozdíly najdeš v tabulce níž.</p>
+            <p class="cap"><strong>Budeš chtít svahy? Pak <code>move_and_collide</code> a kolizní maska Precise, viz <a href="#svahy">rámeček níž</a>.</strong> Přisouvání je přístup 3 z ukázky. Druhá varianta je hotová funkce GameMakeru, rozdíly najdeš v tabulce níž. Volba platí pro všechna okna s kódem od tohoto kroku dál (i v dílu 3), přepneš ji i nad každým z nich.</p>
           </div>
         </div>
       </div>
@@ -1274,7 +1360,7 @@ func _on_body_entered(body):
     <div class="eng">
       <div class="eng-panel" data-e="gm">
         <p id="svGmNote"></p>
-        <div class="gml" id="svGml"></div>
+        <div class="gml" id="svGml" data-coll></div>
       </div>
       <div class="eng-panel" data-e="godot" hidden>
         <p><code>move_and_slide()</code> pohne tělesem podle <code>velocity</code>, vyřeší kolize a nechá postavu klouzat podél zdí a po svazích. Pak víš i <code>is_on_floor()</code> a <code>is_on_wall()</code>.</p>
@@ -1307,22 +1393,233 @@ if kolize:
     <div class="prose">
       <h3>GameMaker: přisouvání přes <code>while</code>, nebo <code>move_and_collide</code>?</h3>
       <p>Novější verze GameMakeru mají hotovou funkci <code>move_and_collide(dx, dy, obj)</code>. Nedělá ale přesně totéž co ruční přisouvání. Pohyb rozdělí na několik dílčích kroků (výchozí jsou 4) a po každém zkontroluje kolizi. Když narazí, zkusí se pohnout kolmo, takže postava sklouzne po svahu nebo vyjde malý schod.</p>
+      <p>Protože jde po dílčích krocích, nemusí dojet až k povrchu. Při pádu rychlostí 12 px a 4 krocích má jeden krok 3 px, a když by další skončil v zemi, funkce ho neudělá. Postava pak visí až skoro 3 px nad podlahou, <code>place_meeting(x, y + 1, o_wall)</code> je false a skočit nejde. Proto se po <code>move_and_collide</code> k podlaze i stropu stejně <strong>dotáhneš po 1 px smyčkou <code>while</code></strong>, jako u přisouvání. Rozdíl mezi oběma způsoby je tedy menší, než by se zdálo: dotahovat musíš v obou. Vyšší <code>kroky</code> mezeru jen zmenší, dotažení ji odstraní úplně.</p>
+    </div>
+    <div class="callout key k-fix" id="svahy">
+      <div class="ic">!</div>
+      <div>
+        <h3>Chceš svahy? Potřebuješ dvě věci</h3>
+        <ol>
+          <li><strong>Řešení kolizí přes <code>move_and_collide</code>.</strong> Přisouvání přes <code>while</code> se o šikmou plochu (<em>slope</em>) zasekne.</li>
+          <li><strong>Správnou kolizní masku svahu.</strong> Spritu šikmé plošiny nastav v Sprite Editoru <em>Collision Mask</em> na <strong>Precise</strong> (podle pixelů obrázku) nebo <strong>Rectangle with rotation</strong> (otočený obdélník, když svah děláš z natočené instance).</li>
+        </ol>
+        <p>S obyčejnou obdélníkovou maskou je svah pro kolize pořád hranatý schod a postava se o něj zastaví, i s <code>move_and_collide</code>.</p>
+      </div>
     </div>
     <div class="table-wrap">
       <table class="terms">
         <thead><tr><th scope="col"></th><th scope="col">Přisouvání přes <code>while</code></th><th scope="col"><code>move_and_collide</code></th></tr></thead>
         <tbody>
           <tr><th scope="row">Jak se pohne</th><td>Zkontroluje cíl. Když je volný, skočí tam celým krokem. Když ne, přisouvá se po 1 px.</td><td>Rozdělí pohyb na <code>num_iterations</code> dílů (výchozí 4) a kontroluje po každém. Při 8 px za snímek tedy po 2 px.</td></tr>
-          <tr><th scope="row">Přesnost u zdi</th><td>Na pixel přesně.</td><td>Po dílčích krocích, takže nemusí dojet úplně na pixel. Víc přesnosti dá vyšší <code>num_iterations</code>.</td></tr>
-          <tr><th scope="row">Svahy a schody</th><td>Neumí, postava se o šikmou plochu zasekne. Musíš dopsat vlastní kód.</td><td>Umí. Při nárazu zkusí uhnout kolmo (nebo směrem <code>xoff</code>, <code>yoff</code>) a sklouzne.</td></tr>
+          <tr><th scope="row">Přesnost u zdi</th><td>Na pixel přesně.</td><td>Po dílčích krocích, takže před podlahou nebo stropem může zůstat mezera až o velikosti jednoho dílčího kroku. Po volání se proto dotáhneš po 1 px stejně jako u přisouvání.</td></tr>
+          <tr><th scope="row">Svahy a schody</th><td>Neumí, postava se o šikmou plochu zasekne. Musíš dopsat vlastní kód.</td><td>Umí. Při nárazu zkusí uhnout kolmo (nebo směrem <code>xoff</code>, <code>yoff</code>) a sklouzne. Svah ale musí mít masku Precise nebo Rectangle with rotation, viz <a href="#svahy">rámeček výš</a>.</td></tr>
           <tr><th scope="row">Tunelování</th><td>Hrozí, když je krok delší než zeď plus postava, protože se kontroluje jen cíl.</td><td>Menší riziko, kontroluje i mezikroky. U hodně rychlých věcí zvyš <code>num_iterations</code>.</td></tr>
-          <tr><th scope="row">Rychlost</th><td>Nuluješ sám (<code>hsp = 0</code>) přesně ve chvíli nárazu.</td><td>Proměnné rychlosti nemění. Sám musíš zjistit, že stojíš na zemi, a vynulovat <code>vsp</code>, jinak gravitace roste dál.</td></tr>
+          <tr><th scope="row">Rychlost</th><td>Nuluješ sám (<code>hsp = 0</code>) přesně ve chvíli nárazu.</td><td>Proměnné rychlosti nemění. Sám musíš zjistit, že jsi dopadl (kontrolou o <code>vsp</code> pod sebe, ne jen o 1 px), dotáhnout se k zemi a vynulovat <code>vsp</code>, jinak gravitace roste dál.</td></tr>
           <tr><th scope="row">Co vrací</th><td>Nic, vše vidíš v kódu.</td><td>Pole instancí (a tile map), do kterých narazil.</td></tr>
           <tr><th scope="row">Kdy použít</th><td>Když chceš rozumět každému řádku, nebo potřebuješ pixelovou přesnost. Funguje v každé verzi GameMakeru.</td><td>Když chceš rychle hotový pohyb se svahy. Na tile mapy funguje přímo (místo objektu předáš ID tile mapy).</td></tr>
         </tbody>
       </table>
     </div>
 
+  </section>
+
+
+  <!-- ================= 6 MINCE ================= -->
+  <section class="lesson k-coin" id="mince">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 6 · Sbírání mincí</div>
+      <h2>Mince: dotkneš se a zmizí</h2>
+    </div>
+    <div class="prose">
+      <p>Na mince nepotřebuješ v hráči psát žádné <code>place_meeting</code>. GameMaker má událost <span class="term">Collision</span>: přidáš ji objektu <code>o_coin</code> a vybereš, s kým se má srážet, tedy <code>o_player</code>. Engine pak sám v každém snímku zkontroluje masky, a když se překrývají, kód události spustí. Spustí ho <em>v té jedné minci</em>, které se hráč dotkl.</p>
+      <ul>
+        <li><code>other</code> je uvnitř události ta druhá instance, tady hráč. <code>other.mince += 1</code> tedy přičte minci hráči, ne minci samotné.</li>
+        <li><code>instance_destroy()</code> zničí instanci, ve které kód běží: jen tuhle jednu minci. Ostatní instance <code>o_coin</code> zůstanou.</li>
+        <li>Protože mince hned zmizí, kód se pro každou minci provede jen jednou, i když se jí hráč dotýká víc snímků.</li>
+        <li>Počet mincí vypíšeš v hráči v události <em>Draw GUI</em>. Ta kreslí na obrazovku, takže se nápis nehýbe s kamerou.</li>
+      </ul>
+    </div>
+
+    <div class="lab k-coin">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_mince</span><span>o_player × o_coin</span><span class="hint">Klikni do hry: ← → pohyb, mezerník skok. Bez kliknutí hraje autopilot.</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="coCv" width="704" height="256" tabindex="0" aria-label="Malá místnost s mincemi. Postava je sbírá a mince mizí."></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="coCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="coFocus">Hraje autopilot</span>
+            </div>
+          </div>
+          <div class="panel">
+            <dl class="readout"><dt>instance_number(o_coin)</dt><dd id="coN"></dd><dt>o_player.mince</dt><dd id="coM"></dd></dl>
+            <label class="chk k-col"><input type="checkbox" id="coBox" checked> Kolizní masky</label>
+            <h4>Poslední události Collision</h4>
+            <div class="evlog" id="coLog"><div>zatím žádná</div></div>
+            <button class="btn" id="coReset">room_restart()</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Hráč se hýbe kódem z kroků 2 až 5 (v okně je sbalený do „…“). Nové jsou tři kousky: proměnná <code>mince</code>, událost <em>Collision</em> v <code>o_coin</code> (<em>Add Event → Collision → o_player</em>) a <em>Draw GUI</em>. Řádky, které se zrovna provedly, svítí.</p>
+        <div class="gml" id="coGml" data-coll></div>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Mince je <code>Area2D</code> s <code>CollisionShape2D</code>. Její signál <code>body_entered</code> připojíš v editoru na skript mince.</p>
+        <pre class="code"><code data-lang="gd">func _on_body_entered(body):
+    if body.name == "Hrac":
+        body.mince += 1   # body = hráč, jako other v GameMakeru
+        queue_free()      # mince zmizí</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Mince má <code>Collider2D</code> se zaškrtnutým <em>Is Trigger</em>, hráč má tag <em>Player</em>.</p>
+        <pre class="code"><code data-lang="cs">void OnTriggerEnter2D(Collider2D other) {
+    if (other.CompareTag("Player")) {
+        other.GetComponent&lt;Hrac&gt;().mince += 1;
+        Destroy(gameObject);   // mince zmizí
+    }
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Skript patří postavě Mince. Proměnná <code>mince</code> je „pro všechny postavy“.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb lo">ukaž</span><span class="sb co">opakuj stále</span><span class="sb co i1">pokud &lt;dotýkám se [Hráč]?&gt; tak</span><span class="sb va i2">změň [mince] o (1)</span><span class="sb lo i2">skryj</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 7 SMRT ================= -->
+  <section class="lesson k-death" id="smrt">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 7 · Smrt</div>
+      <h2>Všechno, co zabíjí, má jednoho rodiče</h2>
+    </div>
+    <div class="prose">
+      <p>Smrtících věcí bývá ve hře víc: bodáky, slizouni, láva. Psát pro každou zvláštní test by bylo zdlouhavé. Proto vytvoříš prázdný objekt <code>o_death</code> bez spritu a bez kódu a všem smrtícím objektům ho v Object Editoru nastavíš jako <span class="term">Parent</span> (rodiče).</p>
+      <p><code>place_meeting(x, y, o_death)</code> pak najde kteréhokoli potomka. Hráči stačí na konec Step jediný řádek. A když přidáš nový smrtící objekt, stačí mu nastavit parent a kód hráče se nemění. Stejně fungují zdi: cokoli s parentem <code>o_wall</code> je pevné.</p>
+      <p><code>room_restart()</code> nahraje scénu znovu od začátku. Všechny instance se vytvoří znovu, takže se vrátí i sebrané mince a hráč stojí na startu.</p>
+    </div>
+
+    <div class="lab k-death">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_smrt</span><span>o_player × o_death</span><span class="hint">Klikni do hry: ← → pohyb, mezerník skok. Bez kliknutí hraje autopilot.</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="smCv" width="704" height="256" tabindex="0" aria-label="Místnost s bodáky a slizounem. Když se jich postava dotkne, scéna začne znovu."></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="smCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="smFocus">Hraje autopilot</span>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Parent v Object Editoru</h4>
+            <div class="parents">
+              <span><b>o_death</b> · prázdný, bez spritu a bez kódu</span>
+              <label class="kid"><input type="checkbox" id="smPSp" checked> o_spikes · Parent: o_death</label>
+              <label class="kid"><input type="checkbox" id="smPSl" checked> o_slime · Parent: o_death</label>
+            </div>
+            <p class="cap">Zruš parent slizounovi a zkus do něj vběhnout. Kód hráče se nezměnil, ale slizoun už pod <code>o_death</code> nepatří.</p>
+            <dl class="readout"><dt>room_restart()</dt><dd id="smN">0×</dd><dt>o_player.mince</dt><dd id="smM"></dd></dl>
+            <label class="chk k-col"><input type="checkbox" id="smBox" checked> Kolizní masky</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>V hráči přibude jen poslední řádek Step, pohyb a mince jsou z předchozích kroků (sbalené do „…“, celé je uvidíš přes <em>Celý kód</em>). Slizoun má vlastní jednoduchý pohyb: jde, dokud nenarazí na <code>o_wall</code>, pak se otočí. Bodáky žádný kód nemají, stačí jim parent.</p>
+        <div class="gml" id="smGml" data-coll></div>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Místo parentu použij <strong>skupinu</strong>: bodáky i slizouna přidej v záložce <em>Node → Groups</em> do skupiny <code>smrt</code>. Hráč má potomka <code>Area2D</code> se signálem <code>body_entered</code>.</p>
+        <pre class="code"><code data-lang="gd">func _on_area_2d_body_entered(body):
+    if body.is_in_group("smrt"):
+        get_tree().reload_current_scene()   # jako room_restart()</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Bodáky i slizoun dostanou tag <em>Smrt</em> a collider s <em>Is Trigger</em>.</p>
+        <pre class="code"><code data-lang="cs">using UnityEngine.SceneManagement;
+
+void OnTriggerEnter2D(Collider2D other) {
+    if (other.CompareTag("Smrt")) {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);   // jako room_restart()
+    }
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Ve Scratchi parenty nejsou, testuješ každou postavu zvlášť. Restart je návrat na start a vynulování proměnných.</p>
+        <div class="scratch"><span class="sb co">pokud &lt;&lt;dotýkám se [Bodáky]?&gt; nebo &lt;dotýkám se [Slizoun]?&gt;&gt; tak</span><span class="sb mo i1">skoč na x: (-200) y: (-100)</span><span class="sb va i1">nastav [mince] na (0)</span><span class="sb ev i1">rozešli [restart]</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 8 PLOŠINY ================= -->
+  <section class="lesson k-fix" id="plosiny">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 8 · Polopropustné plošiny</div>
+      <h2>Zespodu proskočíš, shora stojíš</h2>
+    </div>
+    <div class="prose">
+      <p>Tenkou plošinu, kterou zespodu proskočíš a shora na ni dopadneš, najdeš skoro v každé plošinovce. Kdybys ji postavil z <code>o_wall</code>, praštíš se o ni hlavou. Proto má vlastní objekt <code>o_oneway</code>: sprite <code>s_oneway</code> (32 × 12) s obdélníkovou maskou a žádný kód. Pevné zdi dál testuješ přes <code>o_wall</code>, plošiny zvlášť.</p>
+      <p>Plošina hráče zastaví, jen když platí tři věci zároveň:</p>
+      <ul>
+        <li><code>vsp &gt; 0</code>: hráč padá. Když letí nahoru, plošina ho pustí.</li>
+        <li><code>!place_meeting(x, y, o_oneway)</code>: hráč v plošině zrovna není. Kdo jí právě proskakuje, toho v půlce nezachytí.</li>
+        <li><code>place_meeting(x, y + vsp, o_oneway)</code>: v příštím snímku by v ní byl.</li>
+      </ul>
+      <p>Pak se hráč přisune dolů po 1 px až na plošinu a <code>vsp</code> se vynuluje, stejně jako u zdi. Stát na plošině znamená mít ji pixel pod nohama a nebýt v ní, to je proměnná <code>na_plosine</code>. Seskok je malý trik: šipka dolů posune hráče o 1 px do plošiny, takže v dalším snímku neplatí druhá podmínka a hráč propadne.</p>
+      <p>U <code>move_and_collide</code> se plošina řeší stejně, jen před voláním funkce. Ta dostane jen <code>o_wall</code>, o plošinách neví. Jeden rozdíl tu je: vodorovně se postava posune až uvnitř <code>move_and_collide</code>, takže plošinu kontroluješ na <code>x + hsp</code>, tedy tam, kde po pohybu bude. S obyčejným <code>x</code> by na úplném kraji plošiny na jeden snímek „přistála“ a hned zase spadla, což je vidět jako bliknutí sprite skoku.</p>
+    </div>
+
+    <div class="lab k-fix">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_plosiny</span><span>o_player × o_oneway</span><span class="hint">Klikni do hry: ← → pohyb, mezerník skok, ↓ seskok. Bez kliknutí hraje autopilot.</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="pfCv" width="704" height="256" tabindex="0" aria-label="Místnost s tenkými plošinami. Postava jimi zespodu proskakuje a shora na nich stojí."></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="pfCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="down" aria-label="Seskočit z plošiny">▼</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="pfFocus">Hraje autopilot</span>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Zastaví plošina pád?</h4>
+            <div class="checks" id="pfChecks"></div>
+            <label class="chk k-fix"><input type="checkbox" id="pfSolid"> Plošiny jako <code>o_wall</code></label>
+            <p class="cap" id="pfNote"></p>
+            <label class="chk k-col"><input type="checkbox" id="pfBox" checked> Kolizní masky</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Nové řádky jsou jen ve Step hráče, zbytek z předchozích kroků je sbalený. Kam přesně patří zastavení na plošině, záleží na řešení kolizí: u přisouvání mezi kolizi vodorovně a svisle, u <code>move_and_collide</code> před volání funkce. Přepni si to nad oknem. Řádky, které se zrovna provedly, svítí.</p>
+        <div class="gml" id="pfGml" data-coll></div>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Plošině na <code>CollisionShape2D</code> zaškrtni <em>One Way Collision</em>, <code>move_and_slide()</code> ji pak zespodu sám pustí. Na seskok hráč na chvíli přestane kolidovat s vrstvou, ve které plošiny jsou.</p>
+        <pre class="code"><code data-lang="gd"># plošiny jsou ve vrstvě 2
+if Input.is_action_just_pressed("ui_down") and is_on_floor():
+    set_collision_mask_value(2, false)
+    await get_tree().create_timer(0.2).timeout
+    set_collision_mask_value(2, true)</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Plošina dostane komponentu <code>PlatformEffector2D</code> se zaškrtnutým <em>Use One Way</em> a její collider <em>Used By Effector</em>. Na seskok effector na chvíli otočíš.</p>
+        <pre class="code"><code data-lang="cs">// skript na plošině
+PlatformEffector2D ef;
+void Start() { ef = GetComponent&lt;PlatformEffector2D&gt;(); }
+void Update() {
+    if (Input.GetKeyDown(KeyCode.DownArrow)) ef.rotationalOffset = 180f;   // pustí hráče dolů
+    if (Input.GetKeyUp(KeyCode.DownArrow)) ef.rotationalOffset = 0f;
+}</code></pre>
+      </div>
+    </div>
   </section>
 
   <!-- ================= 6 HŘIŠTĚ ================= -->
@@ -1340,6 +1637,8 @@ if kolize:
       <li class="k-grav"><b>Gravitace a skok</b><span>Změní <code>vsp</code>.</span></li>
       <li class="k-fix"><b>Pohyb a kolize v x</b><span>Přisuň se ke zdi, pohni se.</span></li>
       <li class="k-fix"><b>Pohyb a kolize v y</b><span>Totéž svisle. Teď víš, jestli stojíš na zemi.</span></li>
+      <li class="k-death"><b>Smrt</b><span>Dotýkám se <code>o_death</code>? Pak <code>room_restart()</code>.</span></li>
+      <li class="k-coin"><b>Události Collision</b><span>Engine sám spustí <code>o_coin</code> · Collision u mincí, kterých se dotýkáš.</span></li>
       <li class="k-pos"><b>Kreslení</b><span>Engine nakreslí sprite na nové <code>x</code>, <code>y</code>.</span></li>
     </ol>
 
@@ -1357,7 +1656,7 @@ if kolize:
             <h4>Řešení kolizí</h4>
             <div class="row">
               <div class="seg" role="group" aria-label="Způsob řešení kolize">
-                <button class="btn" id="plModeWhile" aria-pressed="true">přisouvání (while)</button><button class="btn" id="plModeMac" aria-pressed="false">move_and_collide</button>
+                <button class="btn" id="plModeWhile" data-coll="while" aria-pressed="true">přisouvání (while)</button><button class="btn" id="plModeMac" data-coll="mac" aria-pressed="false">move_and_collide</button>
               </div>
               <label class="chk k-fix"><input type="checkbox" id="plOneway" checked> Polopropustné plošiny (one-way)</label>
             </div>
@@ -1386,8 +1685,8 @@ if kolize:
 
     <div class="eng">
       <div class="eng-panel" data-e="gm">
-        <p>Celý ovladač hráče z hřiště, živě podle nastavení výš. Potřebuješ objekt <code>o_player</code> a objekt <code>o_wall</code> se spritem čtverce, kterým postavíš podlahu a plošiny. Pro polopropustné plošiny navíc <code>o_oneway</code>.</p>
-        <div class="gml" id="plGml"></div>
+        <p>Celý ovladač hráče z hřiště, živě podle nastavení výš. Potřebuješ objekt <code>o_player</code> a objekt <code>o_wall</code> se spritem čtverce, kterým postavíš podlahu a plošiny. Pro polopropustné plošiny navíc <code>o_oneway</code>. Mince jsou <code>o_coin</code> z kroku 6, bodáky <code>o_spikes</code> s parentem <code>o_death</code> z kroku 7.</p>
+        <div class="gml" id="plGml" data-coll></div>
       </div>
       <div class="eng-panel" data-e="godot" hidden>
         <p>Uzel <code>CharacterBody2D</code> s potomky <code>Sprite2D</code> a <code>CollisionShape2D</code>. Podlaha je <code>StaticBody2D</code> nebo <code>TileMapLayer</code> s kolizemi. Hodnoty jsou v px za sekundu (GameMaker × 60).</p>
@@ -1464,11 +1763,13 @@ public class Hrac : MonoBehaviour {
       <h2>Úkol: vlastní plošinovka</h2>
     </div>
     <ol class="steps">
-      <li><span>Pokračuj v projektu z dílu 1. Do <code>sprites</code> přidej <code>s_wall</code> (čtverec 32 × 32), do <code>objects</code> objekty <code>o_wall</code> a <code>o_oneway</code>. Ve scéně z nich postav podlahu a pár plošin.</span></li>
+      <li><span>Pokračuj v projektu z dílu 1. Do <code>sprites</code> přidej <code>s_wall</code> (čtverec 32 × 32) a <code>s_oneway</code> (32 × 12), obojí najdeš v <code>Materiály/Lekce/Díl 2</code>. Do <code>objects</code> objekty <code>o_wall</code> a <code>o_oneway</code>. Ve scéně z nich postav podlahu a pár plošin.</span></li>
       <li><span>V <code>o_player</code> nahraď pohyb z dílu 1 ovladačem z hřiště: Create a Step zkopíruj tlačítkem <em>Kopírovat</em> v okně s kódem.</span></li>
       <li><span>Zkontroluj, že má sprite hráče origin <em>Bottom Centre</em> a že kolizní maska je obdélník. Co se stane, když necháš masku podle pixelů?</span></li>
       <li><span>Vylaď čísla tak, aby hra působila podle tebe. Zapiš si, jaké hodnoty jsi zvolil a proč.</span></li>
-      <li><span>Bonus: přidej mince s událostí <em>Collision</em> s <code>o_player</code>, které zahrají zvuk a zmizí (<code>instance_destroy()</code>). A slizouna z dílu 1 nebo bodáky s parentem <code>o_death</code>, po kterých hra začne znovu (<code>room_restart()</code>).</span></li>
+      <li><span>Podle kroku 6 přidej <code>o_coin</code> s událostí <em>Collision</em> s <code>o_player</code>: zvuk, <code>other.mince += 1</code> a <code>instance_destroy()</code>. Počet mincí vypiš v <em>Draw GUI</em>.</span></li>
+      <li><span>Podle kroku 7 vytvoř prázdný <code>o_death</code>, bodáky <code>o_spikes</code> (sprite <code>s_spikes</code>) a slizouna <code>o_slime</code>, oba s parentem <code>o_death</code>. Na konec Step hráče přidej <code>if (place_meeting(x, y, o_death)) room_restart();</code>.</span></li>
+      <li><span>Podle kroku 8 dej do scény pár plošin <code>o_oneway</code> a zkontroluj, že jimi zespodu proskočíš, shora na nich stojíš a šipkou dolů seskočíš. Pak je zkus nahradit <code>o_wall</code> a porovnej.</span></li>
     </ol>
   </section>
   </div>
@@ -1486,7 +1787,6 @@ public class Hrac : MonoBehaviour {
       <a class="goal k-level" href="#level"><span class="sq"></span><b>Level design</b><span>Jak velké mezery postava přeskočí a jak hráče učit bez návodu.</span></a>
       <a class="goal k-anim" href="#animace"><span class="sq"></span><b>Animace</b><span>Snímky, rychlost, smyčka a co se stane, když animace skončí.</span></a>
       <a class="goal k-state" href="#ovladani"><span class="sq"></span><b>Ovládání animací</b><span>Pohyb rozhoduje, animace se jen dívá. Tři způsoby a proč vyhrává ten oddělený.</span></a>
-      <a class="goal k-level" href="#dilna"><span class="sq"></span><b>Dílna</b><span>Nakresli vlastní level z dlaždic a hned si ho zahraj.</span></a>
     </div>
   </header>
 
@@ -1954,52 +2254,6 @@ public class HracAnimace : MonoBehaviour {
 
   </section>
 
-  <!-- ================= 6 DILNA ================= -->
-  <section class="lesson k-level" id="dilna">
-    <div class="sec-head">
-      <div class="eyebrow"><span class="sq"></span>Všechno dohromady</div>
-      <h2>Dílna: postav level a zahraj si ho</h2>
-    </div>
-    <div class="prose">
-      <p>Nakresli level z dlaždic, rozmísti plošiny a mince a hned si ho zahraj. Zem se skládá autotilingem, postava má pohyb z dílu 2 a animace podle přístupu C. Při kreslení ukazuje tečkovaný oblouk, kam postava z místa pod myší doskočí. Level se ti uloží v tomhle prohlížeči.</p>
-    </div>
-
-    <div class="lab k-level">
-      <div class="lab-bar"><span class="sq"></span><span class="t">rm_dilna</span><span>960 × 384 px · dlaždice 32 px</span><span class="hint" id="wsHint">Kresli myší, pak přepni na Hrát</span></div>
-      <div class="lab-body">
-        <div class="row" style="justify-content:space-between">
-          <div class="row">
-            <div class="seg" role="group" aria-label="Režim" id="wsModes"><button class="btn" data-m="edit" aria-pressed="true">Kreslit</button><button class="btn" data-m="play" aria-pressed="false">Hrát</button></div>
-            <div class="seg" role="group" aria-label="Nástroj" id="wsTools">
-              <button class="btn" data-t="zem" aria-pressed="true">Zem</button><button class="btn" data-t="plosina" aria-pressed="false">Plošina</button><button class="btn" data-t="mince" aria-pressed="false">Mince</button><button class="btn" data-t="start" aria-pressed="false">Start</button><button class="btn" data-t="guma" aria-pressed="false">Guma</button>
-            </div>
-          </div>
-          <div class="row"><button class="btn" id="wsDefault">Ukázkový level</button><button class="btn" id="wsClear">Prázdný level</button></div>
-        </div>
-        <canvas id="wsCv" width="960" height="384" tabindex="0" aria-label="Editor levelu. V režimu Kreslit maluješ dlaždice, v režimu Hrát ovládáš postavu šipkami a mezerníkem." style="cursor:crosshair"></canvas>
-        <div class="row" style="justify-content:space-between">
-          <div class="pad" data-for="wsCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="down" aria-label="Seskočit z plošiny">▼</button><button class="btn" data-k="jump">Skok</button></div>
-          <span class="focus-state" id="wsFocus">Ve hře: <span class="kbd">←</span> <span class="kbd">→</span> pohyb, <span class="kbd">mezerník</span> skok, <span class="kbd">↓</span> seskok</span>
-          <div class="row"><span class="pill" id="wsStav">stav: stoji</span><span class="pill" id="wsCoins">mince 0/0</span></div>
-        </div>
-        <div class="row">
-          <label class="chk k-level"><input type="checkbox" id="wsGrid" checked> Mřížka</label>
-          <label class="chk k-level"><input type="checkbox" id="wsReach" checked> Dosah skoku pod myší</label>
-          <label class="chk k-col"><input type="checkbox" id="wsBox"> Kolizní maska</label>
-          <label class="chk"><input type="checkbox" id="wsSnd" checked> Zvuky</label>
-          <span class="cap" id="wsStats"></span>
-        </div>
-      </div>
-    </div>
-
-    <div class="eng">
-      <div class="eng-panel" data-e="gm">
-        <p>Celý <code>o_player</code>, jak ho používá dílna: pohyb z dílu 2 na dlaždicích, polopropustné plošiny a animace přes stavový automat (přístup C) i s dopadem.</p>
-        <div class="gml" id="wsGml" data-walls></div>
-      </div>
-    </div>
-  </section>
-
   <!-- ================= KVIZ ================= -->
   <section class="lesson" id="kviz-3">
     <div class="sec-head">
@@ -2017,13 +2271,109 @@ public class HracAnimace : MonoBehaviour {
       <h2>Úkol: postava s animacemi ve vlastním levelu</h2>
     </div>
     <ol class="steps">
-      <li><span>Najdi nebo nakresli spritesheet postavy a dlaždic. Zdarma a s volnou licencí je najdeš třeba na kenney.nl nebo opengameart.org. Pixelovou postavu si můžeš nakreslit v Piskelu.</span></li>
+      <li><span>Vezmi arch <code>hrac_sheet_4x.png</code> a tileset <code>ts_zem.png</code> ze složky <code>Materiály/Lekce/Díl 3</code>, nebo najdi či nakresli vlastní spritesheet postavy a dlaždic. Další grafika je v <code>Materiály/Improvizace</code>, zdarma a s volnou licencí je najdeš třeba na kenney.nl nebo opengameart.org. Pixelovou postavu si můžeš nakreslit v Piskelu.</span></li>
       <li><span>Přes <em>Import Strip Image</em> vytvoř sprity <code>s_player_idle</code>, <code>s_player_run</code>, <code>s_player_jump</code> a <code>s_player_fall</code>. Všem dej stejnou velikost a origin <em>Bottom Centre</em>. Přidej obdélníkový <code>s_player_mask</code> a v Create ho nastav do <code>mask_index</code>.</span></li>
       <li><span>Vytvoř Tile Set, v místnosti vrstvu Tiles <code>Zem</code> a nakresli level. Nad ni přidej vrstvu instancí <code>Kolize</code> a dlaždice překryj neviditelnými <code>o_wall</code> a <code>o_oneway</code>. Pro smrtící místa použij objekty s parentem <code>o_death</code> a na konec Step hráče přidej <code>if (place_meeting(x, y, o_death)) room_restart();</code>.</span></li>
-      <li><span>V generátoru v kroku 5 zvol přístup B a zaškrtni, co tvůj projekt má. Okna Create, Step a End Step zkopíruj do stejnojmenných událostí <code>o_player</code>.</span></li>
+      <li><span>V <a href="#konfigurator">Konfigurátoru</a> zvol přístup B, zaškrtni, co tvůj projekt má, a přepiš názvy spritů na ty svoje. Okna Create, Step a End Step zkopíruj do stejnojmenných událostí <code>o_player</code>.</span></li>
       <li><span>Zjisti metriky své postavy (můžeš použít laboratoř v kroku 3) a postav level podle pravidla nauč, procvič, zkomplikuj. Dej ho zahrát spolužákovi bez vysvětlování a sleduj, kde se zasekne.</span></li>
       <li><span>Bonus: zaškrtni animaci dopadu, přejdi na přístup C a přidej událost <em>Animation End</em>. Nebo přehraj zvuk kroku vždycky, když běh dojde na snímek, kdy se noha dotkne země.</span></li>
     </ol>
+  </section>
+  </div>
+
+  <!-- ################################ KONFIGURÁTOR ################################ -->
+  <div class="part" id="dil-k" data-part="k">
+  <section class="lesson k-level" id="konfigurator">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Nástroj</div>
+      <h2>Konfigurátor plošinovky</h2>
+    </div>
+    <div class="prose">
+      <p>Poskládej si ovladač postavy ze všeho, co jsi v dílech 2 a 3 viděl, a hotový kód zkopíruj do GameMakeru. Zaškrtni jen to, co tvůj projekt opravdu má, a přepiš názvy na ty svoje. Náhled ukazuje, jak se to zhruba bude chovat.</p>
+    </div>
+    <div class="kf">
+      <div class="kf-top">
+      <div class="kf-set">
+        <div class="kf-card k-acc" role="group" aria-labelledby="kfH1">
+          <h3 id="kfH1">Pohyb</h3>
+          <div class="presets" id="kfPresets"></div>
+          <div class="kf-sliders">
+            <label class="ctl"><span>Max. rychlost <output id="kfMaxV"></output></span><input type="range" id="kfMax" data-par="max" min="1" max="9" step="0.5"></label>
+            <label class="ctl"><span>Zrychlení <output id="kfAccV"></output></span><input type="range" id="kfAcc" data-par="acc" min="0.05" max="2" step="0.05"></label>
+            <label class="ctl"><span>Tření <output id="kfFricV"></output></span><input type="range" id="kfFric" data-par="fric" min="0.01" max="2" step="0.01"></label>
+            <label class="ctl"><span>Gravitace <output id="kfGV"></output></span><input type="range" id="kfG" data-par="g" min="0.05" max="1.2" step="0.05"></label>
+            <label class="ctl"><span>Síla skoku <output id="kfJV"></output></span><input type="range" id="kfJ" data-par="j" min="3" max="18" step="0.5"></label>
+            <label class="ctl"><span>Max. rychlost pádu <output id="kfCapV"></output></span><input type="range" id="kfCap" data-par="cap" min="3" max="20" step="1"></label>
+          </div>
+          <label class="chk"><input type="checkbox" data-opt="short"> Krátký skok, když pustíš mezerník dřív</label>
+        </div>
+
+        <div class="kf-card k-fix" role="group" aria-labelledby="kfH2">
+          <h3 id="kfH2">Kolize</h3>
+          <div class="seg" role="group" aria-label="Řešení kolizí" id="kfColl"><button class="btn" type="button" data-val="while">přisouvání (while)</button><button class="btn" type="button" data-val="mac">move_and_collide</button></div>
+          <div class="seg" role="group" aria-label="S čím se testují kolize" id="kfTiles"><button class="btn" type="button" data-val="0">zdi jsou objekty</button><button class="btn" type="button" data-val="1">zdi jsou tilemapa</button></div>
+          <div class="kf-grid">
+            <span id="kfWallL">Objekt zdi</span><input type="text" data-name="wall" aria-labelledby="kfWallL" spellcheck="false">
+            <span id="kfLayerL">Vrstva dlaždic</span><input type="text" data-name="layer" aria-labelledby="kfLayerL" spellcheck="false">
+          </div>
+          <p class="cap" id="kfCollNote"></p>
+        </div>
+
+        <div class="kf-card k-coin" role="group" aria-labelledby="kfH3">
+          <h3 id="kfH3">Hra</h3>
+          <div class="kf-grid">
+            <span id="kfPlL">Objekt hráče</span><input type="text" data-name="player" aria-labelledby="kfPlL" spellcheck="false">
+            <label class="chk"><input type="checkbox" data-opt="ow"> Plošiny</label><input type="text" data-name="ow" aria-label="Objekt polopropustné plošiny" spellcheck="false">
+            <label class="chk sub full"><input type="checkbox" data-opt="drop"> Seskok z plošiny šipkou dolů</label>
+            <label class="chk"><input type="checkbox" data-opt="coins"> Mince</label><input type="text" data-name="coin" aria-label="Objekt mince" spellcheck="false">
+            <label class="chk"><input type="checkbox" data-opt="death"> Smrt</label><input type="text" data-name="death" aria-label="Rodič smrtících objektů" spellcheck="false">
+            <label class="chk"><input type="checkbox" data-opt="snd"> Zvuk skoku</label><input type="text" data-name="sJump" aria-label="Zvuk skoku" spellcheck="false">
+            <span class="sub">Zvuk mince</span><input type="text" data-name="sCoin" aria-label="Zvuk mince" spellcheck="false">
+          </div>
+          <p class="cap">Smrt: všechno, co zabíjí (bodáky, slizouni), má tenhle objekt jako parent.</p>
+        </div>
+
+        <div class="kf-card k-anim" role="group" aria-labelledby="kfH4">
+          <h3 id="kfH4">Animace</h3>
+          <div class="seg" role="group" aria-label="Ovládání animací" id="kfAnim"><button class="btn" type="button" data-val="none">žádné</button><button class="btn" type="button" data-val="A">A · v pohybu</button><button class="btn" type="button" data-val="B">B · End Step</button><button class="btn" type="button" data-val="C">C · stavy</button></div>
+          <p class="cap" id="kfAnimNote"></p>
+          <div class="kf-grid">
+            <label class="chk"><input type="checkbox" data-has="stoji" checked disabled> Stání</label><input type="text" data-name="stoji" aria-label="Sprite stání" spellcheck="false">
+            <label class="chk"><input type="checkbox" data-has="beh"> Běh</label><input type="text" data-name="beh" aria-label="Sprite běhu" spellcheck="false">
+            <label class="chk"><input type="checkbox" data-has="skok"> Skok</label><input type="text" data-name="skok" aria-label="Sprite skoku" spellcheck="false">
+            <label class="chk"><input type="checkbox" data-has="pad"> Pád</label><input type="text" data-name="pad" aria-label="Sprite pádu" spellcheck="false">
+            <label class="chk"><input type="checkbox" data-has="dopad"> Dopad</label><input type="text" data-name="dopad" aria-label="Sprite dopadu" spellcheck="false">
+            <label class="chk"><input type="checkbox" data-opt="mask"> Maska</label><input type="text" data-name="mask" aria-label="Sprite kolizní masky" spellcheck="false">
+          </div>
+          <p class="cap" id="kfSprNote"></p>
+          <label class="chk"><input type="checkbox" data-opt="flip"> <span>Otáčet postavu po směru (<code>image_xscale</code>)</span></label>
+          <label class="chk"><input type="checkbox" data-opt="sync"> <span>Nohy podle rychlosti (<code>image_speed</code>)</span></label>
+        </div>
+      </div>
+
+        <div class="kf-side">
+          <div class="lab k-level">
+            <div class="lab-bar"><span class="sq"></span><span class="t">Náhled</span><span class="hint">Bez kliknutí hraje autopilot</span></div>
+            <div class="lab-body">
+              <canvas id="kfCv" width="704" height="320" tabindex="0" aria-label="Náhled: postava se chová podle zvoleného nastavení. Klikni a ovládej šipkami a mezerníkem."></canvas>
+              <div class="pad" data-for="kfCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="down" aria-label="Seskočit z plošiny">▼</button><button class="btn" data-k="jump">Skok</button></div>
+              <div class="row"><span class="focus-state" id="kfFocus">Klikni do náhledu: <span class="kbd">←</span> <span class="kbd">→</span> <span class="kbd">mezerník</span> <span class="kbd">↓</span></span></div>
+              <div class="row"><span class="pill" id="kfSpr"></span><span class="pill" id="kfCoins"></span><label class="chk k-col"><input type="checkbox" id="kfBox"> Kolizní maska</label></div>
+            </div>
+          </div>
+          <div class="kf-need">
+            <h3>Co musí být v projektu</h3>
+            <ul id="kfNeed"></ul>
+          </div>
+        </div>
+      </div>
+        <div class="eng">
+          <div class="eng-panel" data-e="gm">
+            <div class="kf-bar"><p>Každé okno je jedna událost. Zkopíruj ji do stejnojmenné události v GameMakeru, nebo vezmi všechno najednou.</p><button class="btn" type="button" id="kfCopy">Kopírovat všechno</button><button class="btn" type="button" id="kfReset">Výchozí nastavení</button></div>
+            <div class="gml" id="kfGml"></div>
+          </div>
+        </div>
+    </div>
   </section>
   </div>
 
@@ -2115,10 +2465,10 @@ $$('.eng').forEach((box, bi) => {
   head.appendChild(tabs); box.prepend(head);
   if ($('.gml', box)) {
     const tools = document.createElement('div'); tools.className = 'eng-tools';
-    // part 3 windows also choose what the walls are and how collisions are resolved
-    tools.innerHTML = (!$('.gml', box).hasAttribute('data-walls') ? '' : '<div class="seg" role="group" aria-label="S čím se testují kolize"><button class="btn" type="button" data-tiles="0">o_wall</button><button class="btn" type="button" data-tiles="1">tilemapa</button></div>'
-      + '<div class="seg" role="group" aria-label="Řešení kolizí"><button class="btn" type="button" data-coll="while">while</button><button class="btn" type="button" data-coll="mac">move_and_collide</button></div>'
-      )
+    // windows with collision code choose how collisions are resolved (data-coll), part 3 also what the walls are (data-walls)
+    const g = $('.gml', box), walls = g.hasAttribute('data-walls'), coll = walls || g.hasAttribute('data-coll');
+    tools.innerHTML = (walls ? '<div class="seg" role="group" aria-label="S čím se testují kolize"><button class="btn" type="button" data-tiles="0">o_wall</button><button class="btn" type="button" data-tiles="1">tilemapa</button></div>' : '')
+      + (coll ? '<div class="seg" role="group" aria-label="Řešení kolizí"><button class="btn" type="button" data-coll="while">while</button><button class="btn" type="button" data-coll="mac">move_and_collide</button></div>' : '')
       + '<div class="seg steps" role="group" aria-label="Kolik kódu ukázat"><button class="btn" type="button" data-full="0">Tento krok</button><button class="btn" type="button" data-full="1">Celý kód</button></div>';
     $$('[data-full]', tools).forEach(b => b.addEventListener('click', () => setFull(b.dataset.full === '1')));
     $$('[data-coll]', tools).forEach(b => b.addEventListener('click', () => setColl(b.dataset.coll)));
@@ -2173,11 +2523,14 @@ function setFull(on) {
   $$('[data-full]').forEach(b => b.setAttribute('aria-pressed', (b.dataset.full === '1') === on));
 }
 setFull(codeFull);
-// how o_player resolves collisions in the whole part: 'while' (part 2 default) or 'mac' (move_and_collide)
+// how o_player resolves collisions from part 2 step 5 on: 'while' (default) or 'mac' (move_and_collide);
+// one choice for every window and lab, labs that need to react register in collHooks
 let COLL = store.get('l3-coll') === 'mac' ? 'mac' : 'while';
+const collHooks = [];
 function setColl(m) {
   COLL = m; store.set('l3-coll', m);
   $$('[data-coll]').forEach(b => b.setAttribute('aria-pressed', b.dataset.coll === m));
+  collHooks.forEach(f => f(m));
 }
 setColl(COLL);
 // what the walls are: o_wall / o_oneway instances over the tiles (default), or the tilemap itself (alternative)
@@ -2971,7 +3324,7 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const TOK = {};
 function readTokens() {
   const cs = getComputedStyle(document.documentElement);
-  ['ink', 'muted', 'line', 'line-strong', 'surface', 'surface-2', 'c-pos', 'c-vel', 'c-acc', 'c-grav', 'c-col', 'c-fix', 'c-room']
+  ['ink', 'muted', 'line', 'line-strong', 'surface', 'surface-2', 'c-pos', 'c-vel', 'c-acc', 'c-grav', 'c-col', 'c-fix', 'c-room', 'c-coin', 'c-death']
     .forEach(k => TOK[k] = cs.getPropertyValue('--' + k).trim() || '#888');
 }
 readTokens();
@@ -3006,7 +3359,8 @@ const IMG = {
   slime: [bake(['........', '..kkkk..', '.kggggk.', 'kgkggkgk', 'kggggggk', '.kkkkkk.']), bake(['........', '........', '.kkkkkk.', 'kgkggkgk', 'kggggggk', 'kkkkkkkk'])],
   grass: bake(['gggggggg', 'gGggggGg', 'GbGbbGbG', 'bbbbbbbb', 'bbdbbbbb', 'bbbbbdbb', 'bdbbbbbb', 'bbbbbbdb']),
   dirt: bake(['bbbbbbbb', 'bbdbbbbb', 'bbbbbbdb', 'bbbbbbbb', 'bdbbbbbb', 'bbbbbdbb', 'bbbbbbbb', 'bbbdbbbb']),
-  stone: bake(['TTTTTTTS', 'TSSSTSSS', 'TSSSTSSS', 'SSSSSSSS', 'TTTSTTTT', 'SSTSSSST', 'SSTSSSST', 'SSSSSSSS'])
+  stone: bake(['TTTTTTTS', 'TSSSTSSS', 'TSSSTSSS', 'SSSSSSSS', 'TTTSTTTT', 'SSTSSSST', 'SSTSSSST', 'SSSSSSSS']),
+  spikes: bake(['........', '........', '.TS..TS.', '.TS..TS.', 'TTSSTTSS', 'TTSSTTSS', 'SSSSSSSS', 'kkkkkkkk'])
 };
 const cyc = (arr, t, fps) => arr[((Math.floor(t * fps) % arr.length) + arr.length) % arr.length];
 function drawImg(ctx, img, x, y, w, h, flip) {
@@ -3102,6 +3456,7 @@ function slider(id, fmtFn, onChange) {
 }
 
 const setTxt = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+const setHtml = (el, s) => { if (el._html !== s) { el._html = s; el.innerHTML = s; } };
 
 const LIVE = {};   // current lab settings, so later steps can build on earlier ones
 
@@ -3217,7 +3572,8 @@ const GML = {
     draw(t) {
       ctx.fillStyle = TOK['surface-2']; ctx.fillRect(0, 0, W, H);
       [[A, 'Okamžitě: hsp = směr × max', TOK['c-vel']], [B, 'Se zrychlením a třením', TOK['c-acc']]].forEach(([o, label, col]) => {
-        for (let x = 0; x < W; x += 32) drawImg(ctx, IMG.grass, x, o.lane, 32, 16);
+        // no floor in this step: y never changes, the line only separates the two instances
+        ctx.strokeStyle = TOK.line; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, o.lane + 1); ctx.lineTo(W, o.lane + 1); ctx.stroke();
         ctx.fillStyle = col; mono(ctx, 13); ctx.fillText(label, 12, o.lane - 62);
         const f = Math.abs(o.hsp) > .2 ? cyc(IMG.hero, t, 4 + Math.abs(o.hsp) * 2) : IMG.hero[0];
         drawImg(ctx, f, Math.round(o.x - 16), o.lane - 40, 32, 40, o.face < 0);
@@ -3247,7 +3603,8 @@ const GML = {
   LIVE.mv = P;
   gmlView('mvGml', () => ({ obj: 'o_player', ev: [
     ['Create', [...G('ctx', 'hsp = 0;                   // rychlost jako v kroku 1, na začátku stojí'), ...GML.createMove('new', P)]],
-    ['Step', [...GML.stepMove('new'), ...G('ctx', 'x += hsp;')]]
+    ['Step', [...GML.stepMove('new'), ...G('ctx', 'x += hsp;'),
+      ...G('new', '\n// okraj okna, opravdové zdi přijdou v kroku 5\nif (x < 20 || x > room_width - 20) {\n    x = clamp(x, 20, room_width - 20);\n    hsp = 0;\n}')]]
   ] }));
 })();
 
@@ -3262,10 +3619,10 @@ const GML = {
   slider('jpCap', null, v => P.cap = v);
   $('#jpAuto').addEventListener('change', e => P.auto = e.target.checked);
   $('#jpVar').addEventListener('change', e => P.vary = e.target.checked);
-  const inp = makeInput(cv, $('#jpFocus'), 'Mezerník = skok. Drž ho déle pro vyšší skok.');
+  const inp = makeInput(cv, $('#jpFocus'), 'Řídíš ty: ← → pohyb, mezerník skok.');
   cv.addEventListener('pointerdown', () => { inp.pressed = true; inp.jump = true; });
   cv.addEventListener('pointerup', () => { inp.jump = false; inp.released = true; });
-  const p = { x: 80, y: GY, vsp: 0, ground: true, wait: 0, takeoff: null, held: false };
+  const p = { x: 80, y: GY, hsp: 0, vsp: 0, ground: true, wait: 0, takeoff: null, thsp: 0, held: false };
   // simulate a whole jump with the current settings: list of [frame, height]
   function predict() {
     let y = 0, v = -P.j; const pts = [[0, 0]];
@@ -3277,10 +3634,16 @@ const GML = {
       const ev = inp.consume();
       if (ev.pressed) p.held = true;
       if (ev.released) { p.held = false; if (P.vary && p.vsp < 0) p.vsp *= .5; }
-      p.x += RUN; if (p.x > W + 20) { p.x = -20; p.takeoff = null; }
+      // movement from step 2 (arrows); when you do not play, the autopilot holds the right arrow
+      const M = LIVE.mv, dir = inp.active() ? inp.right - inp.left : 1;
+      if (dir !== 0) p.hsp = Math.max(-M.max, Math.min(M.max, p.hsp + dir * M.acc));
+      else p.hsp = Math.max(Math.abs(p.hsp) - M.fric, 0) * Math.sign(p.hsp);
+      p.x += p.hsp;
+      // move_wrap(true, false, 16)
+      if (p.x > W + 16) { p.x -= W + 32; p.takeoff = null; } else if (p.x < -16) { p.x += W + 32; p.takeoff = null; }
       let jump = ev.pressed;
       if (P.auto && p.ground && !inp.active() && ++p.wait > 45) jump = true;
-      if (jump && p.ground) { p.vsp = -P.j; p.ground = false; p.wait = 0; p.takeoff = p.x; beep('jump'); }
+      if (jump && p.ground) { p.vsp = -P.j; p.ground = false; p.wait = 0; p.takeoff = p.x; p.thsp = p.hsp; beep('jump'); }
       if (!p.ground) {
         p.vsp = Math.min(p.vsp + P.g, P.cap);
         p.y += p.vsp;
@@ -3289,12 +3652,16 @@ const GML = {
     },
     draw(t) {
       gridBg(ctx, W, H, 32);
-      for (let x = 0; x < W; x += 32) { drawImg(ctx, IMG.grass, x, GY, 32, 32); drawImg(ctx, IMG.dirt, x, GY + 32, 32, 32); }
+      // the floor is only the number in the code: y = GY
+      ctx.fillStyle = TOK['c-grav']; ctx.globalAlpha = .08; ctx.fillRect(0, GY, W, H - GY); ctx.globalAlpha = 1;
+      ctx.strokeStyle = TOK['c-grav']; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, GY + 1.5); ctx.lineTo(W, GY + 1.5); ctx.stroke();
+      mono(ctx, 12); ctx.fillStyle = TOK['c-grav'];
+      ctx.fillText(`y = ${GY}: podlaha je zatím jen tahle čára v kódu`, 10, GY + 22);
       const pts = predict(), top = Math.min(...pts.map(q => q[1])), air = pts[pts.length - 1][0];
-      const x0 = p.takeoff !== null && !p.ground ? p.takeoff : p.x;
+      const air0 = p.takeoff !== null && !p.ground, x0 = air0 ? p.takeoff : p.x, run = air0 ? p.thsp : p.hsp;
       // predicted arc
       ctx.fillStyle = TOK['c-grav'];
-      pts.forEach(([f, y]) => { ctx.globalAlpha = .55; ctx.beginPath(); ctx.arc(x0 + f * RUN, GY - 20 + y, 2.6, 0, 7); ctx.fill(); });
+      pts.forEach(([f, y]) => { ctx.globalAlpha = .55; ctx.beginPath(); ctx.arc(x0 + f * run, GY - 20 + y, 2.6, 0, 7); ctx.fill(); });
       ctx.globalAlpha = 1;
       // max height marker
       const ty = GY + top;
@@ -3304,8 +3671,8 @@ const GML = {
       ctx.fillText(`max. výška ${Math.round(-top)} px`, 10, ty - 8);
       if (ty < 40) { ctx.fillText('↑ výš, než je vidět', W - 160, 18); }
       // player
-      const f = p.ground ? cyc(IMG.hero, t, 8) : IMG.heroJump;
-      drawImg(ctx, f, Math.round(p.x - 16), Math.round(p.y - 40), 32, 40);
+      const f = !p.ground ? IMG.heroJump : Math.abs(p.hsp) > .2 ? cyc(IMG.hero, t, 8) : IMG.hero[0];
+      drawImg(ctx, f, Math.round(p.x - 16), Math.round(p.y - 40), 32, 40, p.hsp < 0);
       if (!p.ground) arrow(ctx, p.x + 26, p.y - 20, p.x + 26, p.y - 20 + p.vsp * 5, p.vsp < 0 ? TOK['c-vel'] : TOK['c-grav'], 3);
       arrow(ctx, W - 40, 40, W - 40, 40 + P.g * 50, TOK['c-grav'], 3);
       mono(ctx, 12); ctx.fillStyle = TOK.ink; ctx.fillText('gravitace', W - 110, 30);
@@ -3318,7 +3685,8 @@ const GML = {
   gmlView('jpGml', () => ({ obj: 'o_player', opt: 'Krátký skok', ev: [
     ['Create', GML.createAll('new', 'new')],
     ['Step', [
-      ...G('ctx', '// vodorovně (krok 2)'), ...GML.stepMove('ctx'), ...G('ctx', 'x += hsp;\n'),
+      ...G('ctx', '// vodorovně (krok 2)'), ...GML.stepMove('ctx'), ...G('ctx', 'x += hsp;'),
+      ...G('new', 'move_wrap(true, false, 16);               // za pravým okrajem se objeví vlevo\n'),
       ...G('new', '// svisle'), ...GML.stepGrav('new'),
       ...G('new', `var na_zemi = (y >= ${GY});                // podlaha je zatím jen čára`),
       ...GML.stepJump('new'),
@@ -3409,19 +3777,40 @@ const GML = {
   gmlView('abGml', () => {
     const { c, pix, hit } = LIVE.ab || { c: [], pix: false, hit: false };
     const test = pix
-      ? `// dotýkám se slizouna? maska obou spritů je „Precise“ (po pixelech)\nvar kolize = place_meeting(x, y, o_death);        // ${hit ? 'teď ano' : 'teď ne'}, o_slime má parent o_death`
-      : `// dotýkám se slizouna? stejná čtyři porovnání jako v ukázce\nvar kolize = bbox_right > o_slime.bbox_left      ${ok(c[0])}\n    && bbox_left < o_slime.bbox_right            ${ok(c[1])}\n    && bbox_bottom > o_slime.bbox_top            ${ok(c[2])}\n    && bbox_top < o_slime.bbox_bottom;           ${ok(c[3])}\n// zkráceně a pro všechno, co zabíjí (o_slime má parent o_death):\n// var kolize = place_meeting(x, y, o_death);`;
+      ? `// dotýkám se slizouna? maska obou spritů je „Precise“ (po pixelech)\nvar kolize = place_meeting(x, y, o_slime);        // ${hit ? 'teď ano' : 'teď ne'}`
+      : `// dotýkám se slizouna? stejná čtyři porovnání jako v ukázce\nvar kolize = bbox_right > o_slime.bbox_left      ${ok(c[0])}\n    && bbox_left < o_slime.bbox_right            ${ok(c[1])}\n    && bbox_bottom > o_slime.bbox_top            ${ok(c[2])}\n    && bbox_top < o_slime.bbox_bottom;           ${ok(c[3])}\n// totéž zkráceně:\n// var kolize = place_meeting(x, y, o_slime);`;
     return { obj: 'o_player', ev: [
       ['Create', GML.createAll('ctx', 'ctx')],
       ['Step', [
         ...G('ctx', '// vodorovně'), ...GML.stepMove('ctx'), ...G('ctx', 'x += hsp;\n\n// svisle'), ...GML.stepGrav('ctx'),
         ...G('ctx', 'var na_zemi = (y >= 290);'), ...GML.stepJump('ctx'), ...(LIVE.jp.vary ? GML.stepShort('ctx') : []),
         ...G('ctx', 'y += vsp;\nif (y > 290) { y = 290; vsp = 0; }\n'),
-        ...G('new', test + '\nif (kolize) {\n    room_restart();                               // slizoun tě chytil, hraješ znovu\n}')
+        ...G('new', test + '\nif (kolize) {\n    show_debug_message("Dotýkám se slizouna!");   // co se má stát, přijde v kroku 7\n}')
       ]]
     ] };
   });
 })();
+
+// after move_and_collide: it leaves the speeds alone and may stop a few px short of the floor or ceiling
+const MAC_FIX = `// move_and_collide rychlosti nemění a může nechat mezeru:
+// dotáhni se k podlaze / stropu a vynuluj rychlost sám
+if (vsp > 0 && place_meeting(x, y + max(1, vsp), o_wall)) {
+    while (!place_meeting(x, y + 1, o_wall)) y += 1;
+    vsp = 0;
+}
+if (vsp < 0 && place_meeting(x, y + min(-1, vsp), o_wall)) {
+    while (!place_meeting(x, y - 1, o_wall)) y -= 1;
+    vsp = 0;
+}
+if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)
+    && place_meeting(x + sign(hsp), y - 1, o_wall)) hsp = 0;        // narazil do zdi`;
+// plank snap before move_and_collide: x moves by hsp only afterwards, so the check looks at x + hsp
+const SNAP_MAC = `// polopropustná plošina zastaví jen pád shora
+// x se posune o hsp až v move_and_collide, proto kontroluj x + hsp
+if (vsp > 0 && !place_meeting(x + hsp, y, o_oneway) && place_meeting(x + hsp, y + vsp, o_oneway)) {
+    while (!place_meeting(x + hsp, y + 1, o_oneway)) y += 1;
+    vsp = 0;
+}`;
 
 /* =========================================================
    5. RESOLVING: three strategies against a wall
@@ -3506,15 +3895,14 @@ const GML = {
   });
   let mac = false;
   const setVar = m => {
-    mac = m;
-    $('#svVarWhile').setAttribute('aria-pressed', !m); $('#svVarMac').setAttribute('aria-pressed', m);
-    setTxt($('#svGmNote'), m
-      ? 'move_and_collide sama posune x i y a zastaví se o zeď. Rychlosti ale nemění, vynuluj je sám. Stojí-li postava na zemi, zjistíš teď opravdovou kolizí, ne čárou y = 290.'
+    mac = m === 'mac';
+    setTxt($('#svGmNote'), mac
+      ? 'move_and_collide sama posune x i y a zastaví se o zeď. Jde ale po dílčích krocích, takže nad podlahou nebo pod stropem může zůstat pár pixelů mezera. Dotáhni se proto po 1 px stejně jako u přisouvání a rychlosti vynuluj sám, funkce je nemění. Stojí-li postava na zemi, zjistíš teď opravdovou kolizí, ne čárou y = 290.'
       : 'Přístup 3 z ukázky: vodorovně a svisle zvlášť. Kód je delší, ale vidíš v něm, co se přesně děje. Stojí-li postava na zemi, zjistíš teď opravdovou kolizí, ne čárou y = 290.');
   };
-  $('#svVarWhile').onclick = () => setVar(false);
-  $('#svVarMac').onclick = () => setVar(true);
-  setVar(false);
+  $('#svVarWhile').onclick = () => setColl('while');
+  $('#svVarMac').onclick = () => setColl('mac');
+  collHooks.push(setVar); setVar(COLL);
   const moveWhile = v => `// pohyb s kolizí, vodorovně a svisle zvlášť (v ukázce je hsp = ${v})
 if (place_meeting(x + hsp, y, o_wall)) {
     while (!place_meeting(x + sign(hsp), y, o_wall)) {
@@ -3534,20 +3922,365 @@ y += vsp;`;
   const MOVE_MAC = `// pohyb s kolizí: rozdělí ho na „kroky“ dílů, vodorovně nejvýš o max_rychlost
 move_and_collide(hsp, vsp, o_wall, kroky, 0, 0, max_rychlost, -1);
 
-// rychlosti funkce nemění, vynuluj je sám
-if (vsp > 0 && place_meeting(x, y + 1, o_wall)) vsp = 0;            // dopadl na zem
-if (vsp < 0 && place_meeting(x, y - 1, o_wall)) vsp = 0;            // narazil hlavou
-if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil do zdi`;
+${MAC_FIX}`;
   gmlView('svGml', () => ({ obj: 'o_player', ev: [
     ['Create', [...GML.createAll('ctx', 'ctx'), ...(mac ? G('new', 'kroky = 4;                 // num_iterations pro move_and_collide') : [])]],
     ['Step', [
       ...G('ctx', '// vodorovně'), ...GML.stepMove('ctx'), ...G('ctx', '\n// svisle'), ...GML.stepGrav('ctx'),
       ...G('new', 'var na_zemi = place_meeting(x, y + 1, o_wall);   // stojím na zdi nebo podlaze?'),
       ...GML.stepJump('ctx'), ...(LIVE.jp.vary ? GML.stepShort('ctx') : []), ...G('ctx', ''),
-      ...G('new', mac ? MOVE_MAC : moveWhile(v)),
-      ...G('ctx', '\nif (place_meeting(x, y, o_death)) room_restart();   // krok 4: všechno smrtící má parent o_death')
+      ...G('new', mac ? MOVE_MAC : moveWhile(v))
     ]]
   ] }));
+})();
+
+
+/* =========================================================
+   6 + 7 + 8. COINS, DEATH, PLANKS: a small room of o_wall tiles, the player from steps 2–5
+   ========================================================= */
+const PLANK_IMG = bake(['bbbbbbbb', 'bdbbbdbb', 'dddddddd']);
+// '#' o_wall, '=' o_oneway (32 × 12), 'o' o_coin, '^' o_spikes, 'S' o_slime, 'P' start
+function miniRoom(MAP) {
+  const T = 32, rows = MAP.length, cols = MAP[0].length, R = { T, W: cols * T, H: rows * T, coins0: [], spikes: [], planks: [], planksSolid: false, slime0: null, start: [0, 0] };
+  R.solid = MAP.map(r => [...r].map(ch => ch === '#'));
+  MAP.forEach((r, j) => [...r].forEach((ch, i) => {
+    if (ch === 'o') R.coins0.push([i * T, j * T]);
+    if (ch === '^') R.spikes.push({ x: i * T + 4, y: j * T + 12, w: T - 8, h: T - 12 });
+    if (ch === 'S') R.slime0 = [i * T, j * T + 8];
+    if (ch === 'P') R.start = [i * T + 5, j * T + T - 38];
+    if (ch === '=') R.planks.push({ x: i * T, y: j * T, w: T, h: 12 });
+  }));
+  const hitPlank = (x, y, w, h) => R.planks.some(p => x < p.x + p.w && x + w > p.x && y < p.y + p.h && y + h > p.y);
+  // place_meeting(x, y, o_wall) for a w × h box; planks count as o_wall when planksSolid
+  R.meet = (x, y, w, h) => {
+    const l = Math.floor(x / T), r = Math.floor((x + w - .001) / T), t = Math.floor(y / T), b = Math.floor((y + h - .001) / T);
+    for (let j = t; j <= b; j++) for (let i = l; i <= r; i++) if (i < 0 || i >= cols || j < 0 || j >= rows || R.solid[j][i]) return true;
+    return R.planksSolid && hitPlank(x, y, w, h);
+  };
+  // place_meeting(x, y, o_oneway)
+  R.plank = (x, y, w, h) => !R.planksSolid && hitPlank(x, y, w, h);
+  R.bg = document.createElement('canvas'); R.bg.width = R.W; R.bg.height = R.H;
+  const x = R.bg.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, R.H); g.addColorStop(0, '#6fbdf0'); g.addColorStop(1, '#d6f0ff');
+  x.fillStyle = g; x.fillRect(0, 0, R.W, R.H);
+  R.solid.forEach((row, j) => row.forEach((sl, i) => { if (sl) drawImg(x, IMG.stone, i * T, j * T, T, T); }));
+  R.spikes.forEach(s => drawImg(x, IMG.spikes, s.x - 4, s.y - 12, T, T));
+  R.planks.forEach(p => drawImg(x, PLANK_IMG, p.x, p.y, T, p.h));
+  return R;
+}
+const boxHit = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+const coinBox = c => ({ x: c.x + 6, y: c.y + 4, w: 20, h: 24 });
+// simplified move_and_collide: 4 sub-steps with a collision check after each,
+// a blocked sub-step slides along each axis separately, up to contact
+function macMove(pl, hit, max) {
+  const sg = Math.sign, sx = Math.max(-max, Math.min(max, pl.hsp)) / 4, sy = pl.vsp / 4;
+  const slide = (dx, dy) => {
+    if (!hit(pl.x + dx, pl.y + dy)) { pl.x += dx; pl.y += dy; return; }
+    let r = Math.abs(dx + dy); const ux = sg(dx), uy = sg(dy);
+    while (r > 0 && !hit(pl.x + ux * Math.min(1, r), pl.y + uy * Math.min(1, r))) { pl.x += ux * Math.min(1, r); pl.y += uy * Math.min(1, r); r -= 1; }
+  };
+  for (let k = 0; k < 4; k++) {
+    if (!hit(pl.x + sx, pl.y + sy)) { pl.x += sx; pl.y += sy; continue; }
+    if (sx) slide(sx, 0);
+    if (sy) slide(0, sy);
+  }
+}
+// o_player Step from steps 2–5 (+ planks from step 8) with the current settings of those labs and COLL;
+// returns what the plank check saw, for the step 8 lab
+function heroStep(pl, c, R) {
+  const M = LIVE.mv, J = LIVE.jp, sg = Math.sign, mw = (x, y) => R.meet(x, y, pl.w, pl.h), mp = (x, y) => R.plank(x, y, pl.w, pl.h);
+  const ow = R.planks.length > 0 && !R.planksSolid, info = { ow, snapped: false, dropped: false };
+  if (c.dir !== 0) pl.hsp = Math.max(-M.max, Math.min(M.max, pl.hsp + c.dir * M.acc));
+  else pl.hsp = Math.max(Math.abs(pl.hsp) - M.fric, 0) * sg(pl.hsp);
+  if (c.dir) pl.face = c.dir;
+  pl.vsp = Math.min(pl.vsp + J.g, J.cap);
+  const naPlosine = ow && mp(pl.x, pl.y + 1) && !mp(pl.x, pl.y);
+  const naZemi = mw(pl.x, pl.y + 1) || naPlosine;
+  if (naZemi && c.pressed) { pl.vsp = -J.j; beep('jump'); }
+  if (J.vary && c.released && pl.vsp < 0) pl.vsp *= .5;
+  if (naPlosine && c.down) { pl.y += 1; info.dropped = true; }   // drop through
+  // one-way plank stops only a fall from above; dx = how far x still moves after the snap
+  // (move_and_collide moves by hsp only afterwards, so the check looks there)
+  const snap = (dx = 0) => {
+    if (!ow) return;
+    info.falling = pl.vsp > 0; info.inside = mp(pl.x + dx, pl.y); info.ahead = mp(pl.x + dx, pl.y + pl.vsp);
+    if (info.falling && !info.inside && info.ahead) {
+      let n = 0; while (!mp(pl.x + dx, pl.y + 1) && n++ < 64) pl.y += 1;
+      pl.vsp = 0; info.snapped = true;
+    }
+  };
+  let n = 0;
+  if (COLL === 'mac') {
+    snap(pl.hsp);
+    macMove(pl, mw, M.max);
+    // move_and_collide leaves the speeds alone and may stop short of the surface: snap to it, then zero
+    if (pl.vsp > 0 && mw(pl.x, pl.y + Math.max(1, pl.vsp))) { while (!mw(pl.x, pl.y + 1) && n++ < 64) pl.y += 1; pl.vsp = 0; }
+    if (pl.vsp < 0 && mw(pl.x, pl.y + Math.min(-1, pl.vsp))) { while (!mw(pl.x, pl.y - 1) && n++ < 64) pl.y -= 1; pl.vsp = 0; }
+    if (pl.hsp !== 0 && mw(pl.x + sg(pl.hsp), pl.y) && mw(pl.x + sg(pl.hsp), pl.y - 1)) pl.hsp = 0;
+  } else {
+    if (mw(pl.x + pl.hsp, pl.y)) { while (!mw(pl.x + sg(pl.hsp), pl.y) && n++ < 64) pl.x += sg(pl.hsp); pl.hsp = 0; }
+    pl.x += pl.hsp;
+    snap();
+    n = 0;
+    if (mw(pl.x, pl.y + pl.vsp)) { while (!mw(pl.x, pl.y + sg(pl.vsp)) && n++ < 64) pl.y += sg(pl.vsp); pl.vsp = 0; }
+    pl.y += pl.vsp;
+  }
+  info.stand = ow && mp(pl.x, pl.y + 1) && !mp(pl.x, pl.y);
+  pl.ground = mw(pl.x, pl.y + 1) || info.stand;
+  return info;
+}
+function drawPl(ctx, pl, t) {
+  const f = !pl.ground ? IMG.heroJump : Math.abs(pl.hsp) > .2 ? cyc(IMG.hero, t, 4 + Math.abs(pl.hsp) * 2) : IMG.hero[0];
+  drawImg(ctx, f, Math.round(pl.x - 5), Math.round(pl.y - 2), 32, 40, pl.face < 0);
+}
+const strokeBox = (ctx, b, col) => { ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.strokeRect(Math.round(b.x) + 1, Math.round(b.y) + 1, b.w - 2, b.h - 2); };
+// Draw GUI: draw_text(16, 16, "Mince: " + string(mince));
+function drawGui(ctx, n) {
+  ctx.font = '700 18px "Pixelify Sans", monospace'; ctx.fillStyle = '#1d2433'; ctx.textBaseline = 'top';
+  ctx.fillText('Mince: ' + n, 16, 16); ctx.textBaseline = 'alphabetic';
+}
+// GML lines with a key, so the lab can light up what just ran
+const GK = (kind, key, src) => G(kind, src).map(l => [l[0], l[1], key]);
+// o_player Create after step 5 (move_and_collide also needs kroky)
+const createCtx = () => [...GML.createAll('ctx', 'ctx'), ...(COLL === 'mac' ? G('ctx', 'kroky = 4;                 // num_iterations pro move_and_collide') : [])];
+// the o_player Step from steps 2–5 as folded context, for the current COLL;
+// ow adds the step 8 plank lines as new (keys 'drop' and 'snap' light up)
+function moveLines(ow) {
+  const L = [], add = (k, src, key) => L.push(...(key ? GK(k, key, src) : G(k, src)));
+  add('ctx', '// pohyb z kroků 2 až 5'); L.push(...GML.stepMove('ctx'), ...GML.stepGrav('ctx'));
+  if (ow) {
+    add('new', 'var na_plosine = place_meeting(x, y + 1, o_oneway) && !place_meeting(x, y, o_oneway);   // pod nohama, ne v ní');
+    add('new', 'var na_zemi = place_meeting(x, y + 1, o_wall) || na_plosine;');
+  } else add('ctx', 'var na_zemi = place_meeting(x, y + 1, o_wall);');
+  L.push(...GML.stepJump('ctx'), ...(LIVE.jp.vary ? GML.stepShort('ctx') : []));
+  if (ow) add('new', 'if (na_plosine && keyboard_check(vk_down)) y += 1;   // seskok: o pixel do plošiny', 'drop');
+  const SNAP = '// polopropustná plošina zastaví jen pád shora\nif (vsp > 0 && !place_meeting(x, y, o_oneway) && place_meeting(x, y + vsp, o_oneway)) {\n    while (!place_meeting(x, y + 1, o_oneway)) y += 1;\n    vsp = 0;\n}';
+  if (COLL === 'mac') {
+    if (ow) add('new', SNAP_MAC, 'snap');
+    add('ctx', 'move_and_collide(hsp, vsp, o_wall, kroky, 0, 0, max_rychlost, -1);\n' + MAC_FIX);
+  } else {
+    add('ctx', 'if (place_meeting(x + hsp, y, o_wall)) {\n    while (!place_meeting(x + sign(hsp), y, o_wall)) x += sign(hsp);\n    hsp = 0;\n}\nx += hsp;');
+    if (ow) add('new', SNAP, 'snap');
+    add('ctx', 'if (place_meeting(x, y + vsp, o_wall)) {\n    while (!place_meeting(x, y + sign(vsp), o_wall)) y += sign(vsp);\n    vsp = 0;\n}\ny += vsp;');
+  }
+  return L;
+}
+const stepCtx = () => moveLines(false);
+// light up the lines with keys that ran recently
+function litLines(el, keys) { $$('[data-k]', el).forEach(x => x.classList.toggle('on', keys.has(x.dataset.k))); }
+
+(function coinLab() {
+  const cv = $('#coCv'), ctx = cv.getContext('2d');
+  const R = miniRoom([
+    '#....................#',
+    '#....................#',
+    '#....................#',
+    '#....................#',
+    '#.....ooo.......oo...#',
+    '#....#####.....####..#',
+    '#.P.o.......o.......o#',
+    '######################'
+  ]);
+  const inp = makeInput(cv, $('#coFocus'), 'Řídíš ty: ← → pohyb, mezerník skok');
+  const pl = { x: 0, y: 0, w: 22, h: 38, hsp: 0, vsp: 0, face: 1, ground: true };
+  let coins = [], mince = 0, nextId = 0, log = [], lit = 0, box = true;
+  const ap = { dir: 1, t: 0 };
+  // room_restart(): every instance is created again
+  function restart() { Object.assign(pl, { x: R.start[0], y: R.start[1], hsp: 0, vsp: 0, face: 1 }); coins = R.coins0.map(([x, y]) => ({ x, y, id: 100001 + nextId++ })); mince = 0; log = []; }
+  restart();
+  $('#coReset').onclick = restart;
+  $('#coBox').addEventListener('change', e => box = e.target.checked);
+  widgets.push({
+    step() {
+      const ev = inp.consume(); let c;
+      if (inp.active()) c = { dir: inp.right - inp.left, pressed: ev.pressed, released: ev.released };
+      else {
+        // autopilot: walk, turn at walls, hop now and then
+        if (R.meet(pl.x + ap.dir * 3, pl.y, pl.w, pl.h)) ap.dir = -ap.dir;
+        c = { dir: ap.dir, pressed: ++ap.t % 70 === 0, released: false };
+      }
+      heroStep(pl, c, R);
+      // o_coin · Collision s o_player: the engine runs it in every coin that overlaps the player
+      for (const k of coins) if (boxHit(pl, coinBox(k))) {
+        mince++;                                          // other.mince += 1
+        beep('coin');                                     // audio_play_sound(snd_coin, 1, false)
+        k.gone = true;                                    // instance_destroy()
+        log.unshift(`o_coin (id ${k.id}) · Collision → o_player.mince = ${mince}, instance_destroy()`); log.length = Math.min(log.length, 4);
+        lit = 40;
+      }
+      coins = coins.filter(k => !k.gone);
+      if (lit > 0) lit--;
+    },
+    draw(t) {
+      ctx.drawImage(R.bg, 0, 0);
+      for (const k of coins) { drawImg(ctx, cyc(IMG.coin, t + k.x * .001, 8), k.x, k.y, 32, 32); if (box) strokeBox(ctx, coinBox(k), boxHit(pl, coinBox(k)) ? TOK['c-col'] : '#b07800'); }
+      drawPl(ctx, pl, t);
+      if (box) strokeBox(ctx, pl, TOK['c-col']);
+      drawGui(ctx, mince);
+      if (!coins.length) { ctx.fillStyle = 'rgba(16,20,28,.72)'; ctx.fillRect(R.W / 2 - 170, 96, 340, 56); ctx.fillStyle = '#f7c948'; ctx.font = '700 18px "Pixelify Sans", monospace'; ctx.textAlign = 'center'; ctx.fillText('instance_number(o_coin) = 0', R.W / 2, 122); ctx.font = '600 13px ui-monospace, monospace'; ctx.fillText('mince se vrátí po room_restart()', R.W / 2, 142); ctx.textAlign = 'start'; }
+      setTxt($('#coN'), String(coins.length));
+      setTxt($('#coM'), String(mince));
+      setHtml($('#coLog'), log.length ? log.map(l => `<div>${l}</div>`).join('') : '<div>zatím žádná</div>');
+      litLines($('#coGml'), new Set(lit > 0 ? ['col'] : []));
+    }
+  });
+  gmlView('coGml', () => ({ obj: 'o_player', ran: true, ev: [
+    ['Create', [...createCtx(), ...G('new', 'mince = 0;                 // kolik mincí už mám')]],
+    ['Step', stepCtx()],
+    ['Collision s o_player', GK('new', 'col', 'other.mince += 1;                       // other = hráč, do kterého mince narazila\naudio_play_sound(snd_coin, 1, false);    // cinknutí\ninstance_destroy();                      // zmizí jen tahle mince'), 'o_coin'],
+    ['Draw GUI', G('new', 'draw_text(16, 16, "Mince: " + string(mince));   // na obrazovku, nehýbe se s kamerou')]
+  ] }), el => litLines(el, new Set()));
+})();
+
+(function deathLab() {
+  const cv = $('#smCv'), ctx = cv.getContext('2d');
+  const R = miniRoom([
+    '#....................#',
+    '#....................#',
+    '#....................#',
+    '#....................#',
+    '#....................#',
+    '#...........#.....#..#',
+    '#.P..o..^^..#..S..#o.#',
+    '######################'
+  ]);
+  const inp = makeInput(cv, $('#smFocus'), 'Řídíš ty: ← → pohyb, mezerník skok');
+  const pl = { x: 0, y: 0, w: 22, h: 38, hsp: 0, vsp: 0, face: 1, ground: true };
+  const sl = { x: 0, y: 0, w: 32, h: 24, hsp: 1 };
+  const PAR = { spikes: true, slime: true };
+  let coins = [], mince = 0, restarts = 0, flash = 0, lit = 0, box = true, why = '';
+  const ap = { dir: 1, t: 0, miss: false };
+  function restart() {
+    Object.assign(pl, { x: R.start[0], y: R.start[1], hsp: 0, vsp: 0, face: 1 });
+    Object.assign(sl, { x: R.slime0[0], y: R.slime0[1], hsp: 1 });   // o_slime · Create: hsp = 1
+    coins = R.coins0.map(([x, y]) => ({ x, y })); mince = 0; ap.dir = 1;
+  }
+  restart();
+  $('#smPSp').addEventListener('change', e => PAR.spikes = e.target.checked);
+  $('#smPSl').addEventListener('change', e => PAR.slime = e.target.checked);
+  $('#smBox').addEventListener('change', e => box = e.target.checked);
+  // what is ahead of the feet: spikes or a wall to jump over
+  const ahead = d => { const x = pl.x + (d > 0 ? pl.w + 30 : -30); return R.spikes.some(s => x > s.x - 4 && x < s.x + s.w + 4) || R.meet(x, pl.y + 10, 1, 20) || (x > sl.x - 8 && x < sl.x + sl.w + 8); };
+  widgets.push({
+    step() {
+      const ev = inp.consume(); let c;
+      if (inp.active()) c = { dir: inp.right - inp.left, pressed: ev.pressed, released: ev.released };
+      else {
+        // autopilot: walks to the right wall and back, jumps over obstacles, sometimes too late
+        if (R.meet(pl.x + ap.dir * 3, pl.y, pl.w, pl.h) && R.meet(pl.x + ap.dir * 3, pl.y - 40, pl.w, pl.h)) ap.dir = -ap.dir;
+        ap.t++;
+        c = { dir: ap.dir, pressed: pl.ground && ahead(ap.dir) && !(ap.miss && ap.t % 400 > 300), released: false };
+      }
+      // o_player · Step (movement), o_slime · Step
+      heroStep(pl, c, R);
+      if (R.meet(sl.x + sl.hsp, sl.y, sl.w, sl.h)) sl.hsp = -sl.hsp;
+      sl.x += sl.hsp;
+      // other collisions: coins as in step 6
+      for (const k of coins) if (!k.gone && boxHit(pl, coinBox(k))) { k.gone = true; mince++; beep('coin'); }
+      coins = coins.filter(k => !k.gone);
+      // if (place_meeting(x, y, o_death)) room_restart();  only children of o_death count
+      const onSp = PAR.spikes && R.spikes.some(s => boxHit(pl, s)), onSl = PAR.slime && boxHit(pl, sl);
+      if (onSp || onSl) { why = onSp ? 'o_spikes' : 'o_slime'; restarts++; flash = 50; lit = 50; ap.miss = !ap.miss; beep('land'); restart(); }
+      if (flash > 0) flash--; if (lit > 0) lit--;
+    },
+    draw(t) {
+      ctx.drawImage(R.bg, 0, 0);
+      for (const k of coins) drawImg(ctx, cyc(IMG.coin, t + k.x * .001, 8), k.x, k.y, 32, 32);
+      drawImg(ctx, cyc(IMG.slime, t, 3), Math.round(sl.x), sl.y, 32, 24, sl.hsp < 0);
+      drawPl(ctx, pl, t);
+      if (box) {
+        R.spikes.forEach(s => strokeBox(ctx, s, PAR.spikes ? TOK['c-death'] : '#8a8f99'));
+        strokeBox(ctx, sl, PAR.slime ? TOK['c-death'] : '#8a8f99');
+        strokeBox(ctx, pl, TOK['c-col']);
+      }
+      drawGui(ctx, mince);
+      if (flash > 0) {
+        ctx.fillStyle = `rgba(201,42,42,${.25 * flash / 50})`; ctx.fillRect(0, 0, R.W, R.H);
+        ctx.fillStyle = 'rgba(16,20,28,.75)'; ctx.fillRect(R.W / 2 - 190, 70, 380, 52);
+        ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = '600 14px ui-monospace, monospace';
+        ctx.fillText(`place_meeting(x, y, o_death) našel ${why}`, R.W / 2, 92); ctx.fillText('→ room_restart(): všechno od začátku', R.W / 2, 112); ctx.textAlign = 'start';
+      }
+      setTxt($('#smN'), restarts + '×');
+      setTxt($('#smM'), String(mince));
+      litLines($('#smGml'), new Set(lit > 0 ? ['death'] : []));
+    }
+  });
+  gmlView('smGml', () => ({ obj: 'o_player', ran: true, ev: [
+    ['Create', [...createCtx(), ...G('ctx', 'mince = 0;')]],
+    ['Step', [...stepCtx(), ...G('new', ''), ...GK('new', 'death', '// všechno smrtící má parent o_death\nif (place_meeting(x, y, o_death)) room_restart();')]],
+    ['Draw GUI', G('ctx', 'draw_text(16, 16, "Mince: " + string(mince));')],
+    ['Collision s o_player', G('ctx', 'other.mince += 1;\naudio_play_sound(snd_coin, 1, false);\ninstance_destroy();'), 'o_coin'],
+    ['Create', G('new', 'hsp = 1;                                  // slizoun jde doprava'), 'o_slime'],
+    ['Step', G('new', 'if (place_meeting(x + hsp, y, o_wall)) hsp = -hsp;   // narazil, otoč se\nx += hsp;'), 'o_slime']
+  ] }), el => litLines(el, new Set()));
+})();
+
+(function onewayLab() {
+  const cv = $('#pfCv'), ctx = cv.getContext('2d');
+  const R = miniRoom([
+    '#....................#',
+    '#....................#',
+    '#..........====......#',
+    '#....................#',
+    '#....====.......====.#',
+    '#....................#',
+    '#.P..................#',
+    '######################'
+  ]);
+  const inp = makeInput(cv, $('#pfFocus'), 'Řídíš ty: ← → pohyb, mezerník skok, ↓ seskok');
+  const pl = { x: R.start[0], y: R.start[1], w: 22, h: 38, hsp: 0, vsp: 0, face: 1, ground: true };
+  const ap = { dir: 1, t: 0, onPl: 0 };
+  let box = true, info = { ow: true }, lit = { snap: 0, drop: 0 };
+  $('#pfBox').addEventListener('change', e => box = e.target.checked);
+  const note = () => setTxt($('#pfNote'), R.planksSolid
+    ? 'Plošiny jsou teď obyčejné o_wall. Kód z kroku 5 na nich udrží, ale zespodu se o ně praštíš hlavou a seskočit nejde.'
+    : 'Plošiny jsou o_oneway: zespodu jimi proskočíš, shora na nich stojíš, šipkou dolů seskočíš.');
+  $('#pfSolid').addEventListener('change', e => { R.planksSolid = e.target.checked; note(); });
+  note();
+  const ck = (on, txt) => `<div class="${on ? 'y' : 'n'}"><span>${txt}</span></div>`;
+  widgets.push({
+    step() {
+      const ev = inp.consume(); let c;
+      if (inp.active()) c = { dir: inp.right - inp.left, pressed: ev.pressed, released: ev.released, down: inp.down };
+      else {
+        // autopilot: walks to and fro, jumps now and then, sometimes higher from a plank, drops off after a while
+        if (R.meet(pl.x + ap.dir * 3, pl.y, pl.w, pl.h)) ap.dir = -ap.dir;
+        ap.t++;
+        ap.onPl = info.stand ? ap.onPl + 1 : 0;
+        c = { dir: ap.dir, pressed: pl.ground && ap.t % 50 === 0 && (!info.stand || (ap.t / 50) % 3 === 0), released: false, down: ap.onPl > 80 };
+      }
+      info = heroStep(pl, c, R);
+      if (info.snapped) lit.snap = 30;
+      if (info.dropped) lit.drop = 30;
+      if (lit.snap > 0) lit.snap--;
+      if (lit.drop > 0) lit.drop--;
+    },
+    draw(t) {
+      ctx.drawImage(R.bg, 0, 0);
+      drawPl(ctx, pl, t);
+      if (box) {
+        R.planks.forEach(p => {
+          const on = !R.planksSolid && boxHit({ x: pl.x, y: pl.y + 1, w: pl.w, h: pl.h }, p) && !boxHit(pl, p);
+          strokeBox(ctx, p, R.planksSolid ? TOK['c-col'] : boxHit(pl, p) ? TOK['c-acc'] : on ? TOK['c-fix'] : TOK.muted);
+        });
+        strokeBox(ctx, pl, TOK['c-col']);
+      }
+      setHtml($('#pfChecks'), !info.ow
+        ? '<div class="i"><span>plošiny jsou o_wall, o_oneway se netestuje</span></div>'
+        : ck(info.falling, 'vsp &gt; 0 · padám (po gravitaci i na zemi)')
+          + ck(!info.inside, `!place_meeting(${COLL === 'mac' ? 'x + hsp' : 'x'}, y, o_oneway) · nejsem v ní`)
+          + ck(info.ahead, `place_meeting(${COLL === 'mac' ? 'x + hsp' : 'x'}, y + vsp, o_oneway) · příští snímek bych v ní byl`)
+          + `<div class="${info.snapped || info.stand ? 'y' : 'n'}"><span>${info.snapped ? 'všechny tři platí → přisuň se na plošinu, vsp = 0' : info.stand ? 'stojím na plošině (na_plosine)' : 'plošina mě nezastaví'}</span></div>`);
+      litLines($('#pfGml'), new Set([...(lit.snap > 0 ? ['snap'] : []), ...(lit.drop > 0 ? ['drop'] : [])]));
+    }
+  });
+  gmlView('pfGml', () => ({ obj: 'o_player', ran: true, ev: [
+    ['Create', [...createCtx(), ...G('ctx', 'mince = 0;')]],
+    ['Step', [...moveLines(!R.planksSolid), ...(R.planksSolid ? G('new', '\n// plošiny jsou o_wall: nic nového, ale zespodu neprojdeš') : []),
+      ...G('ctx', '\n// bodáky (a slizouni) mají parent o_death\nif (place_meeting(x, y, o_death)) room_restart();')]],
+    ['Draw GUI', G('ctx', 'draw_text(16, 16, "Mince: " + string(mince));')],
+    ['Collision s o_player', G('ctx', 'other.mince += 1;\naudio_play_sound(snd_coin, 1, false);\ninstance_destroy();'), 'o_coin']
+  ] }), el => litLines(el, new Set()));
 })();
 
 /* =========================================================
@@ -3555,7 +4288,7 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
    ========================================================= */
 (function playground() {
   const cv = $('#plCv'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height, T = 32, PH = 12;
-  // '#' = o_wall (solid tile), '=' = o_oneway (thin plank, 32 × 12), 'o' = coin, 'P' = player start
+  // '#' = o_wall (solid tile), '=' = o_oneway (thin plank, 32 × 12), 'o' = coin, '^' = spikes (parent o_death), 'P' = player start
   const MAP = [
     '..............................',
     '..............................',
@@ -3566,16 +4299,17 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
     '...oo........ooo.........oo...',
     '..####......=====.......####..',
     '..............................',
-    '.P.......................o....',
+    '.P..........^^...........o....',
     '######.o..########.o..########',
     '##############################'
   ].map(r => r.padEnd(30, '.').slice(0, 30));
   const solid = MAP.map(r => [...r].map(ch => ch === '#'));
   const planks = [];
   let start = [0, 0];
-  const coinsInit = [];
+  const coinsInit = [], spikes = [];
   MAP.forEach((r, j) => [...r].forEach((ch, i) => {
     if (ch === 'o') coinsInit.push([i * T, j * T]);
+    if (ch === '^') spikes.push({ x: i * T + 4, y: j * T + 12, w: T - 8, h: T - 12 });
     if (ch === '=') planks.push({ x: i * T, y: j * T, w: T, h: PH });
     if (ch === 'P') start = [i * T + 5, j * T + (T - 38)];
   }));
@@ -3589,6 +4323,7 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
     for (let i = 0; i < W; i += 16) { const hy = Math.round((250 + 30 * Math.sin(i / 110) + 14 * Math.sin(i / 37)) / 8) * 8; x.fillRect(i, hy, 16, H - hy); }
     solid.forEach((row, j) => row.forEach((s, i) => { if (s) drawImg(x, j === 0 || !solid[j - 1][i] ? IMG.grass : IMG.dirt, i * T, j * T, T, T); }));
     planks.forEach(p => drawImg(x, PLANK, p.x, p.y, T, PH));
+    spikes.forEach(p => drawImg(x, IMG.spikes, p.x - 4, p.y - 12, T, T));
   })();
 
   const DEF = { max: 4, acc: .6, fric: .4, g: .5, j: 11, cap: 12 };
@@ -3599,8 +4334,9 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
     ['Těžkopádný', { max: 2.5, acc: .15, fric: .2, g: .9, j: 12, cap: 16 }],
     ['Raketa', { max: 8, acc: 2, fric: 2, g: .7, j: 14, cap: 18 }]
   ];
-  const P = Object.assign({}, DEF), OPT = { vary: true, box: true, vec: true, mode: 'while', oneway: true };
+  const P = Object.assign({}, DEF), OPT = { vary: true, box: true, vec: true, mode: COLL, oneway: true };
   const STEPS = 4;   // num_iterations for move_and_collide
+  const COIN_EV = G('', 'other.mince += 1;                       // other = hráč\naudio_play_sound(snd_coin, 1, false);\ninstance_destroy();                     // mince zmizí');
   const KEYS = [['plMax', 'max'], ['plAcc', 'acc'], ['plFric', 'fric'], ['plG', 'g'], ['plJ', 'j'], ['plCap', 'cap']];
   KEYS.forEach(([id, k]) => { $('#' + id).value = P[k]; slider(id, null, v => P[k] = v); });
   const pre = $('#plPresets');
@@ -3616,18 +4352,13 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
   $('#plVec').addEventListener('change', e => OPT.vec = e.target.checked);
   $('#plSnd').addEventListener('change', e => soundOn = e.target.checked);
   $('#plOneway').addEventListener('change', e => { OPT.oneway = e.target.checked; note(); });
-  const setMode = m => {
-    OPT.mode = m;
-    $('#plModeWhile').setAttribute('aria-pressed', m === 'while');
-    $('#plModeMac').setAttribute('aria-pressed', m === 'mac');
-    note();
-  };
-  $('#plModeWhile').onclick = () => setMode('while');
-  $('#plModeMac').onclick = () => setMode('mac');
+  $('#plModeWhile').onclick = () => setColl('while');
+  $('#plModeMac').onclick = () => setColl('mac');
+  collHooks.push(m => { OPT.mode = m; note(); });
   function note() {
     const a = OPT.mode === 'while'
       ? 'Přisouvání: zkontroluje cíl, a když je obsazený, dojede ke zdi po 1 px. Vodorovně a svisle zvlášť.'
-      : 'move_and_collide: pohyb rozdělí na 4 dílčí kroky a po každém kontroluje kolizi. Rychlosti pak nuluješ sám. V prohlížeči je funkce napodobená zjednodušeně, skutečný GameMaker se může v detailech lišit.';
+      : 'move_and_collide: pohyb rozdělí na 4 dílčí kroky a po každém kontroluje kolizi. Může tak zastavit pár pixelů nad podlahou, proto se po něm k podlaze a stropu dotahuješ a rychlosti nuluješ sám. V prohlížeči je funkce napodobená zjednodušeně, skutečný GameMaker se může v detailech lišit.';
     const b = OPT.oneway
       ? ' Dřevěné plošiny jsou polopropustné: zespodu jimi proskočíš, shora na nich stojíš, šipkou dolů seskočíš.'
       : ' Dřevěné plošiny jsou obyčejné zdi: zespodu se o ně praštíš hlavou.';
@@ -3682,7 +4413,7 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
       else pl.hsp = Math.max(Math.abs(pl.hsp) - P.fric, 0) * sgn(pl.hsp);
       if (dir) pl.face = dir;
       pl.vsp = Math.min(pl.vsp + P.g, P.cap);
-      let naPlosine = onPlank();
+      const naPlosine = onPlank();
       const naZemi = meetWall(pl.x, pl.y + 1) || naPlosine;
       if (naZemi && ev.pressed) { pl.vsp = -P.j; beep('jump'); }
       if (OPT.vary && ev.released && pl.vsp < 0) pl.vsp *= .5;
@@ -3701,19 +4432,25 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
         if (meetWall(pl.x, pl.y + pl.vsp)) { while (!meetWall(pl.x, pl.y + sgn(pl.vsp)) && n++ < 64) pl.y += sgn(pl.vsp); pl.vsp = 0; }
         pl.y += pl.vsp;
       } else {
-        // one-way planks first (same snap as with while), then move_and_collide against o_wall only
-        if (OPT.oneway && pl.vsp > 0 && !meetPlat(pl.x, pl.y) && meetPlat(pl.x, pl.y + pl.vsp)) {
-          let n = 0; while (!meetPlat(pl.x, pl.y + 1) && n++ < 64) pl.y += 1;
+        // one-way planks first, checked at x + hsp where move_and_collide will put x, then move_and_collide against o_wall only
+        let n = 0;
+        const hx = pl.x + pl.hsp;
+        if (OPT.oneway && pl.vsp > 0 && !meetPlat(hx, pl.y) && meetPlat(hx, pl.y + pl.vsp)) {
+          while (!meetPlat(hx, pl.y + 1) && n++ < 64) pl.y += 1;
           pl.vsp = 0;
         }
         moveAndCollide(pl.hsp, pl.vsp, meetWall);
-        naPlosine = onPlank();
-        if (pl.vsp > 0 && (meetWall(pl.x, pl.y + 1) || naPlosine)) pl.vsp = 0;
-        if (pl.vsp < 0 && meetWall(pl.x, pl.y - 1)) pl.vsp = 0;
-        if (pl.hsp !== 0 && meetWall(pl.x + sgn(pl.hsp), pl.y)) pl.hsp = 0;
+        // it may stop short of the surface: snap to it, then zero the speed
+        n = 0;
+        if (pl.vsp > 0 && meetWall(pl.x, pl.y + Math.max(1, pl.vsp))) { while (!meetWall(pl.x, pl.y + 1) && n++ < 64) pl.y += 1; pl.vsp = 0; }
+        if (pl.vsp < 0 && meetWall(pl.x, pl.y + Math.min(-1, pl.vsp))) { while (!meetWall(pl.x, pl.y - 1) && n++ < 64) pl.y -= 1; pl.vsp = 0; }
+        if (pl.hsp !== 0 && meetWall(pl.x + sgn(pl.hsp), pl.y) && meetWall(pl.x + sgn(pl.hsp), pl.y - 1)) pl.hsp = 0;
       }
       pl.ground = meetWall(pl.x, pl.y + 1) || onPlank();
+      // o_coin · Collision s o_player
       for (const c of coins) if (!c.taken && pl.x < c.x + 26 && pl.x + pl.w > c.x + 6 && pl.y < c.y + 28 && pl.y + pl.h > c.y + 4) { c.taken = true; got++; beep('coin'); }
+      // if (place_meeting(x, y, o_death)) room_restart();
+      if (spikes.some(r => overlap(pl.x, pl.y, r))) { reset(); beep('land'); }
     },
     draw(t) {
       ctx.drawImage(tiles, 0, 0);
@@ -3728,6 +4465,7 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
       if (OPT.box) {
         ctx.strokeStyle = TOK['c-col']; ctx.lineWidth = 2; ctx.strokeRect(Math.round(pl.x) + 1, Math.round(pl.y) + 1, pl.w - 2, pl.h - 2);
         ctx.fillStyle = pl.ground ? '#2b8a3e' : '#c92a2a'; ctx.fillRect(Math.round(pl.x), Math.round(pl.y + pl.h), pl.w, 3);
+        ctx.strokeStyle = '#c92a2a'; ctx.lineWidth = 1.5; spikes.forEach(p => ctx.strokeRect(p.x + .75, p.y + .75, p.w - 1.5, p.h - 1.5));
         ctx.strokeStyle = OPT.oneway ? '#f08c00' : TOK['c-col']; ctx.setLineDash(OPT.oneway ? [4, 3] : []); ctx.lineWidth = 1.5;
         planks.forEach(p => ctx.strokeRect(p.x + .75, p.y + .75, p.w - 1.5, p.h - 1.5)); ctx.setLineDash([]);
       }
@@ -3751,6 +4489,7 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
     L.push(...G('', 'hsp = 0;\nvsp = 0;'));
     L.push(...G('', `max_rychlost = ${P.max};\nzrychleni = ${P.acc};\ntreni = ${P.fric};`));
     L.push(...G('', `gravitace = ${P.g};\nsila_skoku = ${P.j};\nmax_pad = ${P.cap};`));
+    L.push(...G('', 'mince = 0;   // kolik mincí už mám'));
     if (OPT.mode === 'mac') L.push(...G('opt', `kroky = ${STEPS};   // num_iterations pro move_and_collide`));
     L.push(...(OPT.oneway
       ? G('opt', '\n// ve scéně: o_wall = pevné zdi,\n// o_oneway = polopropustné plošiny (sprite 32 × 12)')
@@ -3781,18 +4520,16 @@ if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;   // narazil d
       add('', '// svisle\nif (place_meeting(x, y + vsp, o_wall)) {\n    while (!place_meeting(x, y + sign(vsp), o_wall)) y += sign(vsp);\n    vsp = 0;\n}\ny += vsp;');
     } else {
       if (ow) {
-        add('opt', '// polopropustná plošina zastaví jen pád shora (stejně jako u přisouvání)\nif (vsp > 0 && !place_meeting(x, y, o_oneway) && place_meeting(x, y + vsp, o_oneway)) {\n    while (!place_meeting(x, y + 1, o_oneway)) y += 1;\n    vsp = 0;\n}\nmove_and_collide(hsp, vsp, o_wall, kroky, 0, 0, max_rychlost, -1);\nna_plosine = place_meeting(x, y + 1, o_oneway) && !place_meeting(x, y, o_oneway);');
+        add('opt', SNAP_MAC + '\nmove_and_collide(hsp, vsp, o_wall, kroky, 0, 0, max_rychlost, -1);');
       } else {
         add('opt', 'move_and_collide(hsp, vsp, o_wall, kroky, 0, 0, max_rychlost, -1);');
       }
-      add('opt', '\n// move_and_collide rychlosti nemění, vynuluj je sám');
-      add('opt', `if (vsp > 0 && (place_meeting(x, y + 1, o_wall)${ow ? ' || na_plosine' : ''})) vsp = 0;`);
-      add('opt', 'if (vsp < 0 && place_meeting(x, y - 1, o_wall)) vsp = 0;');
-      add('opt', 'if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)) hsp = 0;');
+      add('opt', '\n' + MAC_FIX);
     }
+    add('', '\n// bodáky (a slizouni) mají parent o_death\nif (place_meeting(x, y, o_death)) room_restart();');
     return L;
   }
-  gmlView('plGml', () => ({ obj: 'o_player', fixed: true, ev: [['Create', createCode()], ['Step', stepCode()]] }));
+  gmlView('plGml', () => ({ obj: 'o_player', fixed: true, ev: [['Create', createCode()], ['Step', stepCode()], ['Draw GUI', G('', 'draw_text(16, 16, "Mince: " + string(mince));')], ['Collision s o_player', COIN_EV, 'o_coin']] }));
 })();
 
 /* =========================================================
@@ -3806,7 +4543,11 @@ makeQuiz(2, [
     ['Zdvojnásobíš sílu skoku a gravitaci necháš. Jak vysoko postava vyskočí?', ['2× výš', '4× výš', 'stejně'], 1, 'Výška ≈ síla² / (2 × gravitace), takže 2² = 4.'],
     ['Dva obdélníky: A.right = 100, B.left = 120. Můžou se překrývat?', ['ne', 'ano', 'záleží na y'], 0, 'A končí dřív, než B začne. Jedna nesplněná podmínka stačí.'],
     ['Proč postava „přisouvaná po 1 px“ stojí přesně u zdi, a ta, co se „nepohne, když by narazila“, ne?', ['první dojede až na hranu, druhá zůstane stát o kus dřív', 'druhá je pomalejší', 'není v tom rozdíl'], 0, 'Druhá se zastaví, i když by zbývalo pár pixelů.'],
-    ['Velmi rychlá střela občas proletí tenkou zdí. Jak se tomu říká?', ['tunelování', 'tření', 'origin'], 0, 'Pomůže menší krok (víc kontrol za snímek), nižší max. rychlost nebo „continuous“ detekce.']
+    ['Velmi rychlá střela občas proletí tenkou zdí. Jak se tomu říká?', ['tunelování', 'tření', 'origin'], 0, 'Pomůže menší krok (víc kontrol za snímek), nižší max. rychlost nebo „continuous“ detekce.'],
+    ['V události Collision objektu o_coin s o_player napíšeš instance_destroy(). Co zmizí?', ['jen ta jedna mince', 'všechny mince', 'hráč'], 0, 'Kód běží v té minci, které se hráč dotkl, a zničí právě ji.'],
+    ['Co je other v události Collision objektu o_coin s o_player?', ['hráč, se kterým se mince srazila', 'mince sama', 'scéna'], 0, 'other je ta druhá instance ze srážky. Proto other.mince += 1 přičte minci hráči.'],
+    ['Přidáš nový smrtící objekt o_lava. Co uděláš, aby hráč na lávě umřel?', ['nastavíš mu parent o_death', 'přidáš do hráče další place_meeting', 'nic, stačí ho položit do scény'], 0, 'Hráč testuje o_death, a ten najde všechny potomky. Kód hráče se nemění.'],
+    ['Hráč proskakuje plošinou o_oneway zespodu a v půlce začne padat. Proč ho plošina nezastaví?', ['už v ní je, takže !place_meeting(x, y, o_oneway) neplatí', 'plošina nemá masku', 'vsp je záporné'], 0, 'Plošina zastaví jen pád shora: hráč musí padat a ještě v ní nesmí být. Na tom stojí i seskok šipkou dolů.']
   ]);
 
 requestAnimationFrame(loop);
@@ -3816,7 +4557,8 @@ requestAnimationFrame(loop);
    DÍL 3
    ################################################################ */
 (() => {
-const ON = partOn(3);
+// the configurator chapter after part 3 uses this part's code, so the loop runs while either is on screen
+const ON3 = partOn(3), ONK = partOn('k'), ON = { get v() { return ON3.v || ONK.v; } };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -3885,7 +4627,8 @@ COIN.push(mir(COIN[1]));
 const IMG = {
   coin: COIN.map(bake),
   slime: [bake(['........', '..kkkk..', '.kggggk.', 'kgkggkgk', 'kggggggk', '.kkkkkk.']), bake(['........', '........', '.kkkkkk.', 'kgkggkgk', 'kggggggk', 'kkkkkkkk'])],
-  plank: bake(['bbbbbbbb', 'bdbbbdbb', 'dddddddd'])
+  plank: bake(['bbbbbbbb', 'bdbbbdbb', 'dddddddd']),
+  spikes: bake(['........', '........', '.TS..TS.', '.TS..TS.', 'TTSSTTSS', 'TTSSTTSS', 'SSSSSSSS', 'kkkkkkkk'])
 };
 
 /* ---------- tileset ts_zem: 0 empty, 1-16 autotile grass (index = 1 + neighbour mask), 17 stone, 18 bush, 19 flower ---------- */
@@ -4043,10 +4786,11 @@ const setHtml = (el, s) => { if (el._html !== s) { el._html = s; el.innerHTML = 
 /* =========================================================
    SHARED: tile world + player from part 2 + animation
    ========================================================= */
-// '#' ground (autotiled), '=' one-way plank 32 × 12, 'o' coin, 'P' start
+// '#' ground (autotiled), '=' one-way plank 32 × 12, 'o' coin, '^' spikes (parent o_death), 'P' start
 function makeWorld(cols, rows, T) {
   const PH = 12;
-  const wd = { cols, rows, T, W: cols * T, H: rows * T, cells: [], start: [1, 1], dirty: true, cache: null };
+  // ow = '=' planks are one-way (o_oneway); without it they are ordinary walls
+  const wd = { cols, rows, T, W: cols * T, H: rows * T, cells: [], start: [1, 1], dirty: true, cache: null, ow: true };
   wd.load = strs => {
     wd.cells = [];
     for (let j = 0; j < rows; j++) {
@@ -4061,6 +4805,15 @@ function makeWorld(cols, rows, T) {
   // for drawing, the map edges (left, right, bottom) count as ground so the border looks continuous
   const visSolid = (i, j) => (i < 0 || i >= cols || j >= rows) ? true : j < 0 ? false : wd.cells[j][i] === '#';
   const span = (x, y, w, h) => [Math.floor(x / T), Math.floor((x + w - .001) / T), Math.floor(y / T), Math.floor((y + h - .001) / T)];
+  const plankAt = (x, y, w, h) => {
+    const [l, r, t, b] = span(x, y, w, h);
+    for (let j = t; j <= b; j++) for (let i = l; i <= r; i++) {
+      if (wd.at(i, j) !== '=') continue;
+      const px = i * T, py = j * T;
+      if (x < px + T && x + w > px && y < py + PH && y + h > py) return true;
+    }
+    return false;
+  };
   // place_meeting(x, y, zem): side edges are walls, the bottom is open (you can fall out)
   wd.meetWall = (x, y, w, h) => {
     const [l, r, t, b] = span(x, y, w, h);
@@ -4068,15 +4821,17 @@ function makeWorld(cols, rows, T) {
       if (i < 0 || i >= cols) return true;
       if (j >= 0 && j < rows && wd.cells[j][i] === '#') return true;
     }
-    return false;
+    return !wd.ow && plankAt(x, y, w, h);
   };
   // place_meeting(x, y, o_oneway)
-  wd.meetPlat = (x, y, w, h) => {
+  wd.meetPlat = (x, y, w, h) => wd.ow && plankAt(x, y, w, h);
+  // place_meeting(x, y, o_death): the spikes fill the lower part of their tile
+  wd.meetDeath = (x, y, w, h) => {
     const [l, r, t, b] = span(x, y, w, h);
     for (let j = t; j <= b; j++) for (let i = l; i <= r; i++) {
-      if (wd.at(i, j) !== '=') continue;
-      const px = i * T, py = j * T;
-      if (x < px + T && x + w > px && y < py + PH && y + h > py) return true;
+      if (wd.at(i, j) !== '^') continue;
+      const px = i * T + 4, py = j * T + 12;
+      if (x < px + T - 8 && x + w > px && y < py + T - 12 && y + h > py) return true;
     }
     return false;
   };
@@ -4092,6 +4847,7 @@ function makeWorld(cols, rows, T) {
         const m = (visSolid(i, j - 1) ? 1 : 0) | (visSolid(i + 1, j) ? 2 : 0) | (visSolid(i, j + 1) ? 4 : 0) | (visSolid(i - 1, j) ? 8 : 0);
         drawImg(x, TILE[m + 1], i * T, j * T, T, T);
       } else if (ch === '=') drawImg(x, IMG.plank, i * T, j * T, T, PH);
+      else if (ch === '^') drawImg(x, IMG.spikes, i * T, j * T, T, T);
     }
     wd.cache = c; wd.dirty = false;
     return c;
@@ -4102,9 +4858,9 @@ function makeWorld(cols, rows, T) {
 const DEFP = { max: 4, acc: .6, fric: .4, g: .5, j: 11, cap: 12 };
 const makeHero = () => ({ x: 0, y: 0, w: 22, h: 38, hsp: 0, vsp: 0, ground: false, spr: 'stoji', idx: 0, ispd: 1, xs: 1, stav: 'stoji' });
 
-// the Step event of o_player from part 2 (collisions with "while", one-way planks).
-// hook = optional callbacks used only by approach A to change sprites in the middle of movement
-function physicsStep(h, wd, c, P, hook) {
+// the Step event of o_player from part 2 (one-way planks; collisions as chosen in COLL, walls in TILES,
+// the configurator passes its own). hook = optional callbacks used only by approach A to change sprites mid-movement
+function physicsStep(h, wd, c, P, hook, coll = COLL, tiles = TILES) {
   const sg = Math.sign, mw = (x, y) => wd.meetWall(x, y, h.w, h.h), mp = (x, y) => wd.meetPlat(x, y, h.w, h.h);
   if (c.dir !== 0) { h.hsp = clamp(h.hsp + c.dir * P.acc, -P.max, P.max); if (hook) hook.dir(c.dir); }
   else { h.hsp = Math.max(Math.abs(h.hsp) - P.fric, 0) * sg(h.hsp); if (hook) hook.idle(); }
@@ -4115,14 +4871,15 @@ function physicsStep(h, wd, c, P, hook) {
   if (naZemi && c.pressed) { h.vsp = -P.j; jumped = true; if (hook) hook.jump(); }
   if (c.released && h.vsp < 0) h.vsp *= .5;
   if (naPlosine && c.down) h.y += 1;
-  if (COLL === 'mac') {
+  if (coll === 'mac') {
     // simplified move_and_collide: 4 sub-steps with a collision check after each;
     // a blocked sub-step slides along each axis separately, up to contact
-    // with objects the plank snap runs first (as with while); the tilemap alternative passes planks in an array
-    let withPlanks = h.vsp > 0 && !mp(h.x, h.y);
-    if (!TILES && withPlanks) {
-      if (mp(h.x, h.y + h.vsp)) { let n = 0; while (!mp(h.x, h.y + 1) && n++ < 64) h.y += 1; if (hook && !naZemi) hook.land(); h.vsp = 0; }
-      withPlanks = false;
+    // with objects the plank snap runs first, at x + hsp where the move puts x; the tilemap alternative passes planks in an array
+    const withPlanks = tiles && h.vsp > 0 && !mp(h.x, h.y);
+    let n = 0;
+    if (!tiles && h.vsp > 0) {
+      const hx = h.x + h.hsp;
+      if (!mp(hx, h.y) && mp(hx, h.y + h.vsp)) { while (!mp(hx, h.y + 1) && n++ < 64) h.y += 1; if (hook && !naZemi) hook.land(); h.vsp = 0; }
     }
     const hit = (x, y) => mw(x, y) || (withPlanks && mp(x, y));
     const sx = clamp(h.hsp, -P.max, P.max) / 4, sy = h.vsp / 4;
@@ -4136,11 +4893,13 @@ function physicsStep(h, wd, c, P, hook) {
       if (sx) slide(sx, 0);
       if (sy) slide(0, sy);
     }
-    // move_and_collide leaves the speeds alone, the code zeroes them
+    // move_and_collide leaves the speeds alone and may stop short of the surface: the code snaps to it and zeroes them
+    // (with objects the plank snap above already stopped the fall; with tiles the plank was an obstacle)
+    n = 0;
+    if (h.vsp > 0 && hit(h.x, h.y + Math.max(1, h.vsp))) { while (!hit(h.x, h.y + 1) && n++ < 64) h.y += 1; if (hook && !naZemi) hook.land(); h.vsp = 0; }
+    if (h.vsp < 0 && mw(h.x, h.y + Math.min(-1, h.vsp))) { while (!mw(h.x, h.y - 1) && n++ < 64) h.y -= 1; h.vsp = 0; }
     const naPl = mp(h.x, h.y + 1) && !mp(h.x, h.y);
-    if (h.vsp > 0 && (mw(h.x, h.y + 1) || naPl)) { if (hook && !naZemi) hook.land(); h.vsp = 0; }
-    if (h.vsp < 0 && mw(h.x, h.y - 1)) h.vsp = 0;
-    if (h.hsp !== 0 && mw(h.x + sg(h.hsp), h.y)) h.hsp = 0;
+    if (h.hsp !== 0 && mw(h.x + sg(h.hsp), h.y) && mw(h.x + sg(h.hsp), h.y - 1)) h.hsp = 0;
     h.ground = mw(h.x, h.y + 1) || naPl;
     return jumped;
   }
@@ -4166,6 +4925,29 @@ function advanceAnim(h) {
 }
 // what the result of the movement says the sprite should be (approach B)
 const expectedSpr = h => !h.ground ? (h.vsp < 0 ? 'skok' : 'pad') : (h.hsp !== 0 ? 'beh' : 'stoji');
+// approach A: sprite_index set right in the movement code (physicsStep hook), mark = which code line ran
+const hookA = (h, dopad, mark = () => {}) => ({
+  dir(d) { h.spr = 'beh'; h.xs = d; mark('a-beh'); },
+  idle() { h.spr = 'stoji'; mark('a-stoji'); },
+  jump() { h.spr = 'skok'; mark('a-skok', 14); },
+  land() { if (dopad()) { h.spr = 'dopad'; mark('a-dopad', 14); } }
+});
+// approach B: End Step looks at the result of the movement (h.byl = byl_na_zemi, h.dopadF = dopad)
+function endStepB(h, P, dopad, mark = () => {}) {
+  const g = h.ground;
+  if (dopad) {
+    if (g && !h.byl) { h.dopadF = true; mark('land', 12); }
+    if (!g || h.hsp !== 0) h.dopadF = false;
+    h.byl = g;
+  }
+  let novy = 'stoji'; h.ispd = 1;
+  if (!g) novy = h.vsp < 0 ? 'skok' : 'pad';
+  else if (dopad && h.dopadF) novy = 'dopad';
+  else if (h.hsp !== 0) { novy = 'beh'; h.ispd = Math.abs(h.hsp) / P.max; }
+  mark(novy);
+  if (h.spr !== novy) { h.spr = novy; h.idx = 0; mark('switch', 12); }
+  if (h.hsp !== 0) { h.xs = Math.sign(h.hsp); mark('flip'); }
+}
 const STAV_SPR = { stoji: 'stoji', bezi: 'beh', skace: 'skok', pada: 'pad', dopad: 'dopad' };
 const SPR_STAV = { stoji: 'stoji', beh: 'bezi', skok: 'skace', pad: 'pada', dopad: 'dopad' };
 function endStepC(h, P, dopad = true) {
@@ -4593,7 +5375,7 @@ function jumpArc(P, until) {
    5. ANIMATION CONTROL: code generator A / B / C (+ one-way planks, + landing)
    ========================================================= */
 // o_player through part 3, starting from the playground of part 2.
-// o.step = the step showing the code (1–5, 6 = workshop). A line is new in the step that added it
+// o.step = the step showing the code (1–5). A line is new in the step that added it
 // and context in later ones; lines that exist only because of a checkbox in this step are 'opt'.
 // From step 5 on: o.mode ('A' | 'B' | 'C'), o.ow (one-way planks), o.dopad (landing animation).
 // o.P = jump settings (step 3), o.an = sprite settings (step 4).
@@ -4616,6 +5398,7 @@ function hracCode(o) {
     L('hsp = 0;'), L('vsp = 0;'),
     L(`max_rychlost = ${P.max};`, { val: 1 }), L(`zrychleni = ${DEFP.acc};`), L(`treni = ${DEFP.fric};`),
     L(`gravitace = ${P.g};`, { val: 1 }), L(`sila_skoku = ${P.j};`, { val: 1 }), L(`max_pad = ${DEFP.cap};`),
+    L('mince = 0;                              // kolik mincí už mám'),
     ...(mac ? [L('kroky = 4;                              // num_iterations pro move_and_collide')] : []),
     L('', { at: 1 }), L('sprite_index = s_player_idle;          // sprite z archu hrac_sheet.png', { at: 1 })
   ];
@@ -4648,11 +5431,14 @@ function hracCode(o) {
   st.push(L('}'), L('if (keyboard_check_released(vk_space) && vsp < 0) vsp *= 0.5;   // krátký skok'));
   if (ow) st.push(L('if (na_plosine && keyboard_check(vk_down)) y += 1;   // seskok z plošiny', { ow }));
   st.push(L(''));
-  // one-way plank: stops only a fall from above (while variant, and move_and_collide without arrays)
+  // one-way plank: stops only a fall from above (while variant, and move_and_collide without arrays);
+  // before move_and_collide x moves by hsp only afterwards, so the check looks at x + hsp
   const owSnap = () => {
-    st.push(L('// polopropustná plošina zastaví jen pád shora', { ow }),
-      L('if (vsp > 0 && !place_meeting(x, y, o_oneway) && place_meeting(x, y + vsp, o_oneway)) {', { ow }),
-      L('    while (!place_meeting(x, y + 1, o_oneway)) y += 1;', { ow }));
+    const X = mac ? 'x + hsp' : 'x';
+    st.push(L('// polopropustná plošina zastaví jen pád shora', { ow }));
+    if (mac) st.push(L('// x se posune o hsp až v move_and_collide, proto kontroluj x + hsp', { ow }));
+    st.push(L(`if (vsp > 0 && !place_meeting(${X}, y, o_oneway) && place_meeting(${X}, y + vsp, o_oneway)) {`, { ow }),
+      L(`    while (!place_meeting(${X}, y + 1, o_oneway)) y += 1;`, { ow }));
     if (A && dp) st.push(an('    if (!na_zemi) sprite_index = s_player_land;', 'a-dopad', { dp }));
     st.push(L('    vsp = 0;', { ow }), L('}', { ow }));
   };
@@ -4661,19 +5447,21 @@ function hracCode(o) {
     if (ow && TILES) st.push(L('// plošiny jsou překážkou jen při pádu, a jen když v nich zrovna nejsem', { ow }),
       L(`var prekazky = [${wall}];`, { wall: 1, ow }),
       L('if (vsp > 0 && !place_meeting(x, y, o_oneway)) array_push(prekazky, o_oneway);', { ow }),
-      L('move_and_collide(hsp, vsp, prekazky, kroky, 0, 0, max_rychlost, -1);', { ow }),
-      L('na_plosine = place_meeting(x, y + 1, o_oneway) && !place_meeting(x, y, o_oneway);', { ow }));
+      L('move_and_collide(hsp, vsp, prekazky, kroky, 0, 0, max_rychlost, -1);', { ow }));
     else if (ow) {
       owSnap();
-      st.push(L(`move_and_collide(hsp, vsp, ${wall}, kroky, 0, 0, max_rychlost, -1);`, { wall: 1 }),
-        L('na_plosine = place_meeting(x, y + 1, o_oneway) && !place_meeting(x, y, o_oneway);', { ow }));
+      st.push(L(`move_and_collide(hsp, vsp, ${wall}, kroky, 0, 0, max_rychlost, -1);`, { wall: 1 }));
     } else st.push(L(`move_and_collide(hsp, vsp, ${wall}, kroky, 0, 0, max_rychlost, -1);`, { wall: 1 }));
-    st.push(L(''), L('// move_and_collide rychlosti nemění, vynuluj je sám'));
-    const land = `if (vsp > 0 && (place_meeting(x, y + 1, ${wall})${ow ? ' || na_plosine' : ''}))`;
-    if (A && dp) st.push(L(land + ' {', { wall: 1 }), an('    if (!na_zemi) sprite_index = s_player_land;', 'a-dopad', { dp }), L('    vsp = 0;'), L('}'));
-    else st.push(L(land + ' vsp = 0;', { wall: 1 }));
-    st.push(L(`if (vsp < 0 && place_meeting(x, y - 1, ${wall})) vsp = 0;`, { wall: 1 }),
-      L(`if (hsp != 0 && place_meeting(x + sign(hsp), y, ${wall})) hsp = 0;`, { wall: 1 }));
+    st.push(L(''), L('// move_and_collide rychlosti nemění a může nechat mezeru:'), L('// dotáhni se k podlaze / stropu a vynuluj rychlost sám'));
+    // with objects the plank snap already zeroed vsp; the array variant snaps to the planks too
+    const fl = ow && TILES ? 'prekazky' : wall, ff = ow && TILES ? { wall: 1, ow } : { wall: 1 };
+    st.push(L(`if (vsp > 0 && place_meeting(x, y + max(1, vsp), ${fl})) {`, ff), L(`    while (!place_meeting(x, y + 1, ${fl})) y += 1;`, ff));
+    if (A && dp) st.push(an('    if (!na_zemi) sprite_index = s_player_land;', 'a-dopad', { dp }));
+    st.push(L('    vsp = 0;'), L('}'),
+      L(`if (vsp < 0 && place_meeting(x, y + min(-1, vsp), ${wall})) {`, { wall: 1 }), L(`    while (!place_meeting(x, y - 1, ${wall})) y -= 1;`, { wall: 1 }),
+      L('    vsp = 0;'), L('}'));
+    if (ow && TILES) st.push(L('na_plosine = place_meeting(x, y + 1, o_oneway) && !place_meeting(x, y, o_oneway);', { ow }));
+    st.push(L(`if (hsp != 0 && place_meeting(x + sign(hsp), y, ${wall}) && place_meeting(x + sign(hsp), y - 1, ${wall})) hsp = 0;`, { wall: 1 }));
   } else {
     st.push(L('// kolize vodorovně'), L(`if (place_meeting(x + hsp, y, ${wall})) {`, { wall: 1 }),
       L(`    while (!place_meeting(x + sign(hsp), y, ${wall})) x += sign(hsp);`, { wall: 1 }), L('    hsp = 0;'), L('}'), L('x += hsp;'), L(''));
@@ -4683,6 +5471,7 @@ function hracCode(o) {
     if (A && dp) st.push(an('    if (vsp > 0 && !na_zemi) sprite_index = s_player_land;', 'a-dopad', { dp }));
     st.push(L('    vsp = 0;'), L('}'), L('y += vsp;'));
   }
+  st.push(L(''), L('// bodáky (a slizouni) mají parent o_death'), L('if (place_meeting(x, y, o_death)) room_restart();'));
   if (s === 4) {
     const a = o.an;
     st.push(L('', { at: 4 }), L('// animace: zatím natvrdo, výběr podle pohybu přidá krok 5', { at: 4 }),
@@ -4694,7 +5483,13 @@ function hracCode(o) {
   if (s === 4 && !o.an.loop) ev.push(['Animation End', [
     `// ${o.an.name} se nemá opakovat: zůstaň na posledním snímku`, `if (sprite_index == ${o.an.name}) {`,
     '    image_speed = 0;', '    image_index = image_number - 1;', '}'].map(t => [t, 'opt'])]);
-  if (s < 5 || A) return ev;
+  // the rest of the game from part 2: score on screen and the coin that disappears
+  const rest = () => {
+    ev.push(['Draw GUI', [L('draw_text(16, 16, "Mince: " + string(mince));')]]);
+    ev.push(['Collision s o_player', [L('other.mince += 1;                       // other = hráč'), L('audio_play_sound(snd_coin, 1, false);'), L('instance_destroy();                     // mince zmizí')], 'o_coin']);
+    return ev;
+  };
+  if (s < 5 || A) return rest();
 
   const E = (t, key, f = {}) => L(t, { at: 5, key, ...f });
   const es = [E('// pohyb i kolize už proběhly, jen se podívej na výsledek')];
@@ -4726,7 +5521,7 @@ function hracCode(o) {
     E('if (hsp != 0) image_xscale = sign(hsp);', 'flip'));
   ev.push(['End Step', es]);
   if (dp) ev.push(['Animation End', [B ? E('if (sprite_index == s_player_land) dopad = false;', 'end', { dp }) : E('if (stav == "dopad") stav = "stoji";', 'end', { dp })]]);
-  return ev;
+  return rest();
 }
 
 (function animCtlLab() {
@@ -4758,12 +5553,7 @@ function hracCode(o) {
   const WHY = { stoji: 'postava stojí (hsp = 0)', beh: 'postava se pohybuje', skok: 'postava letí nahoru', pad: 'postava padá' };
   const keys = new Map();
   const mark = (k, n = 1) => keys.set(k, Math.max(keys.get(k) || 0, n));
-  const HOOK_A = {
-    dir(d) { h.spr = 'beh'; h.xs = d; mark('a-beh'); },
-    idle() { h.spr = 'stoji'; mark('a-stoji'); },
-    jump() { h.spr = 'skok'; mark('a-skok', 14); },
-    land() { if (OPT.dopad) { h.spr = 'dopad'; mark('a-dopad', 14); } }
-  };
+  const HOOK_A = hookA(h, () => OPT.dopad, mark);
   let mm = 0, msg = '', msgT = 0, bugs = 0, lastNode = 'stoji', edge = '', edgeT = 0, keySig = '', lineEls = [];
 
   // ----- code window -----
@@ -4785,21 +5575,6 @@ function hracCode(o) {
   refresh();
 
   // ----- the simulated events, same logic as the generated code -----
-  function endStepB() {
-    const g = h.ground;
-    if (OPT.dopad) {
-      if (g && !h.byl) { h.dopadF = true; mark('land', 12); }
-      if (!g || h.hsp !== 0) h.dopadF = false;
-      h.byl = g;
-    }
-    let novy = 'stoji'; h.ispd = 1;
-    if (!g) novy = h.vsp < 0 ? 'skok' : 'pad';
-    else if (OPT.dopad && h.dopadF) novy = 'dopad';
-    else if (h.hsp !== 0) { novy = 'beh'; h.ispd = Math.abs(h.hsp) / P.max; }
-    mark(novy);
-    if (h.spr !== novy) { h.spr = novy; h.idx = 0; mark('switch', 12); }
-    if (h.hsp !== 0) { h.xs = Math.sign(h.hsp); mark('flip'); }
-  }
   function endStepCLab() {
     const before = h.spr, from = endStepC(h, P, OPT.dopad);
     mark({ stoji: 'c-zem', bezi: 'c-zem', skace: 'c-skace', pada: 'c-pada', dopad: 'c-dopad' }[from]);
@@ -4841,7 +5616,7 @@ function hracCode(o) {
       if (OPT.mode === 'A') h.ispd = 1;
       physicsStep(h, wd, c, P, OPT.mode === 'A' ? HOOK_A : null);
       // End Step
-      if (OPT.mode === 'B') endStepB();
+      if (OPT.mode === 'B') endStepB(h, P, OPT.dopad, mark);
       else if (OPT.mode === 'C') endStepCLab();
       // animation advance + Animation End
       if (advanceAnim(h) && OPT.dopad) {
@@ -4883,147 +5658,390 @@ function hracCode(o) {
   });
 })();
 
+
 /* =========================================================
-   6. WORKSHOP: level editor + play
+   KONFIGURÁTOR: o_player from any combination of the options in parts 2 and 3, plus a small preview
    ========================================================= */
-(function workshop() {
-  const cv = $('#wsCv'), ctx = cv.getContext('2d');
-  const wd = makeWorld(30, 12, 32), T = 32, W = wd.W, H = wd.H;
-  const DEMO = [
-    '..............................',
-    '..............................',
-    '..............................',
-    '........oo..............ooo...',
-    '.......====............=====..',
-    '................###...........',
-    '...oo...........###......oo...',
-    '..####.....====.###.....####..',
-    '................###...........',
-    '.P......o.o.....###..o..o.....',
-    '########...#########..########',
-    '########...#########..########'
-  ];
-  const EMPTY = ['', '', '', '', '', '', '', '', '', '.P', '#'.repeat(30), '#'.repeat(30)];
+// the code generator; K = the configuration (see KF_DEF), returns [event, lines, obj?] for gmlView
+function kfCode(K) {
+  const N = K.names, H = K.has, P = K.P, an = K.anim, A = an === 'A', B = an === 'B', C = an === 'C';
+  const mac = K.coll === 'mac', tiles = K.tiles, ow = K.ow, wall = tiles ? 'zem' : N.wall, OW = N.ow;
+  const dp = an !== 'none' && H.dopad;
+  // a missing sprite borrows a similar one: no fall uses the jump and the other way round, no run stays idle
+  const S = { beh: H.beh ? N.beh : N.stoji, skok: H.skok ? N.skok : H.pad ? N.pad : N.stoji, pad: H.pad ? N.pad : H.skok ? N.skok : N.stoji };
+  const num = v => String(+(+v).toFixed(2));
+  const L = (arr, ...t) => t.forEach(x => arr.push([x, '']));
+  const ev = [];
+
+  const cr = [];
+  L(cr, '// pohyb', 'hsp = 0;', 'vsp = 0;', `max_rychlost = ${num(P.max)};`, `zrychleni = ${num(P.acc)};   // o kolik rychlost přibude za snímek`,
+    `treni = ${num(P.fric)};   // o kolik ubude, když nic nedržíš`, `gravitace = ${num(P.g)};`, `sila_skoku = ${num(P.j)};`, `max_pad = ${num(P.cap)};   // max. rychlost pádu`);
+  if (mac) L(cr, 'kroky = 4;   // num_iterations pro move_and_collide');
+  if (tiles) L(cr, `zem = layer_tilemap_get_id("${N.layer}");   // vrstva dlaždic`);
+  if (K.coins) L(cr, 'mince = 0;   // kolik mincí už mám');
+  L(cr, '', '// grafika', `sprite_index = ${N.stoji};`);
+  if (K.mask) L(cr, `mask_index = ${N.mask};   // jedna kolizní maska pro všechny animace`);
+  if (B && dp) L(cr, 'byl_na_zemi = true;', 'dopad = false;   // právě hraje dopad');
+  if (C) {
+    const own = (k, name) => name + (H[k] ? '' : `   // nemáš vlastní sprite`);
+    L(cr, '', '// stavový automat', 'stav = "stoji";', 'sprity = {', `    stoji: ${N.stoji},`, `    bezi:  ${own('beh', S.beh + ',')}`,
+      `    skace: ${own('skok', S.skok + ',')}`, `    pada:  ${own('pad', S.pad + (dp ? ',' : ''))}`);
+    if (dp) L(cr, `    dopad: ${N.dopad}`);
+    L(cr, '};');
+  }
+  ev.push(['Create', cr]);
+
+  const st = [];
+  L(st, '// vstup a vodorovná rychlost', 'var smer = keyboard_check(vk_right) - keyboard_check(vk_left);', 'if (smer != 0) {',
+    '    hsp = clamp(hsp + smer * zrychleni, -max_rychlost, max_rychlost);');
+  if (A && H.beh) L(st, `    sprite_index = ${N.beh};`);
+  if (A && K.flip) L(st, '    image_xscale = smer;');
+  L(st, '} else {', '    hsp = max(abs(hsp) - treni, 0) * sign(hsp);');
+  if (A) L(st, `    sprite_index = ${N.stoji};`);
+  L(st, '}', '', '// gravitace a skok', 'vsp = min(vsp + gravitace, max_pad);');
+  if (ow) L(st, `var na_plosine = place_meeting(x, y + 1, ${OW}) && !place_meeting(x, y, ${OW});`, `var na_zemi = place_meeting(x, y + 1, ${wall}) || na_plosine;`);
+  else L(st, `var na_zemi = place_meeting(x, y + 1, ${wall});`);
+  L(st, 'if (na_zemi && keyboard_check_pressed(vk_space)) {', '    vsp = -sila_skoku;');
+  if (K.snd) L(st, `    audio_play_sound(${N.sJump}, 1, false);`);
+  if (A && H.skok) L(st, `    sprite_index = ${N.skok};`);
+  L(st, '}');
+  if (K.short) L(st, 'if (keyboard_check_released(vk_space) && vsp < 0) vsp *= 0.5;   // krátký skok');
+  if (ow && K.drop) L(st, 'if (na_plosine && keyboard_check(vk_down)) y += 1;   // seskok z plošiny');
+  L(st, '');
+  // approach A sets the landing sprite right where the fall stops
+  const landA = A && dp;
+  // before move_and_collide x moves by hsp only afterwards, so the check looks at x + hsp
+  const snap = () => {
+    const X = mac ? 'x + hsp' : 'x';
+    L(st, '// polopropustná plošina zastaví jen pád shora');
+    if (mac) L(st, '// x se posune o hsp až v move_and_collide, proto kontroluj x + hsp');
+    L(st, `if (vsp > 0 && !place_meeting(${X}, y, ${OW}) && place_meeting(${X}, y + vsp, ${OW})) {`,
+      `    while (!place_meeting(${X}, y + 1, ${OW})) y += 1;`);
+    if (landA) L(st, `    if (!na_zemi) sprite_index = ${N.dopad};`);
+    L(st, '    vsp = 0;', '}');
+  };
+  if (mac) {
+    // with a tilemap the planks go into the array of obstacles; with objects the snap above is simpler
+    if (ow && tiles) L(st, '// plošiny jsou překážkou jen při pádu, a jen když v nich zrovna nejsem', 'var prekazky = [zem];',
+      `if (vsp > 0 && !place_meeting(x, y, ${OW})) array_push(prekazky, ${OW});`, 'move_and_collide(hsp, vsp, prekazky, kroky, 0, 0, max_rychlost, -1);');
+    else { if (ow) snap(); L(st, `move_and_collide(hsp, vsp, ${wall}, kroky, 0, 0, max_rychlost, -1);`); }
+    L(st, '', '// move_and_collide rychlosti nemění a může nechat mezeru:', '// dotáhni se k podlaze / stropu a vynuluj rychlost sám');
+    // with a tilemap the planks in the array count as floor too
+    const fl = ow && tiles ? 'prekazky' : wall;
+    L(st, `if (vsp > 0 && place_meeting(x, y + max(1, vsp), ${fl})) {`, `    while (!place_meeting(x, y + 1, ${fl})) y += 1;`);
+    if (landA) L(st, `    if (!na_zemi) sprite_index = ${N.dopad};`);
+    L(st, '    vsp = 0;', '}',
+      `if (vsp < 0 && place_meeting(x, y + min(-1, vsp), ${wall})) {`, `    while (!place_meeting(x, y - 1, ${wall})) y -= 1;`, '    vsp = 0;', '}');
+    if (ow && tiles) L(st, `na_plosine = place_meeting(x, y + 1, ${OW}) && !place_meeting(x, y, ${OW});`);
+    L(st, `if (hsp != 0 && place_meeting(x + sign(hsp), y, ${wall}) && place_meeting(x + sign(hsp), y - 1, ${wall})) hsp = 0;`);
+  } else {
+    L(st, '// kolize vodorovně', `if (place_meeting(x + hsp, y, ${wall})) {`, `    while (!place_meeting(x + sign(hsp), y, ${wall})) x += sign(hsp);`, '    hsp = 0;', '}', 'x += hsp;', '');
+    if (ow) { snap(); L(st, ''); }
+    L(st, '// kolize svisle', `if (place_meeting(x, y + vsp, ${wall})) {`, `    while (!place_meeting(x, y + sign(vsp), ${wall})) y += sign(vsp);`);
+    if (landA) L(st, `    if (vsp > 0 && !na_zemi) sprite_index = ${N.dopad};`);
+    L(st, '    vsp = 0;', '}', 'y += vsp;');
+  }
+  if (K.death) L(st, '', `// všechno smrtící má parent ${N.death}`, `if (place_meeting(x, y, ${N.death})) room_restart();`);
+  if (an === 'none' && K.flip) L(st, '', 'if (hsp != 0) image_xscale = sign(hsp);   // otoč se po směru');
+  ev.push(['Step', st]);
+
+  if (B || C) {
+    const es = [], sync = K.sync && H.beh;
+    L(es, '// pohyb i kolize už proběhly, jen se podívej na výsledek');
+    if (ow) L(es, `var na_zemi = place_meeting(x, y + 1, ${wall})`, `    || (place_meeting(x, y + 1, ${OW}) && !place_meeting(x, y, ${OW}));`);
+    else L(es, `var na_zemi = place_meeting(x, y + 1, ${wall});`);
+    L(es, '');
+    if (B) {
+      if (dp) L(es, 'if (na_zemi && !byl_na_zemi) dopad = true;   // právě dopadl', 'if (!na_zemi || hsp != 0) dopad = false;   // spadl nebo se rozběhl', 'byl_na_zemi = na_zemi;', '');
+      L(es, `var novy = ${N.stoji};`);
+      if (sync) L(es, 'image_speed = 1;');
+      if (S.skok !== S.pad) L(es, 'if (!na_zemi) {', `    if (vsp < 0) novy = ${S.skok};`, `    else novy = ${S.pad};`);
+      else L(es, 'if (!na_zemi) {', `    novy = ${S.skok};` + (H.skok || H.pad ? '   // jeden sprite pro skok i pád' : '   // nemáš sprite pro skok ani pád'));
+      if (dp) L(es, '} else if (dopad) {', `    novy = ${N.dopad};`);
+      if (H.beh) {
+        L(es, '} else if (hsp != 0) {', `    novy = ${N.beh};`);
+        if (sync) L(es, '    image_speed = abs(hsp) / max_rychlost;   // nohy podle rychlosti');
+      }
+      L(es, '}');
+    } else {
+      L(es, 'switch (stav) {', '    case "stoji":', '    case "bezi":', '        if (!na_zemi) stav = (vsp < 0) ? "skace" : "pada";',
+        '        else stav = (hsp != 0) ? "bezi" : "stoji";', '        break;', '    case "skace":', '        if (vsp >= 0) stav = "pada";', '        break;',
+        '    case "pada":', dp ? '        if (na_zemi) stav = "dopad";' : '        if (na_zemi) stav = (hsp != 0) ? "bezi" : "stoji";', '        break;');
+      if (dp) L(es, '    case "dopad":', '        if (!na_zemi) stav = "pada";', '        else if (hsp != 0) stav = "bezi";', '        break;   // jinak počkej na Animation End');
+      L(es, '}', '', 'var novy = sprity[$ stav];');
+      if (sync) L(es, 'image_speed = (stav == "bezi") ? abs(hsp) / max_rychlost : 1;');
+    }
+    L(es, '', '// nová animace vždy od prvního snímku', 'if (sprite_index != novy) {', '    sprite_index = novy;', '    image_index = 0;', '}');
+    if (K.flip) L(es, 'if (hsp != 0) image_xscale = sign(hsp);');
+    ev.push(['End Step', es]);
+    if (dp) ev.push(['Animation End', [[B ? `if (sprite_index == ${N.dopad}) dopad = false;` : 'if (stav == "dopad") stav = "stoji";', '']]]);
+  }
+  if (K.coins) {
+    ev.push(['Draw GUI', [['draw_text(16, 16, "Mince: " + string(mince));', '']]]);
+    const co = [];
+    L(co, 'other.mince += 1;   // other = hráč');
+    if (K.snd) L(co, `audio_play_sound(${N.sCoin}, 1, false);`);
+    L(co, 'instance_destroy();   // mince zmizí');
+    ev.push([`Collision s ${N.player}`, co, N.coin]);
+  }
+  return ev;
+}
+
+const KF_PRESETS = [
+  ['Výchozí', { max: 4, acc: .6, fric: .4, g: .5, j: 11, cap: 12 }],
+  ['Měsíc', { max: 3, acc: .4, fric: .3, g: .15, j: 6, cap: 5 }],
+  ['Led', { max: 5, acc: .12, fric: .03, g: .5, j: 10, cap: 12 }],
+  ['Těžkopádný', { max: 2.5, acc: .15, fric: .2, g: .9, j: 12, cap: 16 }],
+  ['Raketa', { max: 8, acc: 2, fric: 2, g: .7, j: 14, cap: 18 }]
+];
+const KF_DEF = {
+  P: Object.assign({}, KF_PRESETS[0][1]), short: true,
+  coll: 'while', tiles: false,
+  ow: true, drop: true, coins: true, death: true, snd: false,
+  anim: 'B', flip: true, sync: true, mask: true,
+  has: { stoji: true, beh: true, skok: true, pad: true, dopad: false },
+  names: {
+    player: 'o_player', wall: 'o_wall', layer: 'Zem', ow: 'o_oneway', coin: 'o_coin', death: 'o_death', sJump: 'snd_jump', sCoin: 'snd_coin',
+    stoji: 's_player_idle', beh: 's_player_run', skok: 's_player_jump', pad: 's_player_fall', dopad: 's_player_land', mask: 's_player_mask'
+  }
+};
+
+(function konfigurator() {
+  const clone = o => JSON.parse(JSON.stringify(o));
+  let K = clone(KF_DEF);
+  // stored settings are merged key by key, so an older or broken save cannot break the page
   try {
-    const o = JSON.parse(store.get('l3-dilna') || 'null');
-    if (o && Array.isArray(o.cells) && o.cells.length === 12) { wd.load(o.cells); if (Array.isArray(o.start)) wd.start = o.start; }
-    else wd.load(DEMO);
-  } catch (e) { wd.load(DEMO); }
-  const save = () => store.set('l3-dilna', JSON.stringify({ cells: wd.dump(), start: wd.start }));
-  let mode = 'edit', tool = 'zem', painting = false, hover = null;
-  const OPT = { grid: true, reach: true, box: false };
-  const inp = makeInput(cv, $('#wsFocus'), 'Hraješ: ← → pohyb, mezerník skok, ↓ seskok z plošiny');
-  inp.enabled = () => mode === 'play';
-  const h = makeHero();
-  let coins = [], got = 0, wasGround = true;
-  function respawn() { const [sx, sy] = wd.startXY(); Object.assign(h, { x: sx, y: sy, hsp: 0, vsp: 0, xs: 1, spr: 'stoji', idx: 0, ispd: 1, stav: 'stoji', ground: true }); }
-  function startPlay() {
-    respawn(); coins = []; got = 0;
+    const o = JSON.parse(store.get('konf') || 'null');
+    if (o) {
+      for (const k of ['short', 'tiles', 'ow', 'drop', 'coins', 'death', 'snd', 'flip', 'sync', 'mask']) if (typeof o[k] === 'boolean') K[k] = o[k];
+      if (['while', 'mac'].includes(o.coll)) K.coll = o.coll;
+      if (['none', 'A', 'B', 'C'].includes(o.anim)) K.anim = o.anim;
+      for (const k in K.P) if (o.P && isFinite(o.P[k])) K.P[k] = +o.P[k];
+      for (const k in K.has) if (o.has && typeof o.has[k] === 'boolean') K.has[k] = o.has[k];
+      for (const k in K.names) if (o.names && typeof o.names[k] === 'string' && valid(k, o.names[k])) K.names[k] = o.names[k];
+      K.has.stoji = true;
+    }
+  } catch (e) {}
+  const save = () => store.set('konf', JSON.stringify(K));
+  function valid(k, v) { return k === 'layer' ? /^[^"\\]{1,40}$/.test(v) : /^[A-Za-z_][A-Za-z0-9_]{0,40}$/.test(v); }
+
+  // ----- form -----
+  const pre = $('#kfPresets');
+  KF_PRESETS.forEach(([name, vals]) => {
+    const b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.textContent = name;
+    b.onclick = () => { Object.assign(K.P, vals); changed(); };
+    pre.appendChild(b);
+  });
+  $$('#konfigurator [data-par]').forEach(el => el.addEventListener('input', () => { K.P[el.dataset.par] = +el.value; changed(); }));
+  $$('#konfigurator [data-opt]').forEach(el => el.addEventListener('change', () => { K[el.dataset.opt] = el.checked; changed(true); }));
+  $$('#konfigurator [data-has]').forEach(el => el.addEventListener('change', () => { K.has[el.dataset.has] = el.checked; changed(true); }));
+  $$('#konfigurator [data-name]').forEach(el => el.addEventListener('input', () => {
+    const k = el.dataset.name, v = el.value.trim(), ok = valid(k, v);
+    el.setAttribute('aria-invalid', !ok);
+    if (ok) { K.names[k] = v; changed(); }
+  }));
+  const seg = (sel, set) => $$(`${sel} [data-val]`).forEach(b => b.addEventListener('click', () => { set(b.dataset.val); changed(true); }));
+  seg('#kfColl', v => K.coll = v);
+  seg('#kfTiles', v => K.tiles = v === '1');
+  seg('#kfAnim', v => K.anim = v);
+  $('#kfReset').onclick = () => { K = clone(KF_DEF); $$('#konfigurator [data-name]').forEach(el => el.removeAttribute('aria-invalid')); changed(true); };
+  $('#kfCopy').onclick = () => {
+    const txt = kfCode(K).map(([name, lines, obj]) => `// ===== ${obj || K.names.player} · ${name} =====\n` + alignComments(lines).map(l => l[0]).join('\n')).join('\n\n');
+    copyCode($('#kfCopy'), txt, $('#kfGml'));
+  };
+
+  const ANOTE = {
+    none: 'Postava má jen jeden sprite. Kód se o animace nestará, nanejvýš ji otočí po směru.',
+    A: 'A · v pohybu: sprite se mění přímo v pohybovém kódu podle kláves. Nejkratší, ale animace občas nesedí (běh do zdi, pád z hrany) a sprite pádu nepoužije.',
+    B: 'B · End Step: pohyb zůstane, jak je, End Step se po něm podívá na výsledek a vybere sprite. Dobrá výchozí volba.',
+    C: 'C · stavy: End Step si v proměnné stav pamatuje, co postava dělá, a mění ho jen podle pravidel. Nejpřehlednější, když animací přibývá.'
+  };
+  // the form shows K; dependent fields are disabled when their feature is off
+  function syncForm() {
+    const N = K.names, H = K.has, an = K.anim;
+    $$('#konfigurator [data-par]').forEach(el => { el.value = K.P[el.dataset.par]; $('#' + el.id + 'V').textContent = String(+(+K.P[el.dataset.par]).toFixed(2)); });
+    $$('button', pre).forEach((b, i) => b.setAttribute('aria-pressed', Object.keys(K.P).every(k => K.P[k] === KF_PRESETS[i][1][k])));
+    $$('#konfigurator [data-opt]').forEach(el => el.checked = K[el.dataset.opt]);
+    $$('#konfigurator [data-has]').forEach(el => el.checked = K.has[el.dataset.has]);
+    $$('#konfigurator [data-name]').forEach(el => { if (el.getAttribute('aria-invalid') !== 'true' && document.activeElement !== el) el.value = N[el.dataset.name]; });
+    $$('#kfColl [data-val]').forEach(b => b.setAttribute('aria-pressed', b.dataset.val === K.coll));
+    $$('#kfTiles [data-val]').forEach(b => b.setAttribute('aria-pressed', (b.dataset.val === '1') === K.tiles));
+    $$('#kfAnim [data-val]').forEach(b => b.setAttribute('aria-pressed', b.dataset.val === an));
+    const dis = (sel, off) => $$(sel).forEach(el => el.disabled = off);
+    dis('#konfigurator [data-opt="drop"]', !K.ow);
+    dis('#konfigurator [data-name="ow"]', !K.ow);
+    dis('#konfigurator [data-name="coin"]', !K.coins);
+    dis('#konfigurator [data-name="death"]', !K.death);
+    dis('#konfigurator [data-name="sJump"]', !K.snd);
+    dis('#konfigurator [data-name="sCoin"]', !K.snd || !K.coins);
+    dis('#konfigurator [data-name="mask"]', !K.mask);
+    ['beh', 'skok', 'pad', 'dopad'].forEach(k => {
+      // approach A never uses the fall sprite, without animations only the idle one is used
+      const unused = an === 'none' || (an === 'A' && k === 'pad');
+      dis(`#konfigurator [data-has="${k}"]`, unused);
+      dis(`#konfigurator [data-name="${k}"]`, unused || !H[k]);
+    });
+    dis('#konfigurator [data-opt="sync"]', an === 'none' || an === 'A' || !H.beh);
+    $('#konfigurator [data-name="wall"]').hidden = $('#kfWallL').hidden = K.tiles;
+    $('#konfigurator [data-name="layer"]').hidden = $('#kfLayerL').hidden = !K.tiles;
+    setTxt($('#kfCollNote'), (K.coll === 'while'
+      ? 'Přisouvání: na pixel přesné, každý řádek vidíš. Svahy neumí.'
+      : 'move_and_collide: hotová funkce GameMakeru. Po ní se k podlaze a stropu dotahuješ po 1 px (může nechat mezeru) a rychlosti nuluješ sám. Na svahy potřebuješ právě ji a svahu kolizní masku Precise nebo Rectangle with rotation.')
+      + (K.tiles ? ` Zdi jsou přímo dlaždice ve vrstvě „${N.layer}“, plošiny zůstávají objekty.` : ''));
+    setTxt($('#kfAnimNote'), ANOTE[an]);
+    // what a missing sprite is replaced with
+    const miss = [];
+    if (an !== 'none') {
+      if (!H.beh) miss.push(`Bez běhu zůstane při chůzi ${N.stoji}.`);
+      if (an !== 'A' && !H.pad && H.skok) miss.push(`Bez pádu se ve vzduchu ukazuje ${N.skok}.`);
+      if (an !== 'A' && !H.skok && H.pad) miss.push(`Bez skoku se ve vzduchu ukazuje ${N.pad}.`);
+      if (!H.skok && (!H.pad || an === 'A')) miss.push(`Ve vzduchu zůstane ${N.stoji}.`);
+      if (!K.mask) miss.push('Bez masky má každý sprite vlastní kolizní obdélník, postava se pak může zaseknout při změně animace.');
+    }
+    setTxt($('#kfSprNote'), miss.join(' '));
+    setHtml($('#kfNeed'), needs());
+  }
+  const code = s => `<code>${s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))}</code>`;
+  // checklist for the project, built from the same settings as the code
+  function needs() {
+    const N = K.names, H = K.has, an = K.anim, B = an === 'B' || an === 'C', dp = an !== 'none' && H.dopad;
+    const spr = an === 'none' ? ['stoji'] : ['stoji', 'beh', 'skok', 'pad', 'dopad'].filter(k => H[k] && !(an === 'A' && k === 'pad'));
+    const evs = ['Create', 'Step'].concat(B ? ['End Step'] : [], B && dp ? ['Animation End'] : [], K.coins ? ['Draw GUI'] : []);
+    const li = [];
+    li.push(`<b>Sprity</b> (origin <em>Bottom Centre</em>, všechny stejně velké): ${spr.map(k => code(N[k])).join(', ')}${K.mask ? `, maska ${code(N.mask)} (obdélník)` : ''}.`);
+    li.push(`<b>${code(N.player)}</b> se spritem ${code(N.stoji)} a událostmi ${evs.join(', ')}.`);
+    li.push(K.tiles ? `<b>Vrstva dlaždic</b> „${N.layer}“ v místnosti, kolize se testují přímo s ní.` : `<b>${code(N.wall)}</b>: pevný objekt, ve scéně jím postav zem a zdi.`);
+    if (K.ow) li.push(`<b>${code(N.ow)}</b>: plošina, sprite 32 × 12 s obdélníkovou maskou, bez kódu.`);
+    if (K.death) li.push(`<b>${code(N.death)}</b>: prázdný objekt bez spritu. Bodákům, slizounům a všemu smrtícímu ho nastav jako <em>Parent</em>.`);
+    if (K.coins) li.push(`<b>${code(N.coin)}</b> s událostí <em>Collision</em> s ${code(N.player)}.`);
+    if (K.snd) li.push(`<b>Zvuky</b>: ${code(N.sJump)}${K.coins ? ', ' + code(N.sCoin) : ''}.`);
+    return li.map(x => `<li>${x}</li>`).join('');
+  }
+  function changed(reset) { save(); syncForm(); if (reset) restartPreview(); }
+
+  gmlView('kfGml', () => ({ obj: K.names.player, fixed: true, ev: kfCode(K) }));
+
+  // ----- preview: the same rules as the code, drawn with the sprites from part 3 -----
+  const cv = $('#kfCv'), ctx = cv.getContext('2d');
+  const MAP = [
+    '......................',
+    '......................',
+    '...oo.............oo..',
+    '..====...........====.',
+    '.........oo...........',
+    '........====...###....',
+    '..oo...........###..o.',
+    '.====.......o..###....',
+    '.P.....^^......###.o..',
+    '######################'
+  ];
+  const wd = makeWorld(22, 10, 32), T = 32, W = wd.W, H = wd.H, h = makeHero();
+  const inp = makeInput(cv, $('#kfFocus'), 'Hraješ: ← → pohyb, mezerník skok, ↓ seskok');
+  let coins = [], got = 0, box = false, wasGround = true;
+  const ap = { dir: 1, t: 0, onPl: 0 };
+  $('#kfBox').addEventListener('change', e => box = e.target.checked);
+  // sprite shown for a wanted one, with the same fallbacks as kfCode
+  const real = k => {
+    const Hs = K.has;
+    if (K.anim === 'none') return 'stoji';
+    if (k === 'beh') return Hs.beh ? 'beh' : 'stoji';
+    if (k === 'skok') return Hs.skok ? 'skok' : Hs.pad && K.anim !== 'A' ? 'pad' : 'stoji';
+    if (k === 'pad') return Hs.pad ? 'pad' : Hs.skok ? 'skok' : 'stoji';
+    if (k === 'dopad') return Hs.dopad ? 'dopad' : 'stoji';
+    return 'stoji';
+  };
+  function restartPreview() {
+    wd.ow = K.ow;
+    wd.load(MAP.map(r => r.replace(/o/g, K.coins ? 'o' : '.').replace(/\^/g, K.death ? '^' : '.')));
+    respawn();
+  }
+  function respawn() {
+    const [sx, sy] = wd.startXY();
+    Object.assign(h, { x: sx, y: sy, hsp: 0, vsp: 0, xs: 1, spr: 'stoji', idx: 0, ispd: 1, stav: 'stoji', ground: true, byl: true, dopadF: false });
+    coins = []; got = 0; ap.dir = 1;
     wd.cells.forEach((r, j) => r.forEach((ch, i) => { if (ch === 'o') coins.push({ x: i * T, y: j * T, taken: false }); }));
   }
-  const pickTool = segGroup('#wsTools', 't', t => tool = t);
-  const setMode = segGroup('#wsModes', 'm', m => {
-    mode = m;
-    $$('#wsTools .btn').forEach(b => b.disabled = m === 'play');
-    cv.style.cursor = m === 'edit' ? 'crosshair' : 'default';
-    setTxt($('#wsHint'), m === 'edit' ? 'Kresli myší, pak přepni na Hrát' : 'Klikni do hry a hraj, Kreslit tě vrátí do editoru');
-    if (m === 'play') { startPlay(); cv.focus({ preventScroll: true }); }
-  });
-  pickTool('zem'); setMode('edit');
-  $('#wsGrid').addEventListener('change', e => OPT.grid = e.target.checked);
-  $('#wsReach').addEventListener('change', e => OPT.reach = e.target.checked);
-  $('#wsBox').addEventListener('change', e => OPT.box = e.target.checked);
-  $('#wsSnd').addEventListener('change', e => soundOn = e.target.checked);
-  $('#wsDefault').onclick = () => { wd.load(DEMO); save(); if (mode === 'play') startPlay(); };
-  $('#wsClear').onclick = () => { wd.load(EMPTY); save(); if (mode === 'play') startPlay(); };
-
-  function apply(i, j) {
-    if (i < 0 || i >= 30 || j < 0 || j >= 12) return;
-    if (tool === 'start') { wd.start = [i, j]; wd.cells[j][i] = '.'; }
-    else {
-      const ch = { zem: '#', plosina: '=', mince: 'o', guma: '.' }[tool];
-      if (wd.cells[j][i] === ch) return;
-      wd.cells[j][i] = ch;
-    }
-    wd.dirty = true; save();
+  // approach A: sprite_index set inside the movement code
+  const HOOK = {
+    dir(d) { if (K.has.beh) h.spr = 'beh'; if (K.flip) h.xs = d; },
+    idle() { h.spr = 'stoji'; },
+    jump() { if (K.has.skok) h.spr = 'skok'; },
+    land() { if (K.has.dopad) h.spr = 'dopad'; }
+  };
+  // if (sprite_index != novy) { sprite_index = novy; image_index = 0; }  compared by the sprite really shown
+  const show = k => { if (real(h.spr) !== real(k)) h.idx = 0; h.spr = k; };
+  function endStep() {
+    const P = K.P, g = h.ground, dp = K.has.dopad, an = K.anim;
+    if (an === 'B') {
+      if (dp) { if (g && !h.byl) h.dopadF = true; if (!g || h.hsp !== 0) h.dopadF = false; h.byl = g; }
+      let novy = 'stoji'; h.ispd = 1;
+      if (!g) novy = h.vsp < 0 ? 'skok' : 'pad';
+      else if (dp && h.dopadF) novy = 'dopad';
+      else if (h.hsp !== 0 && K.has.beh) { novy = 'beh'; if (K.sync) h.ispd = Math.abs(h.hsp) / P.max; }
+      show(novy);
+    } else if (an === 'C') {
+      const before = real(h.spr), idx = h.idx;
+      endStepC(h, P, dp);
+      if (real(h.spr) === before) h.idx = idx;
+      h.ispd = K.sync && K.has.beh && h.stav === 'bezi' ? Math.abs(h.hsp) / P.max : 1;
+    } else if (an === 'none') { h.spr = 'stoji'; h.ispd = 1; }
+    if (an !== 'A') h.xs = K.flip && h.hsp !== 0 ? Math.sign(h.hsp) : (K.flip ? h.xs : 1);
   }
-  cv.addEventListener('pointerdown', e => {
-    if (mode !== 'edit') return;
-    const [x, y] = canvasPos(cv, e);
-    painting = true; try { cv.setPointerCapture(e.pointerId); } catch (_) {}
-    apply(Math.floor(x / T), Math.floor(y / T)); e.preventDefault();
-  });
-  cv.addEventListener('pointermove', e => {
-    const [x, y] = canvasPos(cv, e), i = Math.floor(x / T), j = Math.floor(y / T);
-    hover = i >= 0 && i < 30 && j >= 0 && j < 12 ? [i, j] : null;
-    if (painting && hover && tool !== 'start') apply(i, j);
-  });
-  const stop = () => painting = false;
-  cv.addEventListener('pointerup', stop); cv.addEventListener('pointercancel', stop);
-  cv.addEventListener('pointerleave', () => { if (!painting) hover = null; });
-  const ARC = jumpArc(DEFP, 96);
+  restartPreview();
 
   widgets.push({
     step() {
-      if (mode !== 'play') return;
-      const c = inp.ctl();
-      if (physicsStep(h, wd, c, DEFP)) beep('jump');
-      endStepC(h, DEFP);
-      if (advanceAnim(h)) animEndC(h);
-      if (h.ground && !wasGround && h.stav === 'dopad') beep('land');
+      let c;
+      if (inp.active()) c = inp.ctl();
+      else {
+        // autopilot: walks, turns at walls, jumps over spikes and now and then, drops off planks after a while
+        inp.consume();
+        if (wd.meetWall(h.x + ap.dir * 3, h.y, h.w, h.h) && wd.meetWall(h.x + ap.dir * 3, h.y - 40, h.w, h.h)) ap.dir = -ap.dir;
+        ap.t++;
+        const onPl = h.ground && !wd.meetWall(h.x, h.y + 1, h.w, h.h);
+        ap.onPl = onPl ? ap.onPl + 1 : 0;
+        const spikes = wd.meetDeath(h.x + ap.dir * 34, h.y + 6, h.w, h.h);
+        const wallAhead = wd.meetWall(h.x + ap.dir * 20, h.y, h.w, h.h);
+        c = { dir: ap.dir, pressed: h.ground && (spikes || wallAhead || ap.t % 90 === 0), released: false, down: ap.onPl > 70 };
+      }
+      if (!K.short) c.released = false;
+      if (!(K.ow && K.drop)) c.down = false;
+      if (K.anim === 'A') h.ispd = 1;
+      if (physicsStep(h, wd, c, K.P, K.anim === 'A' ? HOOK : null, K.coll, K.tiles) && K.snd) beep('jump');
+      endStep();
+      // image_index += FPS / 60 * image_speed, then Animation End
+      const S = SPR[real(h.spr)];
+      h.idx += S.fps / 60 * h.ispd;
+      if (h.idx >= S.img.length) {
+        h.idx %= S.img.length;
+        if (K.has.dopad && K.anim === 'B' && h.spr === 'dopad') h.dopadF = false;
+        if (K.has.dopad && K.anim === 'C') animEndC(h);
+      }
+      if (h.ground && !wasGround) beep('land');
       wasGround = h.ground;
-      for (const k of coins) if (!k.taken && h.x < k.x + 26 && h.x + h.w > k.x + 6 && h.y < k.y + 28 && h.y + h.h > k.y + 4) { k.taken = true; got++; beep('coin'); }
-      if (h.y > H + 64) respawn();
+      for (const k of coins) if (!k.taken && h.x < k.x + 26 && h.x + h.w > k.x + 6 && h.y < k.y + 28 && h.y + h.h > k.y + 4) { k.taken = true; got++; if (K.snd) beep('coin'); }
+      if ((K.death && wd.meetDeath(h.x, h.y, h.w, h.h)) || h.y > H + 64) respawn();
     },
     draw(t) {
       ctx.drawImage(wd.render(), 0, 0);
-      if (mode === 'edit') {
-        if (OPT.grid) {
-          ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1; ctx.beginPath();
-          for (let x = 0; x <= W; x += T) { ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); }
-          for (let y = 0; y <= H; y += T) { ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); }
-          ctx.stroke();
-        }
-        wd.cells.forEach((r, j) => r.forEach((ch, i) => { if (ch === 'o') drawImg(ctx, cyc(IMG.coin, t + i * .05, 8), i * T, j * T, 32, 32); }));
-        const [sx, sy] = wd.startXY();
-        Object.assign(h, { x: sx, y: sy, xs: 1, spr: 'stoji', idx: Math.floor(t * 3) % 2 });
-        drawHero(ctx, h, .85);
-        label(ctx, 'start', sx - 6, sy - 8);
-        if (hover) {
-          const [i, j] = hover;
-          ctx.strokeStyle = '#1d2433'; ctx.lineWidth = 2; ctx.strokeRect(i * T + 1, j * T + 1, T - 2, T - 2);
-          const below = wd.at(i, j + 1), standable = wd.at(i, j) !== '#' && (below === '#' || below === '=');
-          if (OPT.reach && standable) {
-            const fx = i * T + T / 2, fy = (j + 1) * T;
-            ctx.fillStyle = 'rgba(16,20,28,.8)';
-            [-1, 1].forEach(d => ARC.forEach(([dx, dy], k) => { if (k % 2 === 0) { ctx.beginPath(); ctx.arc(fx + d * dx, fy + dy, 2.2, 0, 7); ctx.fill(); } }));
-          }
-        }
-      } else {
-        for (const k of coins) if (!k.taken) drawImg(ctx, cyc(IMG.coin, t + k.x * .001, 8), k.x, k.y, 32, 32);
-        drawHero(ctx, h);
-        if (OPT.box) {
-          ctx.strokeStyle = '#e03131'; ctx.lineWidth = 2; ctx.strokeRect(Math.round(h.x) + 1, Math.round(h.y) + 1, h.w - 2, h.h - 2);
-          ctx.strokeStyle = '#f08c00'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
-          wd.cells.forEach((r, j) => r.forEach((ch, i) => { if (ch === '=') ctx.strokeRect(i * T + .75, j * T + .75, T - 1.5, 10.5); }));
-          ctx.setLineDash([]);
-        }
-        ctx.fillStyle = 'rgba(16,20,28,.72)'; ctx.fillRect(12, 12, 170, 40);
-        drawImg(ctx, IMG.coin[0], 20, 16, 32, 32);
-        ctx.fillStyle = '#fff'; ctx.font = '700 24px "Pixelify Sans", monospace'; ctx.fillText(`${got} / ${coins.length}`, 60, 41);
-        label(ctx, `stav: ${h.stav}`, W - 150, 30);
-        if (coins.length && got === coins.length) { ctx.fillStyle = 'rgba(16,20,28,.72)'; ctx.fillRect(W / 2 - 200, H / 2 - 36, 400, 72); ctx.fillStyle = '#f7c948'; ctx.textAlign = 'center'; ctx.fillText('Všechny mince sebrány!', W / 2, H / 2 + 8); ctx.textAlign = 'start'; }
+      for (const k of coins) if (!k.taken) drawImg(ctx, cyc(IMG.coin, t + k.x * .001, 8), k.x, k.y, 32, 32);
+      const S = SPR[real(h.spr)];
+      drawImg(ctx, S.img[Math.floor(h.idx) % S.img.length], Math.round(h.x - 5), Math.round(h.y - 2), 32, 40, h.xs < 0);
+      if (box) {
+        ctx.strokeStyle = '#e03131'; ctx.lineWidth = 2; ctx.strokeRect(Math.round(h.x) + 1, Math.round(h.y) + 1, h.w - 2, h.h - 2);
+        ctx.strokeStyle = K.ow ? '#f08c00' : '#e03131'; ctx.setLineDash(K.ow ? [4, 3] : []); ctx.lineWidth = 1.5;
+        wd.cells.forEach((r, j) => r.forEach((ch, i) => { if (ch === '=') ctx.strokeRect(i * T + .75, j * T + .75, T - 1.5, 10.5); }));
+        ctx.setLineDash([]);
       }
-      let nTiles = 0, nPl = 0, nCoins = 0;
-      wd.cells.forEach(r => r.forEach(ch => { if (ch === '#') nTiles++; else if (ch === '=') nPl++; else if (ch === 'o') nCoins++; }));
-      setTxt($('#wsStats'), `${nTiles} dlaždic zeminy, ${nPl} plošin, ${nCoins} mincí`);
-      setTxt($('#wsStav'), mode === 'play' ? `stav: ${h.stav}` : 'editor');
-      setTxt($('#wsCoins'), mode === 'play' ? `mince ${got}/${coins.length}` : `mince ${nCoins}`);
-      $('#wsCoins').classList.toggle('on', mode === 'play' && coins.length > 0 && got === coins.length);
+      if (K.coins) { ctx.font = '700 18px "Pixelify Sans", monospace'; ctx.fillStyle = '#1d2433'; ctx.fillText('Mince: ' + got, 16, 30); }
+      const name = K.names[real(h.spr)];
+      setTxt($('#kfSpr'), K.anim === 'C' ? `stav: ${h.stav} · ${name}` : name);
+      setTxt($('#kfCoins'), K.coins ? `mince ${got}/${coins.length}` : 'bez mincí');
     }
   });
-  gmlView('wsGml', () => ({ obj: 'o_player', fixed: true, ev: hracCode({ step: 6, mode: 'C', ow: true, dopad: true }) }));
+  syncForm();
 })();
+
 
 /* =========================================================
    QUIZ
@@ -5044,6 +6062,91 @@ requestAnimationFrame(loop);
 })();
 
 startGml();
+
+/* ---------- side tree: the parts and their steps, where you are and what you have been through ---------- */
+(function sideTree() {
+  const side = $('#side'), btn = $('#sideBtn'), back = $('#sideBack');
+  // built from the top bar so both stay in sync: a .toc-part link starts a group
+  const groups = [];
+  $$('.toc a').forEach(a => {
+    const id = a.getAttribute('href').slice(1);
+    if (a.classList.contains('toc-part')) {
+      const no = a.querySelector('b');
+      groups.push({ id, no: no ? no.textContent : '', name: no ? a.textContent.slice(no.textContent.length) : a.textContent, items: [] });
+    } else groups[groups.length - 1].items.push({ id, name: a.textContent.trim(), k: a.className });
+  });
+  // a group without steps (Slovníček) is only a link, nothing to tick
+  const items = groups.flatMap(g => g.items.map(it => Object.assign(it, { g, el: document.getElementById(it.id) }))).filter(it => it.el);
+  let seen = new Set();
+  try { seen = new Set(JSON.parse(store.get('toc-seen') || '[]')); } catch (e) {}
+
+  side.innerHTML = '<div class="side-top"><button class="side-x" type="button" aria-label="Zavřít obsah">✕</button><b>Obsah</b><span class="side-sum" id="sideSum"></span><span class="bar"><i id="sideBar"></i></span></div>'
+    + groups.map((g, gi) => {
+      const solo = !g.items.length;
+      return `<div class="side-part" data-g="${gi}"><a class="side-ph" href="#${g.id}"><span class="no">${g.no || '·'}</span><span class="nm">${g.name}</span><span class="ct"></span>${solo ? '' : '<span class="bar"><i></i></span>'}</a>`
+        + (solo ? '' : `<ul>${g.items.map(it => `<li><button class="st" type="button" data-id="${it.id}" aria-pressed="false" aria-label="Hotovo: ${it.name}" title="Odškrtni, až to máš hotové"></button><a href="#${it.id}" class="${it.k}" data-id="${it.id}">${it.name}</a></li>`).join('')}</ul>`) + '</div>';
+    }).join('')
+    + '<div class="side-foot"><span>Hotové kroky si odškrtávej sám, pamatuje si je tenhle prohlížeč.</span><button type="button" id="sideReset">Zrušit všechny fajfky</button></div>';
+  const links = new Map($$('li a', side).map(a => [a.dataset.id, a]));
+  // the check mark only marks the step as done, it does not scroll anywhere; the name is the link
+  $$('li .st', side).forEach(b => b.addEventListener('click', () => {
+    const id = b.dataset.id;
+    if (seen.has(id)) seen.delete(id); else seen.add(id);
+    store.set('toc-seen', JSON.stringify([...seen])); last = ''; update();
+  }));
+
+  function open(on) {
+    side.classList.toggle('open', on); back.hidden = !on; btn.setAttribute('aria-expanded', on);
+    if (on) { const a = $('li a.on', side); if (a) a.scrollIntoView({ block: 'center' }); $('.side-x', side).focus(); }
+  }
+  btn.addEventListener('click', () => open(true));
+  back.addEventListener('click', () => open(false));
+  $('.side-x', side).addEventListener('click', () => { open(false); btn.focus(); });
+  side.addEventListener('click', e => { if (e.target.closest('a') && side.classList.contains('open')) open(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && side.classList.contains('open')) { open(false); btn.focus(); } });
+  $('#sideReset').addEventListener('click', () => { seen.clear(); store.set('toc-seen', '[]'); last = ''; update(); });
+
+  let last = '';
+  function update() {
+    const H = innerHeight;
+    // current = the last step whose top is above 40 % of the screen
+    let cur = null;
+    for (const it of items) if (it.el.getBoundingClientRect().top <= H * .4) cur = it;
+    const sig = (cur ? cur.id : '') + '|' + seen.size;
+    if (sig === last) return;
+    last = sig;
+    links.forEach((a, id) => {
+      const on = !!cur && cur.id === id;
+      a.classList.toggle('on', on); a.parentNode.classList.toggle('done', seen.has(id));
+      $('.st', a.parentNode).setAttribute('aria-pressed', seen.has(id));
+      if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+    groups.forEach((g, gi) => {
+      const box = $(`.side-part[data-g="${gi}"]`, side), n = g.items.filter(it => seen.has(it.id)).length;
+      box.classList.toggle('cur', !!cur && cur.g === g);
+      if (!g.items.length) return;
+      box.classList.toggle('done', n === g.items.length);
+      $('.ct', box).textContent = g.items.length > 1 ? `${n}/${g.items.length}` : '';
+      const b = $('.bar i', box); if (b) b.style.width = (100 * n / g.items.length) + '%';
+    });
+    const n = items.filter(it => seen.has(it.id)).length, pct = Math.round(100 * n / items.length);
+    $('#sideSum').textContent = n === items.length ? 'Všechno hotové. Hurá!' : `Hotovo ${n} z ${items.length} kroků, zbývá ${items.length - n}.`;
+    $('#sideBar').style.width = pct + '%';
+    $('.bar i', btn).style.width = pct + '%';
+    btn.setAttribute('aria-label', `Obsah, hotovo ${pct} %`);
+    // keep the current step visible in the fixed side bar
+    const a = cur && links.get(cur.id);
+    if (a && getComputedStyle(side).position === 'fixed' && !side.classList.contains('open')) {
+      const r = a.getBoundingClientRect(), sr = side.getBoundingClientRect();
+      if (r.top < sr.top + 80 || r.bottom > sr.bottom - 40) side.scrollTop += r.top - sr.top - sr.height / 2;
+    }
+  }
+  let queued = false;
+  const onScroll = () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; update(); }); } };
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll);
+  update();
+})();
 
 /* ---------- toc highlight ---------- */
 (function toc() {
