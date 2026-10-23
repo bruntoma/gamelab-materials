@@ -8,3 +8,20 @@ Potřebné assety jsou vždy ve složce Materialy, ale pokud chcete, můžete po
 - Materialy/Improvizace: další volně licencované grafiky, hudba a zvuky pro vlastní nápady.
 
 Obsah je dostupný online na adrese https://bruntoma.github.io/gamelab-materials/
+
+
+if (!instance_exists(gameManager)) {
+    instance_create_layer(0, 0, "Instances", gameManager);
+}
+
+if (gameManager.playerReturning == true)
+{
+	x = o_returnPoint.x
+	y = o_returnPoint.y
+	gameManager.playerReturning = false
+}
+else
+{
+	x = o_spawnPoint.x
+	y = o_spawnPoint.y
+}
