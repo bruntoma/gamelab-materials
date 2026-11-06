@@ -1,0 +1,36 @@
+var fx = camera_get_view_x(view_camera[0]);
+var fy = camera_get_view_y(view_camera[0]);
+
+layer_x("Backgrounds_6", fx * 1.1);
+layer_x("Backgrounds_5", fx * 0.8);
+layer_x("Backgrounds_4", fx * 0.7);
+layer_x("Backgrounds_3", fx * 0.6);
+layer_x("Backgrounds_2", fx * 0.5);
+layer_x("Backgrounds_1", fx * 0.4);
+
+layer_y("Backgrounds_6", fy * 0.6);
+layer_y("Backgrounds_5", fy * 0.5);
+layer_y("Backgrounds_4", fy * 0.4);
+layer_y("Backgrounds_3", fy * 0.3);
+layer_y("Backgrounds_2", fy * 0.2);
+layer_y("Backgrounds_1", fy * 0.1);
+
+
+//var fx = o_player.x;
+//var fy = o_player.y;
+
+//layer_x("Backgrounds_6", fx * -0.1);
+//layer_x("Backgrounds_5", fx * -0.2);
+//layer_x("Backgrounds_4", fx * -0.3);
+//layer_x("Backgrounds_3", fx * -0.4);
+//layer_x("Backgrounds_2", fx * -0.5);
+//layer_x("Backgrounds_1", fx * -0.6);
+
+
+//layer_y("Backgrounds_6", fy * -0.1);
+//layer_y("Backgrounds_5", fy * -0.2);
+//layer_y("Backgrounds_4", fy * -0.3);
+//layer_y("Backgrounds_3", fy * -0.4);
+//layer_y("Backgrounds_2", fy * -0.5);
+//layer_y("Backgrounds_1", fy * -0.6);
+
