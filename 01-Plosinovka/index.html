@@ -2316,6 +2316,7 @@ public class HracAnimace : MonoBehaviour {
             <span id="kfWallL">Objekt zdi</span><input type="text" data-name="wall" aria-labelledby="kfWallL" spellcheck="false">
             <span id="kfLayerL">Vrstva dlaždic</span><input type="text" data-name="layer" aria-labelledby="kfLayerL" spellcheck="false">
           </div>
+          <label class="ctl" id="kfUhelL"><span>Nejstrmější svah (max_uhel) <output id="kfUhelV"></output></span><input type="range" id="kfUhel" min="0" max="8" step="1"></label>
           <p class="cap" id="kfCollNote"></p>
         </div>
 
@@ -3802,8 +3803,13 @@ if (vsp < 0 && place_meeting(x, y + min(-1, vsp), o_wall)) {
     while (!place_meeting(x, y - 1, o_wall)) y -= 1;
     vsp = 0;
 }
+// po otočení u zdi může maska vězet ve zdi za zády: odstup od ní
+while (hsp != 0 && place_meeting(x - sign(hsp), y, o_wall)) {
+    x += sign(hsp);
+}
+// zeď, ne svah: překáží i o max_uhel px výš
 if (hsp != 0 && place_meeting(x + sign(hsp), y, o_wall)
-    && place_meeting(x + sign(hsp), y - 1, o_wall)) hsp = 0;        // narazil do zdi`;
+    && place_meeting(x + sign(hsp), y - max_uhel, o_wall)) hsp = 0;`;
 // plank snap before move_and_collide: x moves by hsp only afterwards, so the check looks at x + hsp
 const SNAP_MAC = `// polopropustná plošina zastaví jen pád shora
 // x se posune o hsp až v move_and_collide, proto kontroluj x + hsp
@@ -3924,7 +3930,7 @@ move_and_collide(hsp, vsp, o_wall, kroky, 0, 0, max_rychlost, -1);
 
 ${MAC_FIX}`;
   gmlView('svGml', () => ({ obj: 'o_player', ev: [
-    ['Create', [...GML.createAll('ctx', 'ctx'), ...(mac ? G('new', 'kroky = 4;                 // num_iterations pro move_and_collide') : [])]],
+    ['Create', [...GML.createAll('ctx', 'ctx'), ...(mac ? G('new', 'kroky = 4;                 // num_iterations pro move_and_collide\nmax_uhel = 3;   // nejstrmější svah: o kolik px stoupne na 1 px dopředu') : [])]],
     ['Step', [
       ...G('ctx', '// vodorovně'), ...GML.stepMove('ctx'), ...G('ctx', '\n// svisle'), ...GML.stepGrav('ctx'),
       ...G('new', 'var na_zemi = place_meeting(x, y + 1, o_wall);   // stojím na zdi nebo podlaze?'),
@@ -4016,7 +4022,8 @@ function heroStep(pl, c, R) {
     // move_and_collide leaves the speeds alone and may stop short of the surface: snap to it, then zero
     if (pl.vsp > 0 && mw(pl.x, pl.y + Math.max(1, pl.vsp))) { while (!mw(pl.x, pl.y + 1) && n++ < 64) pl.y += 1; pl.vsp = 0; }
     if (pl.vsp < 0 && mw(pl.x, pl.y + Math.min(-1, pl.vsp))) { while (!mw(pl.x, pl.y - 1) && n++ < 64) pl.y -= 1; pl.vsp = 0; }
-    if (pl.hsp !== 0 && mw(pl.x + sg(pl.hsp), pl.y) && mw(pl.x + sg(pl.hsp), pl.y - 1)) pl.hsp = 0;
+    n = 0; while (pl.hsp !== 0 && mw(pl.x - sg(pl.hsp), pl.y) && n++ < 64) pl.x += sg(pl.hsp);   // step away from the wall behind
+    if (pl.hsp !== 0 && mw(pl.x + sg(pl.hsp), pl.y) && mw(pl.x + sg(pl.hsp), pl.y - 3)) pl.hsp = 0;
   } else {
     if (mw(pl.x + pl.hsp, pl.y)) { while (!mw(pl.x + sg(pl.hsp), pl.y) && n++ < 64) pl.x += sg(pl.hsp); pl.hsp = 0; }
     pl.x += pl.hsp;
@@ -4042,7 +4049,7 @@ function drawGui(ctx, n) {
 // GML lines with a key, so the lab can light up what just ran
 const GK = (kind, key, src) => G(kind, src).map(l => [l[0], l[1], key]);
 // o_player Create after step 5 (move_and_collide also needs kroky)
-const createCtx = () => [...GML.createAll('ctx', 'ctx'), ...(COLL === 'mac' ? G('ctx', 'kroky = 4;                 // num_iterations pro move_and_collide') : [])];
+const createCtx = () => [...GML.createAll('ctx', 'ctx'), ...(COLL === 'mac' ? G('ctx', 'kroky = 4;                 // num_iterations pro move_and_collide\nmax_uhel = 3;   // nejstrmější svah: o kolik px stoupne na 1 px dopředu') : [])];
 // the o_player Step from steps 2–5 as folded context, for the current COLL;
 // ow adds the step 8 plank lines as new (keys 'drop' and 'snap' light up)
 function moveLines(ow) {
@@ -4444,7 +4451,8 @@ function litLines(el, keys) { $$('[data-k]', el).forEach(x => x.classList.toggle
         n = 0;
         if (pl.vsp > 0 && meetWall(pl.x, pl.y + Math.max(1, pl.vsp))) { while (!meetWall(pl.x, pl.y + 1) && n++ < 64) pl.y += 1; pl.vsp = 0; }
         if (pl.vsp < 0 && meetWall(pl.x, pl.y + Math.min(-1, pl.vsp))) { while (!meetWall(pl.x, pl.y - 1) && n++ < 64) pl.y -= 1; pl.vsp = 0; }
-        if (pl.hsp !== 0 && meetWall(pl.x + sgn(pl.hsp), pl.y) && meetWall(pl.x + sgn(pl.hsp), pl.y - 1)) pl.hsp = 0;
+        n = 0; while (pl.hsp !== 0 && meetWall(pl.x - sgn(pl.hsp), pl.y) && n++ < 64) pl.x += sgn(pl.hsp);   // step away from the wall behind
+        if (pl.hsp !== 0 && meetWall(pl.x + sgn(pl.hsp), pl.y) && meetWall(pl.x + sgn(pl.hsp), pl.y - 3)) pl.hsp = 0;
       }
       pl.ground = meetWall(pl.x, pl.y + 1) || onPlank();
       // o_coin · Collision s o_player
@@ -4490,7 +4498,7 @@ function litLines(el, keys) { $$('[data-k]', el).forEach(x => x.classList.toggle
     L.push(...G('', `max_rychlost = ${P.max};\nzrychleni = ${P.acc};\ntreni = ${P.fric};`));
     L.push(...G('', `gravitace = ${P.g};\nsila_skoku = ${P.j};\nmax_pad = ${P.cap};`));
     L.push(...G('', 'mince = 0;   // kolik mincí už mám'));
-    if (OPT.mode === 'mac') L.push(...G('opt', `kroky = ${STEPS};   // num_iterations pro move_and_collide`));
+    if (OPT.mode === 'mac') L.push(...G('opt', `kroky = ${STEPS};   // num_iterations pro move_and_collide\nmax_uhel = 3;   // nejstrmější svah: o kolik px stoupne na 1 px dopředu`));
     L.push(...(OPT.oneway
       ? G('opt', '\n// ve scéně: o_wall = pevné zdi,\n// o_oneway = polopropustné plošiny (sprite 32 × 12)')
       : G('', '\n// ve scéně: o_wall = všechny zdi i plošiny')));
@@ -4860,7 +4868,7 @@ const makeHero = () => ({ x: 0, y: 0, w: 22, h: 38, hsp: 0, vsp: 0, ground: fals
 
 // the Step event of o_player from part 2 (one-way planks; collisions as chosen in COLL, walls in TILES,
 // the configurator passes its own). hook = optional callbacks used only by approach A to change sprites mid-movement
-function physicsStep(h, wd, c, P, hook, coll = COLL, tiles = TILES) {
+function physicsStep(h, wd, c, P, hook, coll = COLL, tiles = TILES, uhel = 3) {
   const sg = Math.sign, mw = (x, y) => wd.meetWall(x, y, h.w, h.h), mp = (x, y) => wd.meetPlat(x, y, h.w, h.h);
   if (c.dir !== 0) { h.hsp = clamp(h.hsp + c.dir * P.acc, -P.max, P.max); if (hook) hook.dir(c.dir); }
   else { h.hsp = Math.max(Math.abs(h.hsp) - P.fric, 0) * sg(h.hsp); if (hook) hook.idle(); }
@@ -4869,14 +4877,15 @@ function physicsStep(h, wd, c, P, hook, coll = COLL, tiles = TILES) {
   const naZemi = mw(h.x, h.y + 1) || naPlosine;
   let jumped = false;
   if (naZemi && c.pressed) { h.vsp = -P.j; jumped = true; if (hook) hook.jump(); }
+  if (hook && !naZemi) hook.air(h.vsp);
   if (c.released && h.vsp < 0) h.vsp *= .5;
   if (naPlosine && c.down) h.y += 1;
   if (coll === 'mac') {
     // simplified move_and_collide: 4 sub-steps with a collision check after each;
     // a blocked sub-step slides along each axis separately, up to contact
     // with objects the plank snap runs first, at x + hsp where the move puts x; the tilemap alternative passes planks in an array
-    const withPlanks = tiles && h.vsp > 0 && !mp(h.x, h.y);
     let n = 0;
+    const withPlanks = tiles && h.vsp > 0 && !mp(h.x, h.y);
     if (!tiles && h.vsp > 0) {
       const hx = h.x + h.hsp;
       if (!mp(hx, h.y) && mp(hx, h.y + h.vsp)) { while (!mp(hx, h.y + 1) && n++ < 64) h.y += 1; if (hook && !naZemi) hook.land(); h.vsp = 0; }
@@ -4899,7 +4908,8 @@ function physicsStep(h, wd, c, P, hook, coll = COLL, tiles = TILES) {
     if (h.vsp > 0 && hit(h.x, h.y + Math.max(1, h.vsp))) { while (!hit(h.x, h.y + 1) && n++ < 64) h.y += 1; if (hook && !naZemi) hook.land(); h.vsp = 0; }
     if (h.vsp < 0 && mw(h.x, h.y + Math.min(-1, h.vsp))) { while (!mw(h.x, h.y - 1) && n++ < 64) h.y -= 1; h.vsp = 0; }
     const naPl = mp(h.x, h.y + 1) && !mp(h.x, h.y);
-    if (h.hsp !== 0 && mw(h.x + sg(h.hsp), h.y) && mw(h.x + sg(h.hsp), h.y - 1)) h.hsp = 0;
+    n = 0; while (h.hsp !== 0 && mw(h.x - sg(h.hsp), h.y) && n++ < 64) h.x += sg(h.hsp);   // step away from the wall behind
+    if (h.hsp !== 0 && mw(h.x + sg(h.hsp), h.y) && mw(h.x + sg(h.hsp), h.y - uhel)) h.hsp = 0;
     h.ground = mw(h.x, h.y + 1) || naPl;
     return jumped;
   }
@@ -4925,12 +4935,14 @@ function advanceAnim(h) {
 }
 // what the result of the movement says the sprite should be (approach B)
 const expectedSpr = h => !h.ground ? (h.vsp < 0 ? 'skok' : 'pad') : (h.hsp !== 0 ? 'beh' : 'stoji');
-// approach A: sprite_index set right in the movement code (physicsStep hook), mark = which code line ran
+// approach A: sprite_index set right in the movement code (physicsStep hook), mark = which code line ran;
+// the arrows run every frame, so they must not overwrite a landing that is still playing (Animation End ends it)
 const hookA = (h, dopad, mark = () => {}) => ({
-  dir(d) { h.spr = 'beh'; h.xs = d; mark('a-beh'); },
-  idle() { h.spr = 'stoji'; mark('a-stoji'); },
-  jump() { h.spr = 'skok'; mark('a-skok', 14); },
-  land() { if (dopad()) { h.spr = 'dopad'; mark('a-dopad', 14); } }
+  dir(d) { if (h.spr !== 'dopad') h.spr = 'beh'; h.xs = d; mark('a-beh'); },
+  idle() { if (h.spr !== 'dopad') h.spr = 'stoji'; mark('a-stoji'); },
+  jump() { h.spr = 'skok'; h.idx = 0; mark('a-skok', 14); },
+  air(v) { h.spr = v < 0 ? 'skok' : 'pad'; mark(v < 0 ? 'a-nahoru' : 'a-dolu'); },
+  land() { if (dopad()) { h.spr = 'dopad'; h.idx = 0; mark('a-dopad', 14); } }
 });
 // approach B: End Step looks at the result of the movement (h.byl = byl_na_zemi, h.dopadF = dopad)
 function endStepB(h, P, dopad, mark = () => {}) {
@@ -5399,7 +5411,7 @@ function hracCode(o) {
     L(`max_rychlost = ${P.max};`, { val: 1 }), L(`zrychleni = ${DEFP.acc};`), L(`treni = ${DEFP.fric};`),
     L(`gravitace = ${P.g};`, { val: 1 }), L(`sila_skoku = ${P.j};`, { val: 1 }), L(`max_pad = ${DEFP.cap};`),
     L('mince = 0;                              // kolik mincí už mám'),
-    ...(mac ? [L('kroky = 4;                              // num_iterations pro move_and_collide')] : []),
+    ...(mac ? [L('kroky = 4;                              // num_iterations pro move_and_collide'), L('max_uhel = 3;   // nejstrmější svah: o kolik px stoupne na 1 px dopředu')] : []),
     L('', { at: 1 }), L('sprite_index = s_player_idle;          // sprite z archu hrac_sheet.png', { at: 1 })
   ];
   if (tiles) cr.push(L('zem = layer_tilemap_get_id("Zem");      // vrstva dlaždic se jménem Zem', { at: 2 }));
@@ -5419,16 +5431,22 @@ function hracCode(o) {
     L('if (smer != 0) {'),
     L('    hsp = clamp(hsp + smer * zrychleni, -max_rychlost, max_rychlost);')
   ];
-  if (A) st.push(an('    sprite_index = s_player_run;', 'a-beh'), an('    image_xscale = smer;', 'a-beh'));
+  // the landing must not be overwritten by the arrows in the next frame
+  const nl = dp ? 'if (sprite_index != s_player_land) ' : '';
+  if (A) st.push(an(`    ${nl}sprite_index = s_player_run;`, 'a-beh'), an('    image_xscale = smer;', 'a-beh'));
   st.push(L('} else {'), L('    hsp = max(abs(hsp) - treni, 0) * sign(hsp);'));
-  if (A) st.push(an('    sprite_index = s_player_idle;', 'a-stoji'));
+  if (A) st.push(an(`    ${nl}sprite_index = s_player_idle;`, 'a-stoji'));
   st.push(L('}'), L(''), L('// gravitace a skok'), L('vsp = min(vsp + gravitace, max_pad);'));
   if (ow) st.push(L('var na_plosine = place_meeting(x, y + 1, o_oneway) && !place_meeting(x, y, o_oneway);', { ow }),
     L(`var na_zemi = place_meeting(x, y + 1, ${wall}) || na_plosine;`, { wall: 1, ow }));
   else st.push(L(`var na_zemi = place_meeting(x, y + 1, ${wall});`, { wall: 1 }));
   st.push(L('if (na_zemi && keyboard_check_pressed(vk_space)) {'), L('    vsp = -sila_skoku;'));
-  if (A) st.push(an('    sprite_index = s_player_jump;', 'a-skok'));
-  st.push(L('}'), L('if (keyboard_check_released(vk_space) && vsp < 0) vsp *= 0.5;   // krátký skok'));
+  if (A) st.push(an('    sprite_index = s_player_jump;', 'a-skok'), an('    image_index = 0;', 'a-skok'));
+  st.push(L('}'));
+  // the arrows above run every frame, also in the air: the air sprite has to win over them
+  if (A) st.push(an('// ve vzduchu přepiš běh / stání: nahoru skok, dolů pád'), an('if (!na_zemi) {'),
+    an('    if (vsp < 0) sprite_index = s_player_jump;', 'a-nahoru'), an('    else sprite_index = s_player_fall;', 'a-dolu'), an('}'));
+  st.push(L('if (keyboard_check_released(vk_space) && vsp < 0) vsp *= 0.5;   // krátký skok'));
   if (ow) st.push(L('if (na_plosine && keyboard_check(vk_down)) y += 1;   // seskok z plošiny', { ow }));
   st.push(L(''));
   // one-way plank: stops only a fall from above (while variant, and move_and_collide without arrays);
@@ -5439,7 +5457,7 @@ function hracCode(o) {
     if (mac) st.push(L('// x se posune o hsp až v move_and_collide, proto kontroluj x + hsp', { ow }));
     st.push(L(`if (vsp > 0 && !place_meeting(${X}, y, o_oneway) && place_meeting(${X}, y + vsp, o_oneway)) {`, { ow }),
       L(`    while (!place_meeting(${X}, y + 1, o_oneway)) y += 1;`, { ow }));
-    if (A && dp) st.push(an('    if (!na_zemi) sprite_index = s_player_land;', 'a-dopad', { dp }));
+    if (A && dp) st.push(an('    if (!na_zemi) {', 'a-dopad', { dp }), an('        sprite_index = s_player_land;', 'a-dopad', { dp }), an('        image_index = 0;', 'a-dopad', { dp }), an('    }', null, { dp }));
     st.push(L('    vsp = 0;', { ow }), L('}', { ow }));
   };
   if (mac) {
@@ -5456,19 +5474,20 @@ function hracCode(o) {
     // with objects the plank snap already zeroed vsp; the array variant snaps to the planks too
     const fl = ow && TILES ? 'prekazky' : wall, ff = ow && TILES ? { wall: 1, ow } : { wall: 1 };
     st.push(L(`if (vsp > 0 && place_meeting(x, y + max(1, vsp), ${fl})) {`, ff), L(`    while (!place_meeting(x, y + 1, ${fl})) y += 1;`, ff));
-    if (A && dp) st.push(an('    if (!na_zemi) sprite_index = s_player_land;', 'a-dopad', { dp }));
+    if (A && dp) st.push(an('    if (!na_zemi) {', 'a-dopad', { dp }), an('        sprite_index = s_player_land;', 'a-dopad', { dp }), an('        image_index = 0;', 'a-dopad', { dp }), an('    }', null, { dp }));
     st.push(L('    vsp = 0;'), L('}'),
       L(`if (vsp < 0 && place_meeting(x, y + min(-1, vsp), ${wall})) {`, { wall: 1 }), L(`    while (!place_meeting(x, y - 1, ${wall})) y -= 1;`, { wall: 1 }),
       L('    vsp = 0;'), L('}'));
     if (ow && TILES) st.push(L('na_plosine = place_meeting(x, y + 1, o_oneway) && !place_meeting(x, y, o_oneway);', { ow }));
-    st.push(L(`if (hsp != 0 && place_meeting(x + sign(hsp), y, ${wall}) && place_meeting(x + sign(hsp), y - 1, ${wall})) hsp = 0;`, { wall: 1 }));
+    st.push(L('// po otočení u zdi může maska vězet ve zdi za zády: odstup od ní'), L(`while (hsp != 0 && place_meeting(x - sign(hsp), y, ${wall})) {`, { wall: 1 }), L('    x += sign(hsp);'), L('}'),
+      L('// zeď, ne svah: překáží i o max_uhel px výš'), L(`if (hsp != 0 && place_meeting(x + sign(hsp), y, ${wall}) && place_meeting(x + sign(hsp), y - max_uhel, ${wall})) hsp = 0;`, { wall: 1 }));
   } else {
     st.push(L('// kolize vodorovně'), L(`if (place_meeting(x + hsp, y, ${wall})) {`, { wall: 1 }),
       L(`    while (!place_meeting(x + sign(hsp), y, ${wall})) x += sign(hsp);`, { wall: 1 }), L('    hsp = 0;'), L('}'), L('x += hsp;'), L(''));
     if (ow) { owSnap(); st.push(L('', { ow })); }
     st.push(L('// kolize svisle'), L(`if (place_meeting(x, y + vsp, ${wall})) {`, { wall: 1 }),
       L(`    while (!place_meeting(x, y + sign(vsp), ${wall})) y += sign(vsp);`, { wall: 1 }));
-    if (A && dp) st.push(an('    if (vsp > 0 && !na_zemi) sprite_index = s_player_land;', 'a-dopad', { dp }));
+    if (A && dp) st.push(an('    if (vsp > 0 && !na_zemi) {', 'a-dopad', { dp }), an('        sprite_index = s_player_land;', 'a-dopad', { dp }), an('        image_index = 0;', 'a-dopad', { dp }), an('    }', null, { dp }));
     st.push(L('    vsp = 0;'), L('}'), L('y += vsp;'));
   }
   st.push(L(''), L('// bodáky (a slizouni) mají parent o_death'), L('if (place_meeting(x, y, o_death)) room_restart();'));
@@ -5489,6 +5508,8 @@ function hracCode(o) {
     ev.push(['Collision s o_player', [L('other.mince += 1;                       // other = hráč'), L('audio_play_sound(snd_coin, 1, false);'), L('instance_destroy();                     // mince zmizí')], 'o_coin']);
     return ev;
   };
+  if (A && dp) ev.push(['Animation End', [L('// dopad se dohrál, šipky zase smí měnit sprite', { at: 5, dp }),
+    L('if (sprite_index == s_player_land) sprite_index = s_player_idle;', { at: 5, key: 'a-end', dp })]]);
   if (s < 5 || A) return rest();
 
   const E = (t, key, f = {}) => L(t, { at: 5, key, ...f });
@@ -5620,6 +5641,7 @@ function hracCode(o) {
       else if (OPT.mode === 'C') endStepCLab();
       // animation advance + Animation End
       if (advanceAnim(h) && OPT.dopad) {
+        if (OPT.mode === 'A' && h.spr === 'dopad') { h.spr = 'stoji'; mark('a-end', 24); }
         if (OPT.mode === 'B' && h.spr === 'dopad') { h.dopadF = false; mark('end', 24); }
         if (OPT.mode === 'C' && animEndC(h)) mark('end', 24);
       }
@@ -5647,7 +5669,7 @@ function hracCode(o) {
       setTxt($('#acBugs'), String(bugs));
       const m = $('#acMsg');
       if (msgT > 0) { setTxt(m, '✗ ' + msg); m.className = 'bug bad'; }
-      else if (OPT.mode === 'A') { setTxt(m, 'Zatím sedí. Sleduj pád z hrany, běh do zdi a skok.'); m.className = 'bug'; }
+      else if (OPT.mode === 'A') { setTxt(m, 'Zatím sedí. Sleduj běh do zdi a dobrzdění po puštění šipky.'); m.className = 'bug'; }
       else { setTxt(m, '✓ Animace odpovídá tomu, co postava opravdu dělá.'); m.className = 'bug ok'; }
       const node = OPT.mode === 'C' ? h.stav : SPR_STAV[h.spr];
       $$('#acDia [data-n]').forEach(g => g.classList.toggle('on', g.dataset.n === node));
@@ -5676,7 +5698,7 @@ function kfCode(K) {
   const cr = [];
   L(cr, '// pohyb', 'hsp = 0;', 'vsp = 0;', `max_rychlost = ${num(P.max)};`, `zrychleni = ${num(P.acc)};   // o kolik rychlost přibude za snímek`,
     `treni = ${num(P.fric)};   // o kolik ubude, když nic nedržíš`, `gravitace = ${num(P.g)};`, `sila_skoku = ${num(P.j)};`, `max_pad = ${num(P.cap)};   // max. rychlost pádu`);
-  if (mac) L(cr, 'kroky = 4;   // num_iterations pro move_and_collide');
+  if (mac) L(cr, 'kroky = 4;   // num_iterations pro move_and_collide', `max_uhel = ${K.uhel};   // nejstrmější svah: o kolik px stoupne na 1 px dopředu`);
   if (tiles) L(cr, `zem = layer_tilemap_get_id("${N.layer}");   // vrstva dlaždic`);
   if (K.coins) L(cr, 'mince = 0;   // kolik mincí už mám');
   L(cr, '', '// grafika', `sprite_index = ${N.stoji};`);
@@ -5694,17 +5716,25 @@ function kfCode(K) {
   const st = [];
   L(st, '// vstup a vodorovná rychlost', 'var smer = keyboard_check(vk_right) - keyboard_check(vk_left);', 'if (smer != 0) {',
     '    hsp = clamp(hsp + smer * zrychleni, -max_rychlost, max_rychlost);');
-  if (A && H.beh) L(st, `    sprite_index = ${N.beh};`);
+  // the landing must not be overwritten by the arrows in the next frame
+  const nl = dp ? `if (sprite_index != ${N.dopad}) ` : '';
+  if (A && H.beh) L(st, `    ${nl}sprite_index = ${N.beh};`);
   if (A && K.flip) L(st, '    image_xscale = smer;');
   L(st, '} else {', '    hsp = max(abs(hsp) - treni, 0) * sign(hsp);');
-  if (A) L(st, `    sprite_index = ${N.stoji};`);
+  if (A) L(st, `    ${nl}sprite_index = ${N.stoji};`);
   L(st, '}', '', '// gravitace a skok', 'vsp = min(vsp + gravitace, max_pad);');
   if (ow) L(st, `var na_plosine = place_meeting(x, y + 1, ${OW}) && !place_meeting(x, y, ${OW});`, `var na_zemi = place_meeting(x, y + 1, ${wall}) || na_plosine;`);
   else L(st, `var na_zemi = place_meeting(x, y + 1, ${wall});`);
   L(st, 'if (na_zemi && keyboard_check_pressed(vk_space)) {', '    vsp = -sila_skoku;');
   if (K.snd) L(st, `    audio_play_sound(${N.sJump}, 1, false);`);
-  if (A && H.skok) L(st, `    sprite_index = ${N.skok};`);
+  if (A && H.skok) L(st, `    sprite_index = ${N.skok};`, '    image_index = 0;');
   L(st, '}');
+  // the arrows above run every frame, also in the air: the air sprite has to win over them
+  if (A && (H.skok || H.pad)) {
+    if (S.skok !== S.pad) L(st, '// ve vzduchu přepiš běh / stání: nahoru skok, dolů pád', 'if (!na_zemi) {',
+      `    if (vsp < 0) sprite_index = ${S.skok};`, `    else sprite_index = ${S.pad};`, '}');
+    else L(st, '// ve vzduchu přepiš běh / stání', `if (!na_zemi) sprite_index = ${S.skok};   // jeden sprite pro skok i pád`);
+  }
   if (K.short) L(st, 'if (keyboard_check_released(vk_space) && vsp < 0) vsp *= 0.5;   // krátký skok');
   if (ow && K.drop) L(st, 'if (na_plosine && keyboard_check(vk_down)) y += 1;   // seskok z plošiny');
   L(st, '');
@@ -5717,7 +5747,7 @@ function kfCode(K) {
     if (mac) L(st, '// x se posune o hsp až v move_and_collide, proto kontroluj x + hsp');
     L(st, `if (vsp > 0 && !place_meeting(${X}, y, ${OW}) && place_meeting(${X}, y + vsp, ${OW})) {`,
       `    while (!place_meeting(${X}, y + 1, ${OW})) y += 1;`);
-    if (landA) L(st, `    if (!na_zemi) sprite_index = ${N.dopad};`);
+    if (landA) L(st, '    if (!na_zemi) {', `        sprite_index = ${N.dopad};`, '        image_index = 0;', '    }');
     L(st, '    vsp = 0;', '}');
   };
   if (mac) {
@@ -5729,21 +5759,23 @@ function kfCode(K) {
     // with a tilemap the planks in the array count as floor too
     const fl = ow && tiles ? 'prekazky' : wall;
     L(st, `if (vsp > 0 && place_meeting(x, y + max(1, vsp), ${fl})) {`, `    while (!place_meeting(x, y + 1, ${fl})) y += 1;`);
-    if (landA) L(st, `    if (!na_zemi) sprite_index = ${N.dopad};`);
+    if (landA) L(st, '    if (!na_zemi) {', `        sprite_index = ${N.dopad};`, '        image_index = 0;', '    }');
     L(st, '    vsp = 0;', '}',
       `if (vsp < 0 && place_meeting(x, y + min(-1, vsp), ${wall})) {`, `    while (!place_meeting(x, y - 1, ${wall})) y -= 1;`, '    vsp = 0;', '}');
     if (ow && tiles) L(st, `na_plosine = place_meeting(x, y + 1, ${OW}) && !place_meeting(x, y, ${OW});`);
-    L(st, `if (hsp != 0 && place_meeting(x + sign(hsp), y, ${wall}) && place_meeting(x + sign(hsp), y - 1, ${wall})) hsp = 0;`);
+    L(st, '// po otočení u zdi může maska vězet ve zdi za zády: odstup od ní', `while (hsp != 0 && place_meeting(x - sign(hsp), y, ${wall})) {`, '    x += sign(hsp);', '}',
+      '// zeď, ne svah: překáží i o max_uhel px výš', `if (hsp != 0 && place_meeting(x + sign(hsp), y, ${wall}) && place_meeting(x + sign(hsp), y - max_uhel, ${wall})) hsp = 0;`);
   } else {
     L(st, '// kolize vodorovně', `if (place_meeting(x + hsp, y, ${wall})) {`, `    while (!place_meeting(x + sign(hsp), y, ${wall})) x += sign(hsp);`, '    hsp = 0;', '}', 'x += hsp;', '');
     if (ow) { snap(); L(st, ''); }
     L(st, '// kolize svisle', `if (place_meeting(x, y + vsp, ${wall})) {`, `    while (!place_meeting(x, y + sign(vsp), ${wall})) y += sign(vsp);`);
-    if (landA) L(st, `    if (vsp > 0 && !na_zemi) sprite_index = ${N.dopad};`);
+    if (landA) L(st, '    if (vsp > 0 && !na_zemi) {', `        sprite_index = ${N.dopad};`, '        image_index = 0;', '    }');
     L(st, '    vsp = 0;', '}', 'y += vsp;');
   }
   if (K.death) L(st, '', `// všechno smrtící má parent ${N.death}`, `if (place_meeting(x, y, ${N.death})) room_restart();`);
   if (an === 'none' && K.flip) L(st, '', 'if (hsp != 0) image_xscale = sign(hsp);   // otoč se po směru');
   ev.push(['Step', st]);
+  if (landA) ev.push(['Animation End', [['// dopad se dohrál, šipky zase smí měnit sprite', ''], [`if (sprite_index == ${N.dopad}) sprite_index = ${N.stoji};`, '']]]);
 
   if (B || C) {
     const es = [], sync = K.sync && H.beh;
@@ -5796,7 +5828,7 @@ const KF_PRESETS = [
 ];
 const KF_DEF = {
   P: Object.assign({}, KF_PRESETS[0][1]), short: true,
-  coll: 'while', tiles: false,
+  coll: 'while', tiles: false, uhel: 3,
   ow: true, drop: true, coins: true, death: true, snd: false,
   anim: 'B', flip: true, sync: true, mask: true,
   has: { stoji: true, beh: true, skok: true, pad: true, dopad: false },
@@ -5815,6 +5847,7 @@ const KF_DEF = {
     if (o) {
       for (const k of ['short', 'tiles', 'ow', 'drop', 'coins', 'death', 'snd', 'flip', 'sync', 'mask']) if (typeof o[k] === 'boolean') K[k] = o[k];
       if (['while', 'mac'].includes(o.coll)) K.coll = o.coll;
+      if (isFinite(o.uhel)) K.uhel = clamp(Math.round(+o.uhel), 0, 8);
       if (['none', 'A', 'B', 'C'].includes(o.anim)) K.anim = o.anim;
       for (const k in K.P) if (o.P && isFinite(o.P[k])) K.P[k] = +o.P[k];
       for (const k in K.has) if (o.has && typeof o.has[k] === 'boolean') K.has[k] = o.has[k];
@@ -5842,6 +5875,7 @@ const KF_DEF = {
   }));
   const seg = (sel, set) => $$(`${sel} [data-val]`).forEach(b => b.addEventListener('click', () => { set(b.dataset.val); changed(true); }));
   seg('#kfColl', v => K.coll = v);
+  $('#kfUhel').addEventListener('input', e => { K.uhel = +e.target.value; changed(); });
   seg('#kfTiles', v => K.tiles = v === '1');
   seg('#kfAnim', v => K.anim = v);
   $('#kfReset').onclick = () => { K = clone(KF_DEF); $$('#konfigurator [data-name]').forEach(el => el.removeAttribute('aria-invalid')); changed(true); };
@@ -5852,7 +5886,7 @@ const KF_DEF = {
 
   const ANOTE = {
     none: 'Postava má jen jeden sprite. Kód se o animace nestará, nanejvýš ji otočí po směru.',
-    A: 'A · v pohybu: sprite se mění přímo v pohybovém kódu podle kláves. Nejkratší, ale animace občas nesedí (běh do zdi, pád z hrany) a sprite pádu nepoužije.',
+    A: 'A · v pohybu: sprite se mění přímo v pohybovém kódu podle kláves. Nejkratší, ale animace občas nesedí (běh do zdi, dobrzdění) a s každou další animací přibývají podmínky.',
     B: 'B · End Step: pohyb zůstane, jak je, End Step se po něm podívá na výsledek a vybere sprite. Dobrá výchozí volba.',
     C: 'C · stavy: End Step si v proměnné stav pamatuje, co postava dělá, a mění ho jen podle pravidel. Nejpřehlednější, když animací přibývá.'
   };
@@ -5865,6 +5899,7 @@ const KF_DEF = {
     $$('#konfigurator [data-has]').forEach(el => el.checked = K.has[el.dataset.has]);
     $$('#konfigurator [data-name]').forEach(el => { if (el.getAttribute('aria-invalid') !== 'true' && document.activeElement !== el) el.value = N[el.dataset.name]; });
     $$('#kfColl [data-val]').forEach(b => b.setAttribute('aria-pressed', b.dataset.val === K.coll));
+    $('#kfUhel').value = K.uhel; setTxt($('#kfUhelV'), `${K.uhel} px`); $('#kfUhelL').hidden = K.coll !== 'mac';
     $$('#kfTiles [data-val]').forEach(b => b.setAttribute('aria-pressed', (b.dataset.val === '1') === K.tiles));
     $$('#kfAnim [data-val]').forEach(b => b.setAttribute('aria-pressed', b.dataset.val === an));
     const dis = (sel, off) => $$(sel).forEach(el => el.disabled = off);
@@ -5876,8 +5911,8 @@ const KF_DEF = {
     dis('#konfigurator [data-name="sCoin"]', !K.snd || !K.coins);
     dis('#konfigurator [data-name="mask"]', !K.mask);
     ['beh', 'skok', 'pad', 'dopad'].forEach(k => {
-      // approach A never uses the fall sprite, without animations only the idle one is used
-      const unused = an === 'none' || (an === 'A' && k === 'pad');
+      // without animations only the idle one is used
+      const unused = an === 'none';
       dis(`#konfigurator [data-has="${k}"]`, unused);
       dis(`#konfigurator [data-name="${k}"]`, unused || !H[k]);
     });
@@ -5945,7 +5980,7 @@ const KF_DEF = {
     const Hs = K.has;
     if (K.anim === 'none') return 'stoji';
     if (k === 'beh') return Hs.beh ? 'beh' : 'stoji';
-    if (k === 'skok') return Hs.skok ? 'skok' : Hs.pad && K.anim !== 'A' ? 'pad' : 'stoji';
+    if (k === 'skok') return Hs.skok ? 'skok' : Hs.pad ? 'pad' : 'stoji';
     if (k === 'pad') return Hs.pad ? 'pad' : Hs.skok ? 'skok' : 'stoji';
     if (k === 'dopad') return Hs.dopad ? 'dopad' : 'stoji';
     return 'stoji';
@@ -5963,10 +5998,11 @@ const KF_DEF = {
   }
   // approach A: sprite_index set inside the movement code
   const HOOK = {
-    dir(d) { if (K.has.beh) h.spr = 'beh'; if (K.flip) h.xs = d; },
-    idle() { h.spr = 'stoji'; },
-    jump() { if (K.has.skok) h.spr = 'skok'; },
-    land() { if (K.has.dopad) h.spr = 'dopad'; }
+    dir(d) { if (K.has.beh && h.spr !== 'dopad') h.spr = 'beh'; if (K.flip) h.xs = d; },
+    idle() { if (h.spr !== 'dopad') h.spr = 'stoji'; },
+    jump() { if (K.has.skok) { h.spr = 'skok'; h.idx = 0; } },
+    air(v) { if (K.has.skok || K.has.pad) h.spr = v < 0 ? 'skok' : 'pad'; },
+    land() { if (K.has.dopad) { h.spr = 'dopad'; h.idx = 0; } }
   };
   // if (sprite_index != novy) { sprite_index = novy; image_index = 0; }  compared by the sprite really shown
   const show = k => { if (real(h.spr) !== real(k)) h.idx = 0; h.spr = k; };
@@ -6007,13 +6043,14 @@ const KF_DEF = {
       if (!K.short) c.released = false;
       if (!(K.ow && K.drop)) c.down = false;
       if (K.anim === 'A') h.ispd = 1;
-      if (physicsStep(h, wd, c, K.P, K.anim === 'A' ? HOOK : null, K.coll, K.tiles) && K.snd) beep('jump');
+      if (physicsStep(h, wd, c, K.P, K.anim === 'A' ? HOOK : null, K.coll, K.tiles, K.uhel) && K.snd) beep('jump');
       endStep();
       // image_index += FPS / 60 * image_speed, then Animation End
       const S = SPR[real(h.spr)];
       h.idx += S.fps / 60 * h.ispd;
       if (h.idx >= S.img.length) {
         h.idx %= S.img.length;
+        if (K.has.dopad && K.anim === 'A' && h.spr === 'dopad') h.spr = 'stoji';
         if (K.has.dopad && K.anim === 'B' && h.spr === 'dopad') h.dopadF = false;
         if (K.has.dopad && K.anim === 'C') animEndC(h);
       }
