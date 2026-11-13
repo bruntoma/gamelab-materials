@@ -41,3 +41,11 @@ Díl 3: Grafika a animace
                         1 až 16 autotiling trávníku, 17 kámen, 18 keř, 19 květiny
   bg_obloha.png         pozadí 960 × 384 (obloha s kopci)
   snd_land.wav          zvuk dopadu
+
+Díl 4: Propojený svět
+  s_door.png            dveře 32 × 48 pro o_door, origin Bottom Centre
+                        (stejný jako u hráče, ať stojí na podlaze)
+  s_key_green.png       zelený klíček 32 × 24 pro o_key_green
+  s_box_green.png       zamčená zelená bedna 32 × 32 pro o_box_green
+  Pro o_spawn_point a o_return_point stačí jakýkoli sprite (třeba s_player_mask),
+  instance mají vypnuté Visible.
