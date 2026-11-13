@@ -6,7 +6,7 @@
 
 /* Layout: one tutorial in three parts. One reading column on a 32px "room editor" grid; labs are editor windows. Each concept owns one colour, reused in its canvas overlays. */
 :root {
-  --c-asset: #5d6a80; --c-sprite: #c2255c; --c-object: #2b63d9; --c-instance: #0a8aa3; --c-room: #2b8a3e; --c-camera: #d27200; --mask: #e03131; --check-a: #e4e8ef; --check-b: #f6f8fb; --void: #222833; --c-vel: #0a8aa3; --c-acc: #7048e8; --c-grav: #c2255c; --c-fix: #d27200; --c-coin: #b07800; --c-death: #c92a2a;
+  --c-asset: #5d6a80; --c-sprite: #c2255c; --c-object: #2b63d9; --c-instance: #0a8aa3; --c-room: #2b8a3e; --c-camera: #d27200; --mask: #e03131; --check-a: #e4e8ef; --check-b: #f6f8fb; --void: #222833; --c-vel: #0a8aa3; --c-acc: #7048e8; --c-grav: #c2255c; --c-fix: #d27200; --c-coin: #b07800; --c-death: #c92a2a; --c-door: #a0522d; --c-key: #2f9e44; --c-timer: #1c7ed6; --c-save: #6741d9;
   --bg: #eef1f5;
   --bg-grid: rgba(40, 60, 110, .06);
   --surface: #ffffff;
@@ -48,7 +48,7 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-  --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b; --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-fix: #ffa94d; --c-coin: #ffd43b; --c-death: #ff6b6b;
+  --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b; --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-fix: #ffa94d; --c-coin: #ffd43b; --c-death: #ff6b6b; --c-door: #e8a87c; --c-key: #69db7c; --c-timer: #74c0fc; --c-save: #b197fc;
     --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
     --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
     --c-pos: #6e9dff; --c-sheet: #f06595; --c-tile: #ffa94d; --c-level: #5fd06f; --c-anim: #9775fa; --c-state: #3bc9db; --c-col: #ff6b6b;
@@ -56,7 +56,7 @@
   }
 }
 :root[data-theme="dark"] {
-  --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b; --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-fix: #ffa94d; --c-coin: #ffd43b; --c-death: #ff6b6b;
+  --c-asset: #a3adc0; --c-sprite: #f06595; --c-object: #6e9dff; --c-instance: #3bc9db; --c-room: #5fd06f; --c-camera: #ffa94d; --mask: #ff6b6b; --check-a: #222a35; --check-b: #2a3340; --void: #07090d; --c-vel: #3bc9db; --c-acc: #9775fa; --c-grav: #f06595; --c-fix: #ffa94d; --c-coin: #ffd43b; --c-death: #ff6b6b; --c-door: #e8a87c; --c-key: #69db7c; --c-timer: #74c0fc; --c-save: #b197fc;
   --bg: #10141a; --bg-grid: rgba(160, 185, 230, .045); --surface: #171d26; --surface-2: #1e2530;
   --ink: #e6eaf0; --muted: #9ba6b7; --line: #2a3341; --line-strong: #3b4656;
   --c-pos: #6e9dff; --c-sheet: #f06595; --c-tile: #ffa94d; --c-level: #5fd06f; --c-anim: #9775fa; --c-state: #3bc9db; --c-col: #ff6b6b;
@@ -297,6 +297,11 @@ footer { padding-block: 48px; color: var(--muted); font-size: var(--step--1); }
 .k-room { --kc: var(--c-room); }
 .k-coin { --kc: var(--c-coin); }
 .k-death { --kc: var(--c-death); }
+.k-door { --kc: var(--c-door); }
+.k-key { --kc: var(--c-key); }
+.k-timer { --kc: var(--c-timer); }
+.k-save { --kc: var(--c-save); }
+pre.savefile { min-height: 5.4em; padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .74rem; line-height: 1.5; }
 .parents { display: grid; gap: 6px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius); font-size: var(--step--1); }
 .parents b { font-family: var(--f-mono); }
 .parents .kid { display: flex; align-items: center; gap: 8px; padding-left: 18px; font-family: var(--f-mono); }
@@ -524,6 +529,15 @@ table.terms tr.grp th { font-family: var(--f-mono); font-size: .75rem; text-tran
     <a href="#ovladani" class="k-state"><span class="sq"></span>Ovládání animací</a>
     <a href="#kviz-3">Kvíz</a>
     <a href="#ukol-3">Úkol</a>
+    <a href="#dil-4" class="toc-part"><b>4</b>Propojený svět</a>
+    <a href="#dvere" class="k-door"><span class="sq"></span>Dveře</a>
+    <a href="#sebrane" class="k-coin"><span class="sq"></span>Sebrané věci</a>
+    <a href="#klic" class="k-key"><span class="sq"></span>Klíček a bedna</a>
+    <a href="#casovace" class="k-timer"><span class="sq"></span>Časovače</a>
+    <a href="#zpozdeni" class="k-timer"><span class="sq"></span>Zpoždění a trvání</a>
+    <a href="#ukladani" class="k-save"><span class="sq"></span>Ukládání</a>
+    <a href="#kviz-4">Kvíz</a>
+    <a href="#ukol-4">Úkol</a>
     <a href="#konfigurator" class="toc-part">Konfigurátor</a>
     <a href="#slovnicek" class="toc-part">Slovníček</a>
   </div>
@@ -535,14 +549,15 @@ table.terms tr.grp th { font-family: var(--f-mono); font-size: .75rem; text-tran
 
 <main class="wrap">
   <header class="hero" id="uvod">
-    <div class="eyebrow"><span>Herní dílna</span><span>GameMaker</span><span>3 díly</span></div>
+    <div class="eyebrow"><span>Herní dílna</span><span>GameMaker</span><span>4 díly</span></div>
     <h1>Postav si plošinovku</h1>
-    <p class="lead">Od prázdného projektu po plošinovku s dlaždicemi, polopropustnými plošinami a animovanou postavou. V každém dílu přidáš do stejného projektu další kus a v okně s kódem uvidíš, co přesně přibylo.</p>
+    <p class="lead">Od prázdného projektu po plošinovku s dlaždicemi, polopropustnými plošinami, animovanou postavou, několika místnostmi a uloženou hrou. V každém dílu přidáš do stejného projektu další kus a v okně s kódem uvidíš, co přesně přibylo.</p>
     <p class="lead">Ukázky jsou v GameMakeru, u každé najdeš i přepínač na Godot, Unity a Scratch. Šedé rámečky s nadpisem jako v editoru jsou interaktivní, zkus si všechno naklikat.</p>
     <div class="parts">
       <a class="part-card" href="#dil-1"><span class="part-no">Díl 1</span><b>Z čeho se skládá hra</b><span>Assety, sprity, objekty a instance, scéna a kamera. Založíš projekt a <code>o_player</code>.</span></a>
       <a class="part-card" href="#dil-2"><span class="part-no">Díl 2</span><b>Jak se věci hýbou</b><span>Rychlost, zrychlení, gravitace, skok a kolize se zdí. Hráč začne běhat a skákat.</span></a>
       <a class="part-card" href="#dil-3"><span class="part-no">Díl 3</span><b>Jak oživit svět</b><span>Spritesheet, dlaždice, level design a animace. Level dostane grafiku a postava pohyby.</span></a>
+      <a class="part-card" href="#dil-4"><span class="part-no">Díl 4</span><b>Jak propojit svět</b><span>Dveře mezi místnostmi, sebrané věci, klíček a bedna, časovače a ukládání hry.</span></a>
       <a class="part-card" href="#konfigurator"><span class="part-no">Nástroj</span><b>Konfigurátor</b><span>Naklikej si pohyb, kolize, plošiny, mince, smrt a animace s vlastními názvy spritů a zkopíruj hotový kód.</span></a>
     </div>
     <div class="rules">
@@ -560,7 +575,7 @@ table.terms tr.grp th { font-family: var(--f-mono); font-size: .75rem; text-tran
   <!-- ################################ DÍL 1 ################################ -->
   <div class="part" id="dil-1" data-part="1">
   <header class="part-head">
-    <div class="eyebrow"><span class="part-no">Díl 1 ze 3</span><span>Stavební kameny</span></div>
+    <div class="eyebrow"><span class="part-no">Díl 1 ze 4</span><span>Stavební kameny</span></div>
     <h2>Z čeho se skládá hra</h2>
     <p class="lead">Každá 2D hra, od Super Maria po Hollow Knight, stojí na stejných stavebních kamenech. Než začneme stavět, naučíme se, jak se jmenují a jak spolu souvisí.</p>
     <p class="lead">Na konci dílu budeš mít projekt se sprity, objektem <code>o_player</code> a první scénou s kamerou. Na tom pak stavíme dál.</p>
@@ -1045,7 +1060,7 @@ void LateUpdate() {
   <!-- ################################ DÍL 2 ################################ -->
   <div class="part" id="dil-2" data-part="2">
   <header class="part-head">
-    <div class="eyebrow"><span class="part-no">Díl 2 ze 3</span><span>Pohyb a kolize</span></div>
+    <div class="eyebrow"><span class="part-no">Díl 2 ze 4</span><span>Pohyb a kolize</span></div>
     <h2>Jak se věci hýbou</h2>
     <p class="lead">Hráč z dílu 1 zatím jen stojí. Aby běžel, skákal a nepropadl podlahou, potřebuje tři kousky: pohyb, gravitaci a kolize. Žádné kouzlo, jen pár řádků, které se opakují šedesátkrát za sekundu.</p>
     <p class="lead">Každý kousek si nejdřív vyzkoušíš samostatně a v okně s kódem uvidíš, jak se přidává do <code>o_player</code>. Na konci je všechno spojené na hřišti, kde si vyladíš, jak se postava ovládá.</p>
@@ -1777,7 +1792,7 @@ public class Hrac : MonoBehaviour {
   <!-- ################################ DÍL 3 ################################ -->
   <div class="part" id="dil-3" data-part="3">
   <header class="part-head">
-    <div class="eyebrow"><span class="part-no">Díl 3 ze 3</span><span>Grafika a animace</span></div>
+    <div class="eyebrow"><span class="part-no">Díl 3 ze 4</span><span>Grafika a animace</span></div>
     <h2>Jak oživit svět</h2>
     <p class="lead">Postava z dílu 2 už běhá a skáče, jenže pořád jen klouže v jedné póze po šedých kostkách. Teď z jednoho obrázku plného dlaždic postavíš celý level a z jednoho obrázku plného póz rozhýbeš postavu.</p>
     <p class="lead">Nejdůležitější část je v kroku 5: jak připojit animace k pohybovému kódu z dílu 2, aby se kód nezamotal. Pokračujeme se stejným <code>o_player</code>, jak ho máš z hřiště.</p>
@@ -2281,6 +2296,660 @@ public class HracAnimace : MonoBehaviour {
   </section>
   </div>
 
+  <!-- ################################ DÍL 4 ################################ -->
+  <div class="part" id="dil-4" data-part="4">
+  <header class="part-head">
+    <div class="eyebrow"><span class="part-no">Díl 4 ze 4</span><span>Propojený svět</span></div>
+    <h2>Jak propojit svět</h2>
+    <p class="lead">Jedna místnost je málo. V tomhle dílu propojíš místnosti dveřmi, naučíš hru pamatovat si, co jsi už sebral, zamkneš bednu na klíček a dáš jí odměnu, která po chvíli vyprší. Nakonec hru uložíš do souboru, aby si ji pamatovala i po vypnutí.</p>
+    <p class="lead">Všechno stojí na jednom novém objektu: <code>o_game</code>, správci hry, který přežije přechod mezi místnostmi a drží všechno, co se nesmí zapomenout.</p>
+    <div class="goals">
+      <a class="goal k-door" href="#dvere"><span class="sq"></span><b>Dveře</b><span>Přechod do jiné místnosti a zase zpátky na správné místo.</span></a>
+      <a class="goal k-coin" href="#sebrane"><span class="sq"></span><b>Paměť sebraných věcí</b><span>Mince se po návratu do místnosti neobjeví znovu.</span></a>
+      <a class="goal k-key" href="#klic"><span class="sq"></span><b>Klíček a bedna</b><span>Bednu sebereš, jen když máš správný klíček.</span></a>
+      <a class="goal k-timer" href="#casovace"><span class="sq"></span><b>Časovače</b><span>Počítání snímků a vestavěné alarmy. Odměna, která vyprší.</span></a>
+      <a class="goal k-save" href="#ukladani"><span class="sq"></span><b>Ukládání</b><span>Mince a sebrané věci do souboru a při startu zpátky.</span></a>
+    </div>
+  </header>
+
+
+  <!-- ================= 1 DVEŘE ================= -->
+  <section class="lesson k-door" id="dvere">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 1 · Dveře mezi místnostmi</div>
+      <h2>Dveře tam a zase zpátky</h2>
+    </div>
+    <div class="prose">
+      <p>Do jiné místnosti tě pošle jediný příkaz: <code>room_goto(rm_level2)</code>. GameMaker pak zničí všechny instance v aktuální místnosti a postaví novou místnost úplně od začátku, včetně nového hráče. To má dva důsledky, se kterými se musíme poprat:</p>
+      <ul>
+        <li><strong>Hráč v nové místnosti je nová instance.</strong> Jeho proměnné začínají znovu z Create, takže <code>mince</code> z dílu 2 by se při každém přechodu vynulovaly. Co si hra má pamatovat, musí bydlet jinde.</li>
+        <li><strong>Hráč musí vědět, kam se postavit.</strong> Když jdeš dveřmi dál, má se objevit na začátku nové místnosti. Když jdeš zpátky, má stát u dveří, kterými do ní původně odešel.</li>
+      </ul>
+      <p>Na první problém je <span class="term">persistentní objekt</span>. Vytvoř objekt <code>o_game</code> bez spritu a v Object Editoru zaškrtni <em>Persistent</em>. Jeho instance pak přechod mezi místnostmi přežije a s ní i všechny její proměnné. Dej ho do úplně první místnosti hry (menu nebo první level) a nikam jinam. Počet mincí se přestěhuje do něj: mince teď přičítají <code>o_game.mince</code> a nápis kreslí <em>Draw GUI</em> v <code>o_game</code>.</p>
+      <p>Na druhý problém stačí dva neviditelné body a jedna proměnná. Objekty <code>o_spawn_point</code> (kde začínáš, když přicházíš dopředu) a <code>o_return_point</code> (kde stojíš, když se vracíš) dostanou libovolný sprite, aby byly vidět v editoru, a vypnuté <em>Visible</em>. Origin jim dej stejný jako hráči, tedy <em>Bottom Centre</em>. Dveře řeknou správci hry, jestli jde hráč zpátky, a hráč se podle toho v Create postaví.</p>
+      <p>Dveře nepotřebují pro každou místnost zvláštní objekt. Stačí jeden <code>o_door</code> s <span class="term">Variable Definitions</span> (v Object Editoru tlačítko <em>Variable Definitions</em>, pak <em>Add</em>). To jsou proměnné, kterým můžeš nastavit hodnotu u každé instance v místnosti zvlášť: dvakrát klikni na dveře v Room Editoru a v okně <em>Variables</em> změň hodnotu tužkou.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="terms">
+        <thead><tr><th scope="col">Proměnná <code>o_door</code></th><th scope="col">Typ</th><th scope="col">Dveře v <code>rm_level1</code></th><th scope="col">Dveře v <code>rm_level2</code></th></tr></thead>
+        <tbody>
+          <tr><th scope="row"><code>cil</code></th><td>Asset, povolené jen <em>Room</em></td><td><code>rm_level2</code></td><td><code>rm_level1</code></td></tr>
+          <tr><th scope="row"><code>navrat</code></th><td>Boolean</td><td><code>false</code>, jde se dopředu</td><td><code>true</code>, jde se zpátky</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="lab k-door">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_level1 ⇄ rm_level2</span><span>o_door · o_game · o_player</span><span class="hint">Klikni do hry: ← → pohyb, mezerník skok. Bez kliknutí hraje autopilot.</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="dvCv" width="704" height="256" tabindex="0" aria-label="Dvě místnosti propojené dveřmi. Postava prochází tam a zpátky a objevuje se u bodu startu nebo návratu."></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="dvCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="dvFocus">Hraje autopilot</span>
+            </div>
+          </div>
+          <div class="panel">
+            <dl class="readout"><dt>room</dt><dd id="dvRoom"></dd><dt>o_game.navrat</dt><dd id="dvNav"></dd><dt>o_game.mince</dt><dd id="dvM"></dd><dt>o_player.mince</dt><dd id="dvPm"></dd><dt>příchod</dt><dd id="dvArr"></dd></dl>
+            <label class="chk"><input type="checkbox" id="dvPers" checked> o_game je Persistent</label>
+            <label class="chk"><input type="checkbox" id="dvBug"> o_return_point leží přímo na dveřích</label>
+            <label class="chk"><input type="checkbox" id="dvPts" checked> Ukázat neviditelné body</label>
+            <h4>Poslední události</h4>
+            <div class="evlog" id="dvLog"><div>zatím žádná</div></div>
+            <button class="btn" id="dvReset">game_restart()</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callouts">
+      <div class="callout k-door">
+        <div class="ic">2×</div>
+        <p><strong>Dvě počítadla mincí.</strong> Laboratoř počítá mince dvakrát: postaru v hráči (<code>o_player.mince</code>) a nově v <code>o_game.mince</code>. Hráčovo počítadlo se po každém průchodu dveřmi vynuluje, protože hráč je nová instance. To v <code>o_game</code> roste dál. Vypni <em>Persistent</em> a hra spadne hned v druhé místnosti: <code>o_game</code> tam neexistuje a hráč se ho v Create ptá na <code>navrat</code>.</p>
+      </div>
+      <div class="callout k-door">
+        <div class="ic">⇄</div>
+        <p><strong>Bod návratu vedle dveří, ne na nich.</strong> Když hráč přijde přímo na dveře, ve stejném snímku se jich dotkne a odejde zase pryč. Zaškrtni druhou volbu a zkus se vrátit do první místnosti.</p>
+      </div>
+      <div class="callout k-death">
+        <div class="ic">↺</div>
+        <p><strong>Smrt a návrat.</strong> <code>room_restart()</code> z dílu 2 vytvoří hráče znovu, ale <code>o_game.navrat</code> zůstane, jak bylo. Když umřeš v místnosti, do které ses vrátil, objevíš se u návratu. Většinou je to přesně to, co chceš.</p>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Nové jsou objekty <code>o_game</code> a <code>o_door</code> a začátek Create hráče. Mince z dílu 2 jen přičítají do <code>o_game</code> místo do hráče. Pohyb hráče se nemění, v okně je sbalený.</p>
+        <div class="gml" id="dvGml"></div>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Persistentní objekt je v Godotu <em>Autoload</em>: skript <code>game.gd</code> přidáš v <em>Project Settings → Globals</em> pod jménem <code>Game</code>. Dveře jsou <code>Area2D</code> s exportovanými proměnnými.</p>
+        <pre class="code"><code data-lang="gd"># game.gd (Autoload)
+extends Node
+var mince = 0
+var navrat = false
+
+# dvere.gd
+extends Area2D
+@export_file("*.tscn") var cil
+@export var navrat = false
+
+func _on_body_entered(body):
+    if body.name == "Hrac":
+        Game.navrat = navrat
+        get_tree().call_deferred("change_scene_to_file", cil)
+
+# hrac.gd
+func _ready():
+    var bod = "Navrat" if Game.navrat else "Start"
+    position = get_parent().get_node(bod).position</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Objekt, který přežije změnu scény, si zavolá <code>DontDestroyOnLoad</code>. Scény musí být v <em>File → Build Profiles</em> (dřív Build Settings).</p>
+        <pre class="code"><code data-lang="cs">public class Game : MonoBehaviour {
+    public static Game I;
+    public int mince;
+    public bool navrat;
+    void Awake() {
+        if (I != null) { Destroy(gameObject); return; }   // jen jeden
+        I = this;
+        DontDestroyOnLoad(gameObject);
+    }
+}
+
+public class Dvere : MonoBehaviour {
+    public string cil;          // jméno scény
+    public bool navrat;
+    void OnTriggerEnter2D(Collider2D other) {
+        if (!other.CompareTag("Player")) return;
+        Game.I.navrat = navrat;
+        SceneManager.LoadScene(cil);
+    }
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Scratch má jen jednu scénu. Místnosti jsou <em>pozadí</em> a postavy se podle nich ukazují a schovávají. Proměnné „pro všechny postavy“ přežijí samy.</p>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb co">opakuj stále</span><span class="sb co i1">pokud &lt;dotýkám se [Dveře]?&gt; tak</span><span class="sb lo i2">změň pozadí na [místnost 2]</span><span class="sb mo i2">skoč na x: (-200) y: (-120)</span><span class="sb co">když pozadí se změní na [místnost 2]</span><span class="sb lo i1">ukaž</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2 SEBRANÉ VĚCI ================= -->
+  <section class="lesson k-coin" id="sebrane">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 2 · Paměť sebraných věcí</div>
+      <h2>Co jednou sebereš, už se nevrátí</h2>
+    </div>
+    <div class="prose">
+      <p>Zkus to v laboratoři výš: seber mince v první místnosti, projdi dveřmi a vrať se. Mince jsou zpátky. Místnost se postavila znovu podle editoru a tam mince pořád jsou. Chodit sem a tam a sbírat donekonečna je sice zábava, ale ne hra.</p>
+      <p>Řešení: <code>o_game</code> si povede seznam všeho, co už hráč sebral. Každá mince si při vzniku sama zkontroluje, jestli v seznamu není, a pokud ano, hned se zničí. Hráč ji nikdy neuvidí.</p>
+      <ul>
+        <li><strong>Čím mince poznat?</strong> Každá instance má <code>id</code>, jedinečné číslo. Instance položené v Room Editoru dostanou <code>id</code> už při tvorbě místnosti a mají ho při každém vstupu stejné. Proto se hodí jako jméno mince. U instancí vytvořených kódem (<code>instance_create_layer</code>) to neplatí.</li>
+        <li><strong>Seznam</strong> je <code>ds_list</code>: <code>ds_list_create()</code> ho vytvoří, <code>ds_list_add(seznam, hodnota)</code> přidá na konec a <code>ds_list_find_index(seznam, hodnota)</code> vrátí pozici hodnoty, nebo <code>-1</code>, když tam není.</li>
+        <li><strong>Funguje pro všechno, co jde sebrat jednou:</strong> mince, klíčky, bedny, srdíčka. Stačí do Create a do Collision přidat stejné dva řádky. V dalším kroku je použijeme pro klíček a bednu.</li>
+      </ul>
+    </div>
+
+    <div class="lab k-coin">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_level1 ⇄ rm_level2</span><span>o_coin · o_game.sebrane</span><span class="hint">Seber mince, projdi dveřmi a vrať se. Bez kliknutí hraje autopilot.</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="sbCv" width="704" height="256" tabindex="0" aria-label="Dvě místnosti s mincemi. Se seznamem sebraných mincí se sebrané mince po návratu neobjeví."></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="sbCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="sbFocus">Hraje autopilot</span>
+            </div>
+          </div>
+          <div class="panel">
+            <label class="chk"><input type="checkbox" id="sbOn" checked> Seznam o_game.sebrane</label>
+            <dl class="readout"><dt>room</dt><dd id="sbRoom"></dd><dt>o_game.mince</dt><dd id="sbM"></dd><dt>mincí ve hře celkem</dt><dd id="sbAll"></dd><dt>ds_list_size</dt><dd id="sbN"></dd></dl>
+            <h4>o_game.sebrane</h4>
+            <div class="evlog" id="sbList"></div>
+            <h4>Poslední události</h4>
+            <div class="evlog" id="sbLog"><div>zatím žádná</div></div>
+            <button class="btn" id="sbReset">game_restart()</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout k-room">
+      <div class="ic">?</div>
+      <p><strong>Proč ne prostě <em>Persistent</em> u místnosti?</strong> Místnost s tímhle zaškrtnutím si opravdu pamatuje všechno, ale <em>všechno</em>: i hráče, nepřátele a jejich pozice. Po návratu by v ní zůstal starý hráč stát na dveřích. A hlavně: stav persistentní místnosti nejde jednoduše uložit do souboru. Se seznamem to v kroku 6 zvládneš třemi řádky.</p>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Seznam vzniká v Create <code>o_game</code>, takže je jen jeden a přežije s ním. Mince ho čte ve svém Create a zapisuje do něj v Collision. Řádky, které se zrovna provedly, svítí.</p>
+        <div class="gml" id="sbGml"></div>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Instance nemají stálé číslo, ale mají stálou cestu ve scéně. Jako jméno mince poslouží scéna plus jméno uzlu.</p>
+        <pre class="code"><code data-lang="gd"># game.gd (Autoload)
+var sebrane = []
+
+# mince.gd
+func klic():
+    return get_tree().current_scene.scene_file_path + ":" + name
+
+func _ready():
+    if klic() in Game.sebrane:
+        queue_free()
+
+func _on_body_entered(body):
+    Game.mince += 1
+    Game.sebrane.append(klic())
+    queue_free()</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Každá mince dostane v Inspectoru jedinečné jméno (třeba <code>L1_mince3</code>), seznam je <code>HashSet</code> v objektu <code>Game</code>.</p>
+        <pre class="code"><code data-lang="cs">public class Mince : MonoBehaviour {
+    public string klic;   // jedinečné, vyplníš v Inspectoru
+    void Start() {
+        if (Game.I.sebrane.Contains(klic)) Destroy(gameObject);
+    }
+    void OnTriggerEnter2D(Collider2D other) {
+        if (!other.CompareTag("Player")) return;
+        Game.I.mince++;
+        Game.I.sebrane.Add(klic);
+        Destroy(gameObject);
+    }
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Ve Scratchi se postavy mezi místnostmi neničí, jen schovávají. Stačí, aby se sebraná mince už neukázala: pamatuje si to proměnná „jen pro tuto postavu“.</p>
+        <div class="scratch"><span class="sb ev">když pozadí se změní na [místnost 1]</span><span class="sb co">pokud &lt;(sebraná) = (0)&gt; tak</span><span class="sb lo i1">ukaž</span><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb va">nastav [sebraná] na (0)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3 KLÍČEK A BEDNA ================= -->
+  <section class="lesson k-key" id="klic">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 3 · Podmíněné sbírání</div>
+      <h2>Zelená bedna jen se zeleným klíčkem</h2>
+    </div>
+    <div class="prose">
+      <p>Klíček se sbírá stejně jako mince, jen místo <code>mince</code> přičte <code>o_game.klice_zelene</code>. Bedna má v Collision navíc podmínku: otevře se, jen když je počet klíčků větší než nula. Jinak se nestane nic a bedna zůstane stát.</p>
+      <ul>
+        <li><strong>Klíček se spotřebuje.</strong> <code>o_game.klice_zelene -= 1</code>, jinak by jedním klíčkem šly otevřít všechny bedny.</li>
+        <li><strong>Bez klíčku dej hráči vědět proč.</strong> Bedna ve své události <em>Draw</em> nakreslí sebe (<code>draw_self()</code>) a nad sebe nápis, když se jí hráč dotýká a klíček nemá.</li>
+        <li><strong>Klíčky v rohu obrazovky.</strong> <em>Draw GUI</em> v <code>o_game</code> nakreslí sprite klíčku tolikrát, kolik jich máš, každý o kus vedle. Na to je cyklus <code>for</code>.</li>
+        <li><strong>Klíček i bedna jdou do seznamu sebraných</strong> stejně jako mince. Jinak bys mohl sbírat klíček pořád dokola a bedna by po návratu stála zase zamčená.</li>
+      </ul>
+      <p>Odměna v bedně: hráč dostane super skok. Zatím natrvalo, to v dalším kroku napravíme.</p>
+    </div>
+
+    <div class="lab k-key">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_level1</span><span>o_key_green · o_box_green</span><span class="hint">Zkus bednu bez klíčku, pak s ním. Bez kliknutí hraje autopilot.</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="klCv" width="704" height="256" tabindex="0" aria-label="Místnost s klíčkem a zamčenou bednou. Bednu jde otevřít, jen když má hráč klíček."></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="klCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="klFocus">Hraje autopilot</span>
+            </div>
+          </div>
+          <div class="panel">
+            <dl class="readout"><dt>o_game.klice_zelene</dt><dd id="klK"></dd><dt>o_player.sila_skoku</dt><dd id="klJ"></dd><dt>o_game.mince</dt><dd id="klM"></dd></dl>
+            <h4>Podmínka v o_box_green</h4>
+            <div class="evlog" id="klCond"></div>
+            <h4>Poslední události</h4>
+            <div class="evlog" id="klLog"><div>zatím žádná</div></div>
+            <button class="btn" id="klReset">room_restart()</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Klíček je kopie mince. Bedna má navíc podmínku a událost Draw. Kód seznamu z kroku 2 je u obou stejný.</p>
+        <div class="gml" id="klGml"></div>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <pre class="code"><code data-lang="gd"># bedna.gd (Area2D)
+func _on_body_entered(body):
+    if body.name != "Hrac":
+        return
+    if Game.klice_zelene > 0:
+        Game.klice_zelene -= 1
+        Game.sebrane.append(klic())
+        body.sila_skoku = 700
+        queue_free()
+    else:
+        $Napis.visible = true   # Label „Zamčeno“
+
+func _on_body_exited(body):
+    $Napis.visible = false</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <pre class="code"><code data-lang="cs">void OnTriggerEnter2D(Collider2D other) {
+    if (!other.CompareTag("Player")) return;
+    if (Game.I.kliceZelene > 0) {
+        Game.I.kliceZelene--;
+        Game.I.sebrane.Add(klic);
+        other.GetComponent&lt;Hrac&gt;().silaSkoku = 14f;
+        Destroy(gameObject);
+    } else {
+        napis.SetActive(true);   // „Zamčeno“
+    }
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <div class="scratch"><span class="sb ev">když kliknu na zelenou vlajku</span><span class="sb co">opakuj stále</span><span class="sb co i1">pokud &lt;dotýkám se [Hráč]?&gt; tak</span><span class="sb co i2">pokud &lt;(klíčky) &gt; (0)&gt; tak</span><span class="sb va i3">změň [klíčky] o (-1)</span><span class="sb va i3">nastav [síla skoku] na (14)</span><span class="sb lo i3">skryj</span><span class="sb co i2">jinak</span><span class="sb lo i3">bublina [Zamčeno] na (1) sekund</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4 ČASOVAČE ================= -->
+  <section class="lesson k-timer" id="casovace">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 4 · Časovače</div>
+      <h2>Čas se ve hře počítá ve snímcích</h2>
+    </div>
+    <div class="prose">
+      <p>Super skok natrvalo je moc. Chceme ho jen na 3 sekundy. Hra ale neumí „počkat 3 sekundy“ jako Scratch: kdyby se na 3 sekundy zastavil kód, zastavila by se celá hra. Místo toho si časovač v každém snímku jen o kousek posune a zkontroluje, jestli už je čas.</p>
+      <p>Hra běží 60 snímků za sekundu (zjistíš to přes <code>game_get_speed(gamespeed_fps)</code>), takže <strong>3 sekundy = 3 × 60 = 180 snímků</strong>. V GameMakeru máš dvě běžné cesty:</p>
+    </div>
+
+    <div class="ways">
+      <div class="way best">
+        <h3><span class="lt">A</span>Vlastní počítadlo</h3>
+        <p>Proměnná, třeba <code>boost</code>. Odměna do ní dá 180. Step ji každý snímek sníží o 1, a když dojde na nulu, vrátí sílu skoku. Nula znamená „časovač neběží“.</p>
+        <p class="tag">vidíš, kolik zbývá, dá se pozastavit, funguje všude</p>
+      </div>
+      <div class="way">
+        <h3><span class="lt">B</span>Vestavěný alarm</h3>
+        <p>Každá instance má 12 budíků <code>alarm[0]</code> až <code>alarm[11]</code>. Nastavíš <code>alarm[0] = 180</code> a GameMaker sám každý snímek odečte 1. Když dojde na 0, spustí událost <em>Alarm 0</em> a nastaví alarm na −1 (vypnuto).</p>
+        <p class="tag">méně kódu, ale pozor, komu alarm patří</p>
+      </div>
+    </div>
+
+    <div class="lab k-timer">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_level1</span><span>časovač super skoku</span><span class="hint">Seber klíček, otevři bednu a zkus vyskočit na římsu s mincí, než čas vyprší.</span></div>
+      <div class="lab-body">
+        <div class="opts">
+          <div class="panel">
+            <h4>Časovač</h4>
+            <div class="seg" role="group" aria-label="Způsob časovače" id="caModes">
+              <button class="btn" data-m="A" aria-pressed="true">A · počítadlo</button><button class="btn" data-m="B" aria-pressed="false">B · alarm v hráči</button><button class="btn" data-m="X" aria-pressed="false">✗ alarm v bedně</button>
+            </div>
+          </div>
+          <div class="panel">
+            <label class="ctl"><span>Trvání <output id="caDurV"></output></span><input type="range" id="caDur" min="60" max="600" step="30" value="180"></label>
+          </div>
+        </div>
+        <div class="split">
+          <div class="panel">
+            <canvas id="caCv" width="704" height="256" tabindex="0" aria-label="Místnost s bednou, která dává super skok na omezenou dobu. Nad hráčem je vidět, kolik snímků zbývá."></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="caCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="caFocus">Hraje autopilot</span>
+            </div>
+          </div>
+          <div class="panel">
+            <dl class="readout"><dt id="caVarL">o_player.boost</dt><dd id="caVar"></dd><dt>zbývá</dt><dd id="caSec"></dd><dt>o_player.sila_skoku</dt><dd id="caJ"></dd><dt>snímek hry</dt><dd id="caF"></dd></dl>
+            <p class="bug" id="caMsg"></p>
+            <h4>Poslední události</h4>
+            <div class="evlog" id="caLog"><div>zatím žádná</div></div>
+            <button class="btn" id="caReset">room_restart()</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callouts">
+      <div class="callout k-timer">
+        <div class="ic">✗</div>
+        <p><strong>Alarm patří instanci.</strong> Odpočítává se jen dokud instance žije. Bedna, která si nastaví <code>alarm[0]</code> a hned se zničí, svůj alarm nikdy nedočká a super skok zůstane navždy. Proto bedna nastaví alarm <em>hráči</em>: <code>other.alarm[0] = 180</code>.</p>
+      </div>
+      <div class="callout k-timer">
+        <div class="ic">∞</div>
+        <p><strong>Nenastavuj alarm v každém snímku.</strong> <code>alarm[0] = 60;</code> přímo ve Step ho pořád natahuje zpátky na 60 a nikdy nedojde na nulu. Nastav ho jednou (v Create, v Collision, nebo když <code>alarm[0] == -1</code>).</p>
+      </div>
+      <div class="callout k-timer">
+        <div class="ic">60</div>
+        <p><strong>Snímky, ne sekundy.</strong> Když napíšeš <code>3 * game_get_speed(gamespeed_fps)</code> místo 180, časovač vydrží 3 sekundy, i kdybys hře později změnil rychlost.</p>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Přepínač nad hrou mění i kód. Řádky, které se zrovna provedly, svítí. Konstanta <code>normalni_skok</code> si v Create zapamatuje původní sílu skoku, ať je kam se vrátit.</p>
+        <div class="gml" id="caGml"></div>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Godot počítá v sekundách (<code>delta</code>). Na jednorázové čekání je <code>create_timer</code>, na opakované uzel <code>Timer</code>.</p>
+        <pre class="code"><code data-lang="gd"># A: vlastní počítadlo v sekundách
+var boost = 0.0
+func _physics_process(delta):
+    if boost > 0:
+        boost -= delta
+        if boost &lt;= 0:
+            sila_skoku = normalni_skok
+
+# B: jednorázový časovač
+func super_skok():
+    sila_skoku = 700
+    await get_tree().create_timer(3.0).timeout
+    sila_skoku = normalni_skok</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Unity počítá v sekundách přes <code>Time.deltaTime</code>. Místo alarmu se používá <code>Invoke</code> nebo coroutine.</p>
+        <pre class="code"><code data-lang="cs">// A: vlastní počítadlo
+float boost;
+void Update() {
+    if (boost > 0) {
+        boost -= Time.deltaTime;
+        if (boost &lt;= 0) silaSkoku = normalniSkok;
+    }
+}
+
+// B: jako alarm
+public void SuperSkok() {
+    silaSkoku = 14f;
+    Invoke(nameof(KonecSkoku), 3f);
+}
+void KonecSkoku() { silaSkoku = normalniSkok; }</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Ve Scratchi „čekej“ zastaví jen tenhle jeden skript, ostatní běží dál. Proto tam stačí.</p>
+        <div class="scratch"><span class="sb ev">když dostanu zprávu [super skok]</span><span class="sb va">nastav [síla skoku] na (14)</span><span class="sb co">čekej (3) sekund</span><span class="sb va">nastav [síla skoku] na (11)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5 ZPOŽDĚNÍ A TRVÁNÍ ================= -->
+  <section class="lesson k-timer" id="zpozdeni">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 5 · Za chvíli a na chvíli</div>
+      <h2>Akce, která přijde později a chvíli trvá</h2>
+    </div>
+    <div class="prose">
+      <p>Často nechceš, aby se něco stalo hned. Bedna se nejdřív otevře a odměna přijde až po půl sekundě. Past se vysune za 2 sekundy a zůstane venku jednu. Odměna před koncem začne blikat, aby hráč věděl, že končí. Všechno to jsou dva časy: <strong>zpoždění</strong> (kdy začít) a <strong>trvání</strong> (jak dlouho).</p>
+      <p>Na obojí stačí jedno počítadlo, které tentokrát roste: <code>cas</code>. Hodnota −1 znamená „neběží“, bedna ho spustí nastavením na 0. Step k němu každý snímek přičte 1 a hlídá dvě chvíle:</p>
+      <ul>
+        <li><code>cas == zpozdeni</code>: začátek účinku,</li>
+        <li><code>cas == zpozdeni + trvani</code>: konec účinku a vypnutí časovače (<code>cas = -1</code>).</li>
+      </ul>
+      <p>Mezi tím můžeš podle <code>cas</code> měnit vzhled. Blikání je jednoduchý trik: <code>cas div 4</code> roste o 1 každé 4 snímky a <code>mod 2</code> z toho udělá střídání 0, 1, 0, 1. Hráč je tak 4 snímky průhledný a 4 snímky ne.</p>
+    </div>
+
+    <div class="lab k-timer">
+      <div class="lab-bar"><span class="sq"></span><span class="t">o_player</span><span>časová osa · cas</span><span class="hint">Nastav zpoždění, trvání a blikání a otevři bednu.</span></div>
+      <div class="lab-body">
+        <div class="opts">
+          <div class="ctl-grid" style="flex:1">
+            <label class="ctl"><span>zpozdeni <output id="zpDelV"></output></span><input type="range" id="zpDel" min="0" max="120" step="10" value="30"></label>
+            <label class="ctl"><span>trvani <output id="zpDurV"></output></span><input type="range" id="zpDur" min="60" max="360" step="30" value="180"></label>
+            <label class="ctl"><span>blikání před koncem <output id="zpBlinkV"></output></span><input type="range" id="zpBlink" min="0" max="120" step="10" value="60"></label>
+          </div>
+        </div>
+        <canvas id="zpCv" width="704" height="200" aria-label="Časová osa: čekání, účinek, blikání a konec. Ukazatel ukazuje aktuální hodnotu proměnné cas a vpravo je vidět hráč."></canvas>
+        <div class="row">
+          <button class="btn primary" id="zpGo">Otevřít bednu (cas = 0)</button>
+          <label class="chk"><input type="checkbox" id="zpSlow"> Zpomalit 4×</label>
+          <span class="focus-state" id="zpState"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ways">
+      <div class="way best">
+        <h3><span class="lt">A</span>Jedno počítadlo</h3>
+        <p>Jako v okně níž. Celý průběh je v jednom bloku Stepu a z <code>cas</code> kdykoli zjistíš, kde v průběhu jsi. Proto se snadno přidá blikání.</p>
+      </div>
+      <div class="way">
+        <h3><span class="lt">B</span>Dva alarmy za sebou</h3>
+        <p>Bedna: <code>other.alarm[0] = 30;</code><br>Alarm 0: <code>sila_skoku = 14; alarm[1] = 180;</code><br>Alarm 1: <code>sila_skoku = normalni_skok;</code><br>První alarm spustí účinek a natáhne druhý, který ho ukončí.</p>
+      </div>
+      <div class="way">
+        <h3><span class="lt">↻</span>Pořád dokola</h3>
+        <p>Past, která se vysouvá každé 2 sekundy: v Create <code>alarm[0] = 120;</code>, v Alarm 0 přepni past a znovu <code>alarm[0] = 120;</code>. Alarm se natáhne sám, takže běží napořád.</p>
+      </div>
+    </div>
+
+    <div class="callout k-timer">
+      <div class="ic">~</div>
+      <p><strong>Plynulé pulzování místo blikání.</strong> <code>sin(cas * 0.2)</code> se plynule houpe mezi −1 a 1. Když z toho uděláš číslo od 0 do 1, můžeš jím míchat barvy: <code>image_blend = merge_colour(c_white, c_lime, 0.5 + 0.5 * sin(cas * 0.2));</code>. Větší číslo místo 0.2 znamená rychlejší pulz.</p>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Čísla v okně se mění podle posuvníků. Bedna jen spustí časovač, všechno ostatní je v hráči.</p>
+        <div class="gml" id="zpGml"></div>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <pre class="code"><code data-lang="gd">var cas = -1.0          # v sekundách, -1 = neběží
+const ZPOZDENI = 0.5
+const TRVANI = 3.0
+
+func _physics_process(delta):
+    if cas &lt; 0:
+        return
+    var pred = cas
+    cas += delta
+    if pred &lt; ZPOZDENI and cas >= ZPOZDENI:
+        sila_skoku = 700                      # začátek
+    if cas >= ZPOZDENI + TRVANI:
+        sila_skoku = normalni_skok            # konec
+        cas = -1.0
+    var konec_za = ZPOZDENI + TRVANI - cas
+    modulate.a = 0.3 if konec_za &lt; 1.0 and int(cas * 15) % 2 == 0 else 1.0</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Nejčitelnější je coroutine: kód se čte shora dolů jako příběh.</p>
+        <pre class="code"><code data-lang="cs">IEnumerator SuperSkok() {
+    yield return new WaitForSeconds(0.5f);    // zpoždění
+    silaSkoku = 14f;
+    yield return new WaitForSeconds(2f);      // trvání bez blikání
+    for (int i = 0; i &lt; 8; i++) {             // poslední sekunda bliká
+        sr.enabled = !sr.enabled;
+        yield return new WaitForSeconds(0.125f);
+    }
+    sr.enabled = true;
+    silaSkoku = normalniSkok;
+}
+// spuštění: StartCoroutine(SuperSkok());</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <div class="scratch"><span class="sb ev">když dostanu zprávu [super skok]</span><span class="sb co">čekej (0.5) sekund</span><span class="sb va">nastav [síla skoku] na (14)</span><span class="sb lo">nastav efekt [barva] na (40)</span><span class="sb co">čekej (2) sekund</span><span class="sb co">opakuj (8) krát</span><span class="sb lo i1">změň efekt [průhlednost] o (70)</span><span class="sb co i1">čekej (0.06) sekund</span><span class="sb lo i1">změň efekt [průhlednost] o (-70)</span><span class="sb co i1">čekej (0.06) sekund</span><span class="sb lo">zruš grafické efekty</span><span class="sb va">nastav [síla skoku] na (11)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 6 UKLÁDÁNÍ ================= -->
+  <section class="lesson k-save" id="ukladani">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="sq"></span>Krok 6 · Uložení a načtení</div>
+      <h2>Hra, která si pamatuje i po vypnutí</h2>
+    </div>
+    <div class="prose">
+      <p>Všechno, co si hra pamatuje, už bydlí v <code>o_game</code>: <code>mince</code>, <code>klice_zelene</code> a seznam <code>sebrane</code>. Uložit hru tedy znamená zapsat tyhle tři věci do souboru. Načíst ji znamená přečíst je v Create <code>o_game</code>, hned po spuštění hry.</p>
+      <ul>
+        <li><strong>Kdy ukládat?</strong> Ne po každé minci. Hra se uloží, když o to hráč požádá (klávesa F5, tlačítko v menu), nebo na <em>checkpointu</em>: u ohniště, u vlajky, při průchodu dveřmi. Co sebereš po posledním uložení, se po vypnutí hry vrátí. Přesně tak to hráči znají.</li>
+        <li><strong>Textový soubor</strong> se otevře přes <code>file_text_open_write</code>, zapisuje se po řádcích a musí se zavřít (<code>file_text_close</code>), jinak se nemusí uložit. Čísla zapisujeme jako text přes <code>string()</code> a při čtení převádíme zpátky přes <code>real()</code>.</li>
+        <li><strong>Seznam celý najednou:</strong> <code>ds_list_write(sebrane)</code> zakóduje celý seznam do jednoho dlouhého textu a <code>ds_list_read(sebrane, text)</code> ho z textu zase naplní.</li>
+        <li><strong>Při čtení musí být pořadí stejné</strong> jako při zápisu. Soubor si neříká, co je na kterém řádku.</li>
+        <li><strong>Při prvním spuštění</strong> soubor ještě neexistuje. Proto se čte jen <code>if (file_exists(soubor))</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lab k-save">
+      <div class="lab-bar"><span class="sq"></span><span class="t">rm_level1 ⇄ rm_level2</span><span>o_game · save.txt</span><span class="hint">Seber pár mincí, ulož, seber další a spusť hru znovu.</span></div>
+      <div class="lab-body">
+        <div class="split">
+          <div class="panel">
+            <canvas id="ulCv" width="704" height="256" tabindex="0" aria-label="Dvě místnosti s mincemi a klíčkem. Hru jde uložit, vypnout a znovu spustit. Sebrané věci z doby před uložením se nevrátí."></canvas>
+            <div class="row" style="justify-content:space-between">
+              <div class="pad" data-for="ulCv"><button class="btn" data-k="left" aria-label="Doleva">◀</button><button class="btn" data-k="right" aria-label="Doprava">▶</button><button class="btn" data-k="jump">Skok</button></div>
+              <span class="focus-state" id="ulFocus">Hraje autopilot</span>
+            </div>
+            <div class="row">
+              <button class="btn primary" id="ulSave">F5 · uložit</button>
+              <button class="btn" id="ulRestart">Vypnout a spustit znovu</button>
+              <button class="btn" id="ulDel">Smazat save.txt</button>
+            </div>
+          </div>
+          <div class="panel">
+            <dl class="readout"><dt>room</dt><dd id="ulRoom"></dd><dt>o_game.mince</dt><dd id="ulM"></dd><dt>o_game.klice_zelene</dt><dd id="ulK"></dd><dt>ds_list_size</dt><dd id="ulN"></dd></dl>
+            <h4>save.txt</h4>
+            <pre class="code savefile" id="ulFile"></pre>
+            <p class="cap">3. řádek je seznam zakódovaný funkcí <code>ds_list_write</code>. Číst ho nemusíš, <code>ds_list_read</code> si s ním poradí.</p>
+            <h4>Poslední události</h4>
+            <div class="evlog" id="ulLog"><div>zatím žádná</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callouts">
+      <div class="callout k-save">
+        <div class="ic">▤</div>
+        <p><strong>Kde soubor najdeš?</strong> GameMaker smí zapisovat jen do své složky. Ve Windows je to <code>%LOCALAPPDATA%\jméno_projektu\</code> (napiš to do adresního řádku Průzkumníka). Když soubor smažeš, hra začne od nuly. Ve hře to udělá <code>file_delete("save.txt")</code>, třeba za tlačítkem <em>Nová hra</em>.</p>
+      </div>
+      <div class="callout k-save">
+        <div class="ic">≡</div>
+        <p><strong>Jiné formáty.</strong> Na pár čísel jsou pohodlné INI soubory: <code>ini_open("save.ini"); ini_write_real("hra", "mince", mince); ini_close();</code>, každá hodnota má jméno a na pořadí nezáleží. Až bude dat hodně, podívej se na <code>json_stringify</code> a <code>json_parse</code>.</p>
+      </div>
+    </div>
+
+    <div class="eng">
+      <div class="eng-panel" data-e="gm">
+        <p>Načítání patří na konec Create <code>o_game</code>, až když proměnné a seznam existují. Ukládání je událost <em>Key Pressed → F5</em> (nebo kód na checkpointu). Řádky, které se zrovna provedly, svítí.</p>
+        <div class="gml" id="ulGml"></div>
+      </div>
+      <div class="eng-panel" data-e="godot" hidden>
+        <p>Do <code>user://</code> smí hra zapisovat na každém systému. Slovník se do souboru uloží jako JSON.</p>
+        <pre class="code"><code data-lang="gd">const SOUBOR = "user://save.json"
+
+func uloz():
+    var data = {"mince": mince, "klice": klice_zelene, "sebrane": sebrane}
+    var f = FileAccess.open(SOUBOR, FileAccess.WRITE)
+    f.store_string(JSON.stringify(data))
+
+func _ready():
+    if FileAccess.file_exists(SOUBOR):
+        var data = JSON.parse_string(FileAccess.get_file_as_string(SOUBOR))
+        mince = data.mince
+        klice_zelene = data.klice
+        sebrane = data.sebrane</code></pre>
+      </div>
+      <div class="eng-panel" data-e="unity" hidden>
+        <p>Na pár čísel stačí <code>PlayerPrefs</code>. Na seznam se hodí třída převedená na JSON a uložená do <code>Application.persistentDataPath</code>.</p>
+        <pre class="code"><code data-lang="cs">[System.Serializable]
+class Ulozeni { public int mince, klice; public List&lt;string&gt; sebrane; }
+
+string Cesta =&gt; Path.Combine(Application.persistentDataPath, "save.json");
+
+public void Uloz() {
+    var u = new Ulozeni { mince = mince, klice = kliceZelene, sebrane = new List&lt;string&gt;(sebrane) };
+    File.WriteAllText(Cesta, JsonUtility.ToJson(u));
+}
+
+void Nacti() {
+    if (!File.Exists(Cesta)) return;
+    var u = JsonUtility.FromJson&lt;Ulozeni&gt;(File.ReadAllText(Cesta));
+    mince = u.mince; kliceZelene = u.klice; sebrane = new HashSet&lt;string&gt;(u.sebrane);
+}</code></pre>
+      </div>
+      <div class="eng-panel" data-e="scratch" hidden>
+        <p>Scratch do souborů zapisovat nemůže. Hodnoty proměnných ale zůstanou uložené s projektem, když ho uložíš. Hry na webu používají <em>cloudové proměnné</em> (jen čísla, jen pro přihlášené).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= KVIZ ================= -->
+  <section class="lesson" id="kviz-4">
+    <div class="sec-head">
+      <div class="eyebrow">Ověř si to</div>
+      <h2>Rychlý kvíz</h2>
+    </div>
+    <div class="row"><span class="score" id="quizScore-4">0 / 0</span><button class="btn" id="quizReset-4">Zkusit znovu</button></div>
+    <div class="quiz" id="quiz-4"></div>
+  </section>
+
+  <!-- ================= UKOL ================= -->
+  <section class="lesson" id="ukol-4">
+    <div class="sec-head">
+      <div class="eyebrow">Do příště · GameMaker</div>
+      <h2>Úkol: dvě místnosti, bedna a uložená hra</h2>
+    </div>
+    <ol class="steps">
+      <li><span>Vytvoř <code>o_game</code> (bez spritu, <em>Persistent</em>) a dej ho do první místnosti. Přesuň do něj <code>mince</code> a nápis z <em>Draw GUI</em>. Mince přičítají do <code>o_game.mince</code>.</span></li>
+      <li><span>Přidej druhou místnost. Vytvoř <code>o_door</code> s proměnnými <code>cil</code> a <code>navrat</code> a neviditelné <code>o_spawn_point</code> a <code>o_return_point</code>. Do každé místnosti dej dveře, start a návrat vedle dveří. Vyzkoušej cestu tam i zpátky. Sprity dveří, klíčku a bedny najdeš v <code>Materialy/Lekce/Dil 4</code>.</span></li>
+      <li><span>Přidej do <code>o_game</code> seznam <code>sebrane</code> a mincím dva řádky z kroku 2. Ověř, že se sebrané mince po návratu neobjeví.</span></li>
+      <li><span>Přidej <code>o_key_green</code> a <code>o_box_green</code>. Bedna se otevře jen s klíčkem a dá hráči super skok na 3 sekundy. Vyber si časovač A nebo B. Postav místo, kam se bez super skoku nedostaneš.</span></li>
+      <li><span>Přidej ukládání na F5 a načítání v Create <code>o_game</code>. Zkontroluj, že po vypnutí a zapnutí hry zůstanou sebrané mince pryč a počet mincí sedí.</span></li>
+      <li><span>Bonus: ukládej automaticky při průchodu dveřmi. Nebo ulož i to, ve které místnosti hráč je (<code>room_get_name(room)</code>), a po načtení ho tam pošli přes <code>room_goto(asset_get_index(jmeno))</code>. Nebo postav past, která se každé 2 sekundy vysune.</span></li>
+    </ol>
+  </section>
+  </div>
+
   <!-- ################################ KONFIGURÁTOR ################################ -->
   <div class="part" id="dil-k" data-part="k">
   <section class="lesson k-level" id="konfigurator">
@@ -2422,6 +3091,13 @@ public class HracAnimace : MonoBehaviour {
           <tr class="k-anim"><th scope="row"><span class="sq"></span>Konec animace</th><td>událost Animation End</td><td>signál <code>animation_finished</code></td><td>Exit Time, Animation Event</td><td>—</td></tr>
           <tr class="k-state"><th scope="row"><span class="sq"></span>Kde vybírat animaci</th><td>End Step</td><td>funkce po <code>move_and_slide()</code></td><td>Animator + <code>LateUpdate</code></td><td>druhý skript postavy</td></tr>
           <tr class="k-state"><th scope="row"><span class="sq"></span>Zrcadlení</th><td><code>image_xscale = -1</code></td><td><code>flip_h</code></td><td><code>flipX</code></td><td>styl otáčení doleva-doprava</td></tr>
+          <tr class="grp"><th colspan="5" scope="rowgroup">Díl 4 · Propojený svět</th></tr>
+          <tr class="k-door"><th scope="row"><span class="sq"></span>Přechod do jiné místnosti</th><td><code>room_goto(rm_level2)</code></td><td><code>get_tree().change_scene_to_file()</code></td><td><code>SceneManager.LoadScene()</code></td><td>změň pozadí na …</td></tr>
+          <tr class="k-door"><th scope="row"><span class="sq"></span>Objekt, který přežije změnu</th><td>Persistent (<code>o_game</code>)</td><td>Autoload</td><td><code>DontDestroyOnLoad</code></td><td>proměnná pro všechny postavy</td></tr>
+          <tr class="k-door"><th scope="row"><span class="sq"></span>Hodnota pro každou instanci</th><td>Variable Definitions</td><td><code>@export var</code></td><td><code>public</code> pole v Inspectoru</td><td>—</td></tr>
+          <tr class="k-coin"><th scope="row"><span class="sq"></span>Seznam</th><td><code>ds_list</code></td><td><code>Array</code></td><td><code>List&lt;T&gt;</code>, <code>HashSet&lt;T&gt;</code></td><td>seznam</td></tr>
+          <tr class="k-timer"><th scope="row"><span class="sq"></span>Časovač</th><td><code>alarm[0]</code> až <code>alarm[11]</code>, vlastní počítadlo</td><td>uzel <code>Timer</code>, <code>create_timer()</code></td><td><code>Invoke</code>, coroutine, <code>Time.deltaTime</code></td><td>čekej (1) sekund, stopky</td></tr>
+          <tr class="k-save"><th scope="row"><span class="sq"></span>Uložení do souboru</th><td><code>file_text_*</code>, <code>ini_*</code></td><td><code>FileAccess</code>, <code>user://</code></td><td><code>PlayerPrefs</code>, <code>File</code> + <code>JsonUtility</code></td><td>nejde, jen cloudové proměnné</td></tr>
         </tbody>
       </table>
     </div>
@@ -6097,6 +6773,818 @@ makeQuiz(3, [
 
 requestAnimationFrame(loop);
 })();
+
+/* ################################################################
+   DÍL 4
+   ################################################################ */
+(() => {
+const ON = partOn(4);
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+/* ---------- theme tokens for canvas ---------- */
+const TOK = {};
+function readTokens() {
+  const cs = getComputedStyle(document.documentElement);
+  ['ink', 'muted', 'line', 'line-strong', 'surface', 'surface-2', 'c-door', 'c-key', 'c-timer', 'c-save', 'c-coin', 'c-col', 'c-death']
+    .forEach(k => TOK[k] = cs.getPropertyValue('--' + k).trim() || '#888');
+}
+readTokens();
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTokens); } catch (e) {}
+new MutationObserver(readTokens).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+/* ---------- pixel art (hero, coin and stone as in part 2; door, key and box are new) ---------- */
+const PAL = { k: '#1d2433', y: '#f7c948', o: '#d9890b', w: '#ffffff', g: '#5cb85c', G: '#2e7d32', b: '#9a6640', d: '#6e4529', r: '#e5484d', p: '#3c7bf0', P: '#2a56b0', s: '#f4c7a1', S: '#8a8f99', T: '#b8bcc4' };
+function bake(rows, over) {
+  const pal = Object.assign({}, PAL, over), c = document.createElement('canvas'); c.width = rows[0].length; c.height = rows.length;
+  const x = c.getContext('2d');
+  rows.forEach((row, j) => [...row].forEach((ch, i) => { if (ch !== '.') { x.fillStyle = pal[ch]; x.fillRect(i, j, 1, 1); } }));
+  return c;
+}
+const mir = rows => rows.map(r => [...r].reverse().join(''));
+const COIN = [
+  ['..kkkk..', '.kyyyyk.', 'kyywyyok', 'kywyyyok', 'kyyyyyok', 'kyyyyook', '.kyoook.', '..kkkk..'],
+  ['...kk...', '..kyyk..', '..kwyk..', '..kyok..', '..kyok..', '..kyok..', '..kook..', '...kk...'],
+  ['...kk...', '...ko...', '...ko...', '...ko...', '...ko...', '...ko...', '...ko...', '...kk...']
+];
+COIN.push(mir(COIN[1]));
+const HERO_TOP = ['..rrrr..', '.rrrrrrr', '..ssss..', '..sksk..', '..ssss..', '.pppppp.', 'spppppps', '.pPPPPp.'];
+const heroSet = over => ({
+  walk: [bake(HERO_TOP.concat(['..p..p..', '.kk..kk.']), over), bake(HERO_TOP.concat(['.p....p.', 'kk....kk']), over)],
+  jump: bake(HERO_TOP.concat(['.p....p.', '.k....k.']), over)
+});
+const DOOR = ['.kkkkkk.', 'kddddddk', 'kdbbbbdk', 'kdbddbdk', 'kdbbbbdk', 'kdbbbbdk', 'kdbbbydk', 'kdbbbbdk', 'kdbddbdk', 'kdbbbbdk', 'kdbbbbdk', 'kddddddk'];
+const KEY = ['.kkk....', 'kgggkkkk', 'kg.ggggk', 'kgggkGgk', '.kkk.kk.', '........'];
+const BOX = ['kkkkkkkk', 'kGggggGk', 'kgGggGgk', 'kggyyggk', 'kgyyyygk', 'kgyykygk', 'kGggggGk', 'kkkkkkkk'];
+const IMG = {
+  coin: COIN.map(r => bake(r)),
+  hero: heroSet(),
+  heroBoost: heroSet({ p: '#40c057', P: '#2b8a3e', r: '#94d82d' }),
+  stone: bake(['TTTTTTTS', 'TSSSTSSS', 'TSSSTSSS', 'SSSSSSSS', 'TTTSTTTT', 'SSTSSSST', 'SSTSSSST', 'SSSSSSSS']),
+  door: bake(DOOR), key: bake(KEY), box: bake(BOX)
+};
+const cyc = (arr, t, fps) => arr[((Math.floor(t * fps) % arr.length) + arr.length) % arr.length];
+function drawImg(ctx, img, x, y, w, h, flip) {
+  ctx.imageSmoothingEnabled = false;
+  if (!flip) { ctx.drawImage(img, x, y, w, h); return; }
+  ctx.save(); ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(img, 0, 0, w, h); ctx.restore();
+}
+const mono = (ctx, px, w) => ctx.font = `${w || 600} ${px}px "JetBrains Mono", ui-monospace, monospace`;
+const setTxt = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+const setHtml = (el, s) => { if (el._html !== s) { el._html = s; el.innerHTML = s; } };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* ---------- sound ---------- */
+let AC = null;
+function beep(kind) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(), n = AC.currentTime;
+    o.type = 'square';
+    if (kind === 'coin') { o.frequency.setValueAtTime(988, n); o.frequency.setValueAtTime(1319, n + .07); }
+    else if (kind === 'key') { o.frequency.setValueAtTime(1175, n); o.frequency.setValueAtTime(1568, n + .06); o.frequency.setValueAtTime(2093, n + .12); }
+    else if (kind === 'lock') { o.frequency.setValueAtTime(140, n); o.frequency.exponentialRampToValueAtTime(70, n + .1); }
+    else if (kind === 'open') { o.frequency.setValueAtTime(523, n); o.frequency.setValueAtTime(659, n + .08); o.frequency.setValueAtTime(784, n + .16); }
+    else if (kind === 'door') { o.type = 'triangle'; o.frequency.setValueAtTime(220, n); o.frequency.exponentialRampToValueAtTime(110, n + .2); }
+    else if (kind === 'end') { o.frequency.setValueAtTime(660, n); o.frequency.exponentialRampToValueAtTime(220, n + .2); }
+    else { o.frequency.setValueAtTime(300, n); o.frequency.exponentialRampToValueAtTime(700, n + .14); }
+    g.gain.setValueAtTime(.04, n); g.gain.exponentialRampToValueAtTime(.001, n + .26);
+    o.connect(g); g.connect(AC.destination); o.start(n); o.stop(n + .28);
+  } catch (e) {}
+}
+
+/* ---------- fixed-step loop: 60 steps/s like GameMaker ---------- */
+const STEP = 1 / 60, widgets = [];
+let lastT = performance.now(), acc = 0;
+function safe(w, fn, ...a) { try { w[fn](...a); } catch (e) { w.dead = true; console.error(e); } }
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (!ON.v) { lastT = now; return; }
+  const dt = Math.max(0, Math.min(.1, (now - lastT) / 1000)); lastT = Math.max(lastT, now);
+  acc += dt;
+  let n = 0;
+  while (acc >= STEP && n < 6) { for (const w of widgets) if (!w.dead && w.step) safe(w, 'step'); acc -= STEP; n++; }
+  if (n === 6) acc = 0;
+  const t = now / 1000;
+  for (const w of widgets) if (!w.dead && w.draw) safe(w, 'draw', t);
+}
+
+/* ---------- keyboard + touch input bound to a focused canvas ---------- */
+const KEYMAP = { ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right', ArrowUp: 'jump', w: 'jump', W: 'jump', ' ': 'jump' };
+function makeInput(cv, focusEl, activeText) {
+  const inp = { left: false, right: false, jump: false, pressed: false, released: false, focused: false, touched: false };
+  const idle = focusEl.innerHTML;
+  cv.addEventListener('keydown', e => {
+    const k = KEYMAP[e.key]; if (!k) return; e.preventDefault();
+    if (k === 'jump' && !inp.jump) inp.pressed = true;
+    inp[k] = true;
+  });
+  cv.addEventListener('keyup', e => {
+    const k = KEYMAP[e.key]; if (!k) return;
+    if (k === 'jump') inp.released = true;
+    inp[k] = false;
+  });
+  cv.addEventListener('focus', () => { inp.focused = true; focusEl.classList.add('on'); focusEl.textContent = activeText; });
+  cv.addEventListener('blur', () => { inp.focused = false; inp.left = inp.right = inp.jump = false; focusEl.classList.remove('on'); focusEl.innerHTML = idle; });
+  cv.addEventListener('pointerdown', () => cv.focus({ preventScroll: true }));
+  $$(`.pad[data-for="${cv.id}"] [data-k]`).forEach(b => {
+    const k = b.dataset.k;
+    const on = e => { e.preventDefault(); inp.touched = true; if (k === 'jump' && !inp.jump) inp.pressed = true; inp[k] = true; try { b.setPointerCapture(e.pointerId); } catch (_) {} };
+    const off = () => { if (!inp[k]) return; if (k === 'jump') inp.released = true; inp[k] = false; };
+    b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off);
+  });
+  inp.consume = () => { const r = { pressed: inp.pressed, released: inp.released }; inp.pressed = inp.released = false; return r; };
+  inp.active = () => inp.focused || inp.touched;
+  // the player's own control this frame, or null when the autopilot should drive
+  inp.ctl = () => { const ev = inp.consume(); return inp.active() ? { dir: inp.right - inp.left, pressed: ev.pressed, released: ev.released } : null; };
+  return inp;
+}
+
+// GML lines with a key, so a lab can light up what just ran
+const GK = (kind, key, src) => G(kind, src).map(l => [l[0], l[1], key]);
+function litLines(el, keys) { $$('[data-k]', el).forEach(x => x.classList.toggle('on', keys.has(x.dataset.k))); }
+// keys that stay lit for a few frames after their line ran
+function litTimer() {
+  const m = new Map();
+  return { hit(k, n = 40) { m.set(k, n); }, tick() { m.forEach((v, k) => v <= 1 ? m.delete(k) : m.set(k, v - 1)); }, keys() { return new Set(m.keys()); } };
+}
+function pushLog(log, s) { log.unshift(s); log.length = Math.min(log.length, 5); }
+const logHtml = log => log.length ? log.map(l => `<div>${l}</div>`).join('') : '<div>zatím žádná</div>';
+
+/* ---------- o_player: movement from part 2 (while collisions, no planks) ---------- */
+const P = { max: 4, acc: .6, fric: .4, g: .5, cap: 12 }, NORMAL = 11, SUPER = 14;
+function heroStep(pl, c, R) {
+  const sg = Math.sign, mw = (x, y) => R.meet(x, y, pl.w, pl.h);
+  if (c.dir) { pl.hsp = clamp(pl.hsp + c.dir * P.acc, -P.max, P.max); pl.face = c.dir; }
+  else pl.hsp = Math.max(Math.abs(pl.hsp) - P.fric, 0) * sg(pl.hsp);
+  pl.vsp = Math.min(pl.vsp + P.g, P.cap);
+  if (mw(pl.x, pl.y + 1) && c.pressed) { pl.vsp = -pl.sila; beep('jump'); }
+  if (c.released && pl.vsp < 0) pl.vsp *= .5;
+  let n = 0;
+  if (mw(pl.x + pl.hsp, pl.y)) { while (!mw(pl.x + sg(pl.hsp), pl.y) && n++ < 64) pl.x += sg(pl.hsp); pl.hsp = 0; }
+  pl.x += pl.hsp;
+  n = 0;
+  if (mw(pl.x, pl.y + pl.vsp)) { while (!mw(pl.x, pl.y + sg(pl.vsp)) && n++ < 64) pl.y += sg(pl.vsp); pl.vsp = 0; }
+  pl.y += pl.vsp;
+  pl.ground = mw(pl.x, pl.y + 1);
+}
+const newPlayer = (x, y, face = 1) => ({ x, y, w: 22, h: 38, hsp: 0, vsp: 0, face, ground: true, mince: 0, sila: NORMAL, boost: 0, alarm0: -1, alpha: 1, tint: false });
+function drawPl(ctx, pl, t) {
+  const set = pl.tint ? IMG.heroBoost : IMG.hero;
+  const f = !pl.ground ? set.jump : Math.abs(pl.hsp) > .2 ? cyc(set.walk, t, 4 + Math.abs(pl.hsp) * 2) : set.walk[0];
+  ctx.globalAlpha = pl.alpha;
+  drawImg(ctx, f, Math.round(pl.x - 5), Math.round(pl.y - 2), 32, 40, pl.face < 0);
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- rooms: '#' o_wall, 'o' o_coin, 'k' o_key_green, 'B' o_box_green, 'D' o_door, 'S' o_spawn_point, 'R' o_return_point ---------- */
+const T = 32;
+function room4(name, MAP) {
+  const rows = MAP.length, cols = MAP[0].length, R = { name, W: cols * T, H: rows * T, items: [], doors: [], spawn: null, ret: null };
+  R.solid = MAP.map(r => [...r].map(ch => ch === '#'));
+  MAP.forEach((r, j) => [...r].forEach((ch, i) => {
+    const x = i * T, y = j * T, stand = [x + 5, y + T - 38];
+    if (ch === 'o') R.items.push({ t: 'coin', x, y });
+    if (ch === 'k') R.items.push({ t: 'key', x, y });
+    if (ch === 'B') R.items.push({ t: 'box', x, y });
+    if (ch === 'D') R.doors.push({ x, y: y - 16 });
+    if (ch === 'S') R.spawn = stand;
+    if (ch === 'R') R.ret = stand;
+  }));
+  R.meet = (x, y, w, h) => {
+    const l = Math.floor(x / T), r = Math.floor((x + w - .001) / T), t = Math.floor(y / T), b = Math.floor((y + h - .001) / T);
+    for (let j = t; j <= b; j++) for (let i = l; i <= r; i++) if (i < 0 || i >= cols || j < 0 || j >= rows || R.solid[j][i]) return true;
+    return false;
+  };
+  R.bg = document.createElement('canvas'); R.bg.width = R.W; R.bg.height = R.H;
+  const x = R.bg.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, R.H);
+  if (name === 'rm_level2') { g.addColorStop(0, '#8d7fd6'); g.addColorStop(1, '#f2c6de'); } else { g.addColorStop(0, '#6fbdf0'); g.addColorStop(1, '#d6f0ff'); }
+  x.fillStyle = g; x.fillRect(0, 0, R.W, R.H);
+  R.solid.forEach((row, j) => row.forEach((sl, i) => { if (sl) drawImg(x, IMG.stone, i * T, j * T, T, T); }));
+  return R;
+}
+const boxHit = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+const HB = {
+  coin: k => ({ x: k.x + 6, y: k.y + 4, w: 20, h: 24 }),
+  key: k => ({ x: k.x + 4, y: k.y + 8, w: 24, h: 16 }),
+  box: k => ({ x: k.x + 2, y: k.y + 2, w: 28, h: 30 }),
+  door: d => ({ x: d.x + 8, y: d.y + 8, w: 16, h: 40 })
+};
+const OBJ = { coin: 'o_coin', key: 'o_key_green', box: 'o_box_green' };
+
+/* a small game: o_game, rooms with doors, one-time items; every lab builds one with its own options
+   o.persistent(), o.list(), o.retOnDoor() switch behaviour, o.reward(pl, box) runs when a box opens */
+function makeWorld(rooms, o) {
+  let nid = 100001;
+  rooms.forEach(R => R.items.forEach(it => it.id = nid++));
+  const W = { rooms, ri: 0, g: null, pl: null, inst: [], crash: null, frame: 0, enterF: 0, fade: 0, pingpong: 0, arrival: '', touchBox: null };
+  const opt = (k, d) => (o[k] ? o[k]() : d);
+  W.R = () => rooms[W.ri];
+  // the o_game instance: placed in the first room only
+  W.newGame = () => { W.g = { id: 100000, mince: 0, navrat: false, klice: 0, sebrane: [] }; };
+  // room_goto: everything but persistent instances is destroyed, the room is built again from the editor
+  W.enter = (ri, face = 1) => {
+    W.ri = ri; W.crash = null; W.enterF = W.frame; W.fade = 14;
+    const R = rooms[ri];
+    if (!W.g && ri === 0) W.newGame();   // o_game stands in rm_level1, so a fresh one is created there
+    // o_coin / o_key_green / o_box_green · Create: already in the list? then destroy myself
+    W.inst = R.items.map(it => ({ ...it, gone: false }));
+    W.skipped = [];
+    if (W.g && opt('list', true)) for (const k of W.inst) if (W.g.sebrane.includes(k.id)) { k.gone = true; W.skipped.push(k); }
+    if (o.onSkip && W.skipped.length) o.onSkip(W.skipped);
+    // o_player · Create: o_game.navrat decides where to stand
+    if (!W.g) { W.crash = R.name; W.pl = null; if (o.onCrash) o.onCrash(); return; }
+    let pos = R.spawn;
+    W.arrival = 'o_spawn_point';
+    if (W.g.navrat && R.ret) {
+      pos = opt('retOnDoor', false) && R.doors.length ? [R.doors[0].x + 5, R.ret[1]] : R.ret;
+      W.arrival = 'o_return_point';
+    }
+    W.pl = newPlayer(pos[0], pos[1], face);
+    if (o.onEnter) o.onEnter(W);
+  };
+  W.start = () => { W.g = null; W.frame = 0; W.newGame(); W.ri = 0; if (o.onStart) o.onStart(W); W.enter(0); };
+  W.step = c => {
+    if (W.crash) return;
+    W.frame++;
+    if (W.fade > 0) W.fade--;
+    if (W.pingpong > 0) W.pingpong--;
+    const R = W.R(), pl = W.pl, g = W.g;
+    heroStep(pl, c, R);
+    W.touchBox = null;
+    for (const k of W.inst) {
+      if (k.gone || !boxHit(pl, HB[k.t](k))) continue;
+      if (k.t === 'coin') {
+        g.mince++; pl.mince++;
+        if (opt('list', true)) g.sebrane.push(k.id);
+        k.gone = true; beep('coin');
+        if (o.onTake) o.onTake(k);
+      } else if (k.t === 'key') {
+        g.klice++;
+        if (opt('list', true)) g.sebrane.push(k.id);
+        k.gone = true; beep('key');
+        if (o.onTake) o.onTake(k);
+      } else if (k.t === 'box') {
+        W.touchBox = k;
+        // the box opens only with a key
+        if (g.klice > 0) {
+          g.klice--;
+          if (opt('list', true)) g.sebrane.push(k.id);
+          k.gone = true; beep('open');
+          if (o.reward) o.reward(pl, k);
+          if (o.onTake) o.onTake(k);
+        } else if (!k.touched) { k.touched = true; beep('lock'); if (o.onLocked) o.onLocked(k); }
+      }
+    }
+    for (const k of W.inst) if (k.t === 'box' && k !== W.touchBox) k.touched = false;
+    if (o.afterStep) o.afterStep(pl, W);
+    // o_door · Collision with o_player
+    const d = R.doors.find(d => boxHit(pl, HB.door(d)));
+    if (d) {
+      if (W.frame - W.enterF <= 2) W.pingpong = 120;   // arrived right onto a door
+      g.navrat = d.navrat;
+      beep('door');
+      if (o.onDoor) o.onDoor(d, R);
+      // a non-persistent o_game is destroyed with its room
+      if (!opt('persistent', true)) W.g = null;
+      W.enter(d.cil, pl.face);
+    }
+  };
+  W.draw = (ctx, t, points) => {
+    const R = W.R();
+    ctx.drawImage(R.bg, 0, 0);
+    for (const d of R.doors) drawImg(ctx, IMG.door, d.x, d.y, 32, 48);
+    if (points) {
+      ctx.setLineDash([4, 3]); ctx.lineWidth = 2; mono(ctx, 12, 700); ctx.textAlign = 'center';
+      const mark = (p, col, lb) => { ctx.strokeStyle = col; ctx.strokeRect(p[0] + 1, p[1] + 1, 20, 36); ctx.fillStyle = col; ctx.fillText(lb, p[0] + 11, p[1] - 4); };
+      if (R.spawn) mark(R.spawn, TOK['c-door'], 'spawn');
+      if (R.ret) mark(opt('retOnDoor', false) && R.doors.length ? [R.doors[0].x + 5, R.ret[1]] : R.ret, TOK['c-save'], 'return');
+      ctx.setLineDash([]); ctx.textAlign = 'start';
+    }
+    for (const k of W.inst) {
+      if (k.gone) continue;
+      if (k.t === 'coin') drawImg(ctx, cyc(IMG.coin, t + k.x * .001, 8), k.x, k.y, 32, 32);
+      if (k.t === 'key') drawImg(ctx, IMG.key, k.x, k.y + 6 + Math.round(Math.sin(t * 3 + k.x) * 2), 32, 24);
+      if (k.t === 'box') {
+        drawImg(ctx, IMG.box, k.x, k.y, 32, 32);
+        // o_box_green · Draw: "Zamčeno" while the player touches it without a key
+        if (W.touchBox === k && W.g && W.g.klice === 0) {
+          ctx.font = '700 15px "Pixelify Sans", monospace'; ctx.textAlign = 'center';
+          ctx.fillStyle = 'rgba(16,20,28,.8)'; ctx.fillRect(k.x - 26, k.y - 28, 84, 22);
+          ctx.fillStyle = '#ffd8a8'; ctx.fillText('Zamčeno', k.x + 16, k.y - 12); ctx.textAlign = 'start';
+        }
+      }
+    }
+    if (W.pl) drawPl(ctx, W.pl, t);
+    // o_game · Draw GUI
+    if (W.g) {
+      ctx.font = '700 18px "Pixelify Sans", monospace'; ctx.fillStyle = '#1d2433'; ctx.textBaseline = 'top';
+      ctx.fillText('Mince: ' + W.g.mince, 16, 12); ctx.textBaseline = 'alphabetic';
+      for (let i = 0; i < W.g.klice; i++) drawImg(ctx, IMG.key, 120 + i * 36, 10, 32, 24);
+    }
+    mono(ctx, 12, 700); ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(16,20,28,.6)'; ctx.fillText(R.name, R.W - 40, 22); ctx.textAlign = 'start';
+    if (W.fade > 0) { ctx.fillStyle = `rgba(10,12,18,${W.fade / 14 * .8})`; ctx.fillRect(0, 0, R.W, R.H); }
+    if (W.pingpong > 0 && !W.crash) banner(ctx, R.W, ['o_return_point leží na dveřích:', 'hráč se jich hned dotkl a odešel zpátky'], TOK['c-death']);
+    if (W.crash) crashBox(ctx, R, ['ERROR in action number 1', 'of Create Event for object o_player:', '', 'Unable to find any instance', 'for object index o_game', '', '(o_game není Persistent, zanikl s rm_level1)']);
+  };
+  return W;
+}
+function banner(ctx, Wd, lines, col) {
+  ctx.fillStyle = 'rgba(16,20,28,.82)'; ctx.fillRect(Wd / 2 - 210, 64, 420, 22 + lines.length * 18);
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; mono(ctx, 13, 600);
+  lines.forEach((l, i) => ctx.fillText(l, Wd / 2, 86 + i * 18));
+  ctx.fillStyle = col; ctx.fillRect(Wd / 2 - 210, 64, 4, 22 + lines.length * 18);
+  ctx.textAlign = 'start';
+}
+function crashBox(ctx, R, lines) {
+  ctx.fillStyle = '#e9ecef'; ctx.fillRect(0, 0, R.W, R.H);
+  ctx.fillStyle = '#1d2433'; mono(ctx, 13, 600);
+  ctx.fillText('############################################################', 24, 30);
+  lines.forEach((l, i) => ctx.fillText(l, 24, 54 + i * 19));
+  ctx.fillText('############################################################', 24, 54 + lines.length * 19 + 4);
+}
+// autopilot: walk, turn at walls, hop now and then
+function autoCtl(W, ap) {
+  const R = W.R(), pl = W.pl;
+  if (R.meet(pl.x + ap.dir * 3, pl.y, pl.w, pl.h)) ap.dir = -ap.dir;
+  ap.t++;
+  return { dir: ap.dir, pressed: ap.t % 75 === 0, released: false };
+}
+
+const MAP_A = [
+  '#....................#',
+  '#....................#',
+  '#....................#',
+  '#.......o.o.o........#',
+  '#......#######.......#',
+  '#....................#',
+  '#.S..o.......o..R...D#',
+  '######################'
+];
+const MAP_B = [
+  '#....................#',
+  '#....................#',
+  '#....................#',
+  '#..........o.o.......#',
+  '#.........#####......#',
+  '#....................#',
+  '#D..S....o.......o...#',
+  '######################'
+];
+// rm_level1's door: cil = rm_level2, navrat = false; rm_level2's door: cil = rm_level1, navrat = true
+function twoRooms(mapB) {
+  const A = room4('rm_level1', MAP_A), B = room4('rm_level2', mapB || MAP_B);
+  Object.assign(A.doors[0], { cil: 1, navrat: false });
+  Object.assign(B.doors[0], { cil: 0, navrat: true });
+  return [A, B];
+}
+
+/* shared GML pieces */
+const C_GAME = 'mince = 0;                        // počet mincí přežije přechod mezi místnostmi\nnavrat = false;                   // jde hráč dveřmi zpátky?';
+const C_LIST = 'sebrane = ds_list_create();       // id všeho, co už hráč sebral';
+const C_KEYS = 'klice_zelene = 0;';
+const C_SKIP = '// už jsem sebraná? id z editoru je při každém vstupu stejné\nif (ds_list_find_index(o_game.sebrane, id) != -1) {\n    instance_destroy();\n}';
+const C_GUI = 'draw_text(16, 16, "Mince: " + string(mince));';
+const C_PL_CTX = 'hsp = 0;\nvsp = 0;\n// … nastavení pohybu a skoku z dílu 2';
+const C_SPAWN = '// kam se postavit\nif (o_game.navrat) {\n    x = o_return_point.x;         // dveřmi zpátky: k bodu návratu\n    y = o_return_point.y;\n} else {\n    x = o_spawn_point.x;          // dopředu: na start\n    y = o_spawn_point.y;\n}';
+const C_STEP_CTX = '// … pohyb, skok a kolize z dílu 2';
+
+/* =========================================================
+   1. DOORS
+   ========================================================= */
+(function doorLab() {
+  const cv = $('#dvCv'), ctx = cv.getContext('2d');
+  const inp = makeInput(cv, $('#dvFocus'), 'Řídíš ty: ← → pohyb, mezerník skok');
+  const opt = { pers: true, bug: false, pts: true };
+  let log = [];
+  const lit = litTimer(), ap = { dir: 1, t: 0 };
+  const W = makeWorld(twoRooms(), {
+    persistent: () => opt.pers, list: () => false, retOnDoor: () => opt.bug,
+    onDoor(d, R) { pushLog(log, `o_door · Collision → o_game.navrat = ${d.navrat}, room_goto(${W.rooms[d.cil].name})`); lit.hit('door'); },
+    onEnter(W) { pushLog(log, `o_player · Create → ${W.arrival}`); lit.hit(W.arrival === 'o_spawn_point' ? 'spawn' : 'ret'); },
+    onCrash() { pushLog(log, 'o_player · Create → o_game neexistuje, hra spadla'); },
+    onTake(k) { lit.hit('coin'); }
+  });
+  const restart = () => { log = []; ap.dir = 1; W.start(); };
+  restart();
+  $('#dvReset').onclick = restart;
+  $('#dvPers').addEventListener('change', e => { opt.pers = e.target.checked; restart(); });
+  $('#dvBug').addEventListener('change', e => { opt.bug = e.target.checked; });
+  $('#dvPts').addEventListener('change', e => opt.pts = e.target.checked);
+  let crashT = 0;
+  widgets.push({
+    step() {
+      lit.tick();
+      if (W.crash) { if (!inp.active() && ++crashT > 300) { crashT = 0; restart(); } return; }
+      W.step(inp.ctl() || autoCtl(W, ap));
+    },
+    draw(t) {
+      W.draw(ctx, t, opt.pts);
+      setTxt($('#dvRoom'), W.R().name);
+      setTxt($('#dvNav'), W.g ? String(W.g.navrat) : '— (o_game neexistuje)');
+      setTxt($('#dvM'), W.g ? String(W.g.mince) : '—');
+      setTxt($('#dvPm'), W.pl ? String(W.pl.mince) : '—');
+      setTxt($('#dvArr'), W.pl ? W.arrival : '—');
+      setHtml($('#dvLog'), logHtml(log));
+      litLines($('#dvGml'), lit.keys());
+    }
+  });
+  gmlView('dvGml', () => ({ obj: 'o_game', ran: true, ev: [
+    ['Create', G('new', C_GAME)],
+    ['Draw GUI', G('new', C_GUI + '   // nápis teď kreslí správce hry')],
+    ['Collision s o_player', GK('new', 'door', 'o_game.navrat = navrat;           // proměnná dveří → správci hry\nroom_goto(cil);                   // cil = místnost z Variable Definitions'), 'o_door'],
+    ['Create', [...G('ctx', C_PL_CTX), ...G('new', '\n// kam se postavit\nif (o_game.navrat) {'), ...GK('new', 'ret', '    x = o_return_point.x;         // dveřmi zpátky: k bodu návratu\n    y = o_return_point.y;'), ...G('new', '} else {'), ...GK('new', 'spawn', '    x = o_spawn_point.x;          // dopředu: na start\n    y = o_spawn_point.y;'), ...G('new', '}')], 'o_player'],
+    ['Collision s o_player', [...GK('new', 'coin', 'o_game.mince += 1;                // dřív other.mince += 1'), ...G('ctx', 'audio_play_sound(snd_coin, 1, false);\ninstance_destroy();')], 'o_coin']
+  ] }));
+})();
+
+/* =========================================================
+   2. COLLECTED THINGS
+   ========================================================= */
+(function listLab() {
+  const cv = $('#sbCv'), ctx = cv.getContext('2d');
+  const inp = makeInput(cv, $('#sbFocus'), 'Řídíš ty: ← → pohyb, mezerník skok');
+  let on = true, log = [];
+  const lit = litTimer(), ap = { dir: 1, t: 0 };
+  const rooms = twoRooms(), total = rooms.reduce((s, R) => s + R.items.filter(i => i.t === 'coin').length, 0);
+  const W = makeWorld(rooms, {
+    list: () => on,
+    onSkip(ks) { pushLog(log, `${ks.length}× o_coin · Create → id je v seznamu → instance_destroy()`); lit.hit('skip', 60); },
+    onTake(k) { pushLog(log, on ? `o_coin (id ${k.id}) · Collision → ds_list_add(sebrane, ${k.id})` : `o_coin (id ${k.id}) · Collision → mince = ${W.g.mince}`); lit.hit('add'); },
+    onDoor(d) { pushLog(log, `o_door → room_goto(${W.rooms[d.cil].name})`); }
+  });
+  const restart = () => { log = []; ap.dir = 1; W.start(); };
+  restart();
+  $('#sbReset').onclick = restart;
+  $('#sbOn').addEventListener('change', e => { on = e.target.checked; restart(); });
+  widgets.push({
+    step() { lit.tick(); W.step(inp.ctl() || autoCtl(W, ap)); },
+    draw(t) {
+      W.draw(ctx, t, false);
+      if (W.g.mince > total) banner(ctx, W.R().W, [`o_game.mince = ${W.g.mince}, ale ve hře je jen ${total} mincí!`], TOK['c-death']);
+      setTxt($('#sbRoom'), W.R().name);
+      setTxt($('#sbM'), String(W.g.mince));
+      setTxt($('#sbAll'), String(total));
+      setTxt($('#sbN'), on ? String(W.g.sebrane.length) : '— (seznam není)');
+      setHtml($('#sbList'), !on ? '<div>seznam neexistuje</div>' : W.g.sebrane.length ? W.g.sebrane.map((v, i) => `<div>[${i}] ${v}</div>`).join('') : '<div>prázdný</div>');
+      setHtml($('#sbLog'), logHtml(log));
+      litLines($('#sbGml'), lit.keys());
+    }
+  });
+  gmlView('sbGml', () => ({ obj: 'o_game', ran: true, ev: [
+    ['Create', [...G('ctx', C_GAME), ...(on ? G('new', C_LIST) : [])]],
+    ...(on ? [['Create', GK('new', 'skip', C_SKIP), 'o_coin']] : []),
+    ['Collision s o_player', [...G('ctx', 'o_game.mince += 1;'), ...(on ? GK('new', 'add', 'ds_list_add(o_game.sebrane, id);   // zapamatuj si, že tahle je pryč') : []), ...G('ctx', 'audio_play_sound(snd_coin, 1, false);\ninstance_destroy();')], 'o_coin']
+  ] }));
+})();
+
+/* =========================================================
+   3 + 4. KEY, BOX AND THE TIMER: one room, a ledge reachable only with the super jump
+   ========================================================= */
+const MAP_K = [
+  '#....................#',
+  '#..o.................#',
+  '#.###................#',
+  '#..............o.....#',
+  '#.............###....#',
+  '#..........##........#',
+  '#.S...B.............k#',
+  '######################'
+];
+// autopilot for the key room: to the key, back to the box, and with the super jump up onto the ledge
+function keyPilot(W, ap) {
+  const R = W.R(), pl = W.pl;
+  ap.t++;
+  const keyLeft = W.inst.some(k => k.t === 'key' && !k.gone), boxLeft = W.inst.some(k => k.t === 'box' && !k.gone);
+  if (keyLeft) ap.dir = 1;
+  else if (boxLeft && W.g.klice > 0) ap.dir = -1;
+  else if (R.meet(pl.x + ap.dir * 3, pl.y, pl.w, pl.h)) ap.dir = -ap.dir;
+  const boosted = pl.sila > NORMAL;
+  const leap = boosted && ap.dir < 0 && pl.ground && pl.x < 236 && pl.x > 150 && pl.y > 180;
+  return { dir: ap.dir, pressed: leap || (!boosted && ap.t % 90 === 0), released: false };
+}
+
+(function keyLab() {
+  const cv = $('#klCv'), ctx = cv.getContext('2d');
+  const inp = makeInput(cv, $('#klFocus'), 'Řídíš ty: ← → pohyb, mezerník skok');
+  let log = [], openedAt = -1;
+  const lit = litTimer(), ap = { dir: 1, t: 0 };
+  const W = makeWorld([room4('rm_level1', MAP_K)], {
+    reward(pl) { pl.sila = SUPER; pl.tint = true; },
+    onLocked(k) { pushLog(log, 'o_box_green · Collision → klice_zelene = 0, nic se nestane'); lit.hit('locked', 30); },
+    onTake(k) {
+      if (k.t === 'key') { pushLog(log, `o_key_green · Collision → klice_zelene = ${W.g.klice}`); lit.hit('key'); }
+      if (k.t === 'box') { pushLog(log, 'o_box_green · Collision → klíček spotřebován, sila_skoku = 14'); lit.hit('open', 60); openedAt = W.frame; }
+      if (k.t === 'coin') pushLog(log, `o_coin · Collision → mince = ${W.g.mince}`);
+    }
+  });
+  const restart = () => { log = []; openedAt = -1; ap.dir = 1; ap.t = 0; W.start(); };
+  restart();
+  $('#klReset').onclick = restart;
+  widgets.push({
+    step() {
+      lit.tick();
+      const c = inp.ctl();
+      W.step(c || keyPilot(W, ap));
+      if (!c && openedAt >= 0 && W.frame - openedAt > 600) restart();
+      if (W.touchBox && W.g.klice === 0) lit.hit('locked', 2);
+    },
+    draw(t) {
+      W.draw(ctx, t, false);
+      setTxt($('#klK'), String(W.g.klice));
+      setTxt($('#klJ'), String(W.pl.sila));
+      setTxt($('#klM'), String(W.g.mince));
+      const box = W.inst.find(k => k.t === 'box');
+      setHtml($('#klCond'), box.gone ? '<div>bedna je otevřená a zničená</div>'
+        : W.touchBox ? `<div>o_game.klice_zelene &gt; 0  →  ${W.g.klice} &gt; 0  →  <b>${W.g.klice > 0}</b></div>` : '<div>hráč se bedny nedotýká, Collision neběží</div>');
+      setHtml($('#klLog'), logHtml(log));
+      litLines($('#klGml'), lit.keys());
+    }
+  });
+  gmlView('klGml', () => ({ obj: 'o_game', ran: true, ev: [
+    ['Create', [...G('ctx', C_GAME + '\n' + C_LIST), ...G('new', C_KEYS)]],
+    ['Draw GUI', [...G('ctx', C_GUI), ...G('new', '// klíčky vedle sebe: první na x = 140, každý další o 36 px dál\nfor (var i = 0; i < klice_zelene; i++) {\n    draw_sprite(s_key_green, 0, 140 + i * 36, 16);\n}')]],
+    ['Create', G('new', C_SKIP.replace('sebraná', 'sebraný')), 'o_key_green'],
+    ['Collision s o_player', GK('new', 'key', 'o_game.klice_zelene += 1;\nds_list_add(o_game.sebrane, id);\ninstance_destroy();'), 'o_key_green'],
+    ['Create', G('new', C_SKIP.replace('sebraná', 'otevřená')), 'o_box_green'],
+    ['Collision s o_player', [...G('new', '// otevřít jde jen s klíčkem\nif (o_game.klice_zelene > 0) {'), ...GK('new', 'open', '    o_game.klice_zelene -= 1;           // klíček se spotřebuje\n    ds_list_add(o_game.sebrane, id);\n    other.sila_skoku = 14;              // odměna: super skok (zatím navždy)\n    instance_destroy();'), ...G('new', '}')], 'o_box_green'],
+    ['Draw', [...G('new', 'draw_self();                            // bez toho by se bedna nekreslila\n// bez klíčku nápověda nad bednou\nif (o_game.klice_zelene == 0 && place_meeting(x, y, o_player)) {'), ...GK('new', 'locked', '    draw_text(x - 24, y - 24, "Zamčeno");'), ...G('new', '}')], 'o_box_green']
+  ] }));
+})();
+
+(function timerLab() {
+  const cv = $('#caCv'), ctx = cv.getContext('2d');
+  const inp = makeInput(cv, $('#caFocus'), 'Řídíš ty: ← → pohyb, mezerník skok');
+  let mode = 'A', dur = 180, log = [], openedAt = -1, endedAt = -1, boxAlarm = -1;
+  const lit = litTimer(), ap = { dir: 1, t: 0 };
+  const W = makeWorld([room4('rm_level1', MAP_K)], {
+    reward(pl) {
+      pl.sila = SUPER; pl.tint = true;
+      if (mode === 'A') pl.boost = dur;          // other.boost = 180
+      else if (mode === 'B') pl.alarm0 = dur;    // other.alarm[0] = 180
+      else boxAlarm = dur;                       // alarm[0] = 180 of the box, which is destroyed right away
+    },
+    onTake(k) {
+      if (k.t === 'key') pushLog(log, `o_key_green · Collision → klice_zelene = ${W.g.klice}`);
+      if (k.t === 'coin') pushLog(log, `o_coin · Collision → mince = ${W.g.mince}`);
+      if (k.t === 'box') {
+        openedAt = W.frame; lit.hit('open', 60);
+        pushLog(log, mode === 'A' ? `o_box_green · Collision → other.boost = ${dur}` : mode === 'B' ? `o_box_green · Collision → other.alarm[0] = ${dur}` : `o_box_green · Collision → alarm[0] = ${dur}, instance_destroy()`);
+      }
+    },
+    afterStep(pl) {
+      if (mode === 'A' && pl.boost > 0) {
+        pl.boost -= 1; lit.hit('tick', 2);
+        if (pl.boost === 0) { pl.sila = NORMAL; pl.tint = false; end('o_player · Step → boost = 0 → sila_skoku = normalni_skok'); }
+      }
+      // GameMaker counts every alarm of a living instance down by itself
+      if (mode === 'B' && pl.alarm0 > 0) {
+        pl.alarm0 -= 1;
+        if (pl.alarm0 === 0) { pl.alarm0 = -1; pl.sila = NORMAL; pl.tint = false; end('o_player · Alarm 0 → sila_skoku = normalni_skok'); }
+      }
+    }
+  });
+  function end(s) { pushLog(log, s); lit.hit('end', 60); endedAt = W.frame; beep('end'); }
+  const restart = () => { log = []; openedAt = endedAt = boxAlarm = -1; ap.dir = 1; ap.t = 0; W.start(); };
+  restart();
+  $('#caReset').onclick = restart;
+  $$('#caModes [data-m]').forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.m;
+    $$('#caModes [data-m]').forEach(x => x.setAttribute('aria-pressed', x === b));
+    restart();
+  }));
+  const durEl = $('#caDur');
+  const updDur = () => { dur = +durEl.value; setTxt($('#caDurV'), `${dur} snímků = ${+(dur / 60).toFixed(1)} s`); };
+  durEl.addEventListener('input', updDur); updDur();
+  widgets.push({
+    step() {
+      lit.tick();
+      const c = inp.ctl();
+      W.step(c || keyPilot(W, ap));
+      // autopilot: start over a while after the timer ran out (or after the broken alarm never did)
+      if (!c && ((endedAt >= 0 && W.frame - endedAt > 150) || (mode === 'X' && openedAt >= 0 && W.frame - openedAt > dur + 300))) restart();
+    },
+    draw(t) {
+      W.draw(ctx, t, false);
+      const pl = W.pl;
+      const left = mode === 'A' ? pl.boost : mode === 'B' ? Math.max(0, pl.alarm0) : 0;
+      // a bar above the player: how many frames are left
+      if (left > 0) {
+        const bx = Math.round(pl.x - 9), by = Math.round(pl.y - 16);
+        ctx.fillStyle = 'rgba(16,20,28,.7)'; ctx.fillRect(bx, by, 40, 7);
+        ctx.fillStyle = '#40c057'; ctx.fillRect(bx + 1, by + 1, Math.round(38 * left / dur), 5);
+        mono(ctx, 11, 700); ctx.fillStyle = '#1d2433'; ctx.textAlign = 'center'; ctx.fillText(String(left), bx + 20, by - 3); ctx.textAlign = 'start';
+      }
+      setTxt($('#caVarL'), mode === 'A' ? 'o_player.boost' : mode === 'B' ? 'o_player.alarm[0]' : 'o_box_green.alarm[0]');
+      setTxt($('#caVar'), mode === 'A' ? String(pl.boost) : mode === 'B' ? String(pl.alarm0) : (openedAt >= 0 ? 'instance neexistuje' : String(boxAlarm)));
+      setTxt($('#caSec'), left > 0 ? `${(left / 60).toFixed(2)} s` : mode === 'X' && openedAt >= 0 ? 'nikdy neskončí' : '—');
+      setTxt($('#caJ'), String(pl.sila));
+      setTxt($('#caF'), String(W.frame));
+      const m = $('#caMsg');
+      if (mode === 'X' && openedAt >= 0) { setTxt(m, '✗ alarm[0] patřil bedně. Bedna je zničená, alarm se nikdy nespustí a super skok zůstane navždy.'); m.className = 'bug bad'; }
+      else if (endedAt >= 0) { setTxt(m, '✓ Čas vypršel, síla skoku je zpátky na 11.'); m.className = 'bug ok'; }
+      else if (left > 0) { setTxt(m, 'Super skok běží. Zkus vyskočit na římsu vlevo nahoře.'); m.className = 'bug'; }
+      else { setTxt(m, 'Seber klíček vpravo a otevři bednu.'); m.className = 'bug'; }
+      setHtml($('#caLog'), logHtml(log));
+      litLines($('#caGml'), lit.keys());
+    }
+  });
+  gmlView('caGml', () => {
+    const d = String(dur), sec = +(dur / 60).toFixed(1);
+    const create = [...G('ctx', C_PL_CTX + '\nsila_skoku = 11;'), ...G('new', 'normalni_skok = sila_skoku;       // původní síla, ať je kam se vrátit')];
+    if (mode === 'A') create.push(...G('new', 'boost = 0;                        // kolik snímků super skoku zbývá (0 = neběží)'));
+    const rew = mode === 'A' ? G('new', `    other.sila_skoku = 14;   // other = hráč\n    other.boost = ${d};   // ${sec} s × 60 snímků`)
+      : mode === 'B' ? G('new', `    other.sila_skoku = 14;\n    other.alarm[0] = ${d};   // budík hráče: za ${dur} snímků Alarm 0`)
+      : G('new', `    other.sila_skoku = 14;\n    alarm[0] = ${d};   // ✗ budík bedny, ne hráče`);
+    const ev = [
+      ['Create', create, 'o_player'],
+      ['Collision s o_player', [...G('ctx', '// otevřít jde jen s klíčkem\nif (o_game.klice_zelene > 0) {\n    o_game.klice_zelene -= 1;\n    ds_list_add(o_game.sebrane, id);'), ...rew.map(l => [l[0], l[1], 'open']), ...G('ctx', '    instance_destroy();\n}')], 'o_box_green']
+    ];
+    if (mode === 'A') ev.push(['Step', [...G('ctx', C_STEP_CTX), ...G('new', '\n// časovač super skoku\nif (boost > 0) {'), ...GK('new', 'tick', '    boost -= 1;                       // každý snímek o jeden méně'), ...G('new', '    if (boost == 0) {'), ...GK('new', 'end', '        sila_skoku = normalni_skok;   // čas vypršel'), ...G('new', '    }\n}')], 'o_player']);
+    if (mode === 'B') ev.push(['Alarm 0', GK('new', 'end', 'sila_skoku = normalni_skok;       // GameMaker odpočítal snímky sám'), 'o_player']);
+    if (mode === 'X') ev.push(['Alarm 0', G('new', '// nikdy se nespustí: bedna je zničená a s ní i její alarm\no_player.sila_skoku = o_player.normalni_skok;'), 'o_box_green']);
+    return { obj: 'o_player', ran: true, ev };
+  });
+})();
+
+/* =========================================================
+   5. DELAY AND DURATION: a timeline of one counter
+   ========================================================= */
+(function delayLab() {
+  const cv = $('#zpCv'), ctx = cv.getContext('2d'), Wd = cv.width, Hd = cv.height;
+  const S = { del: 30, dur: 180, blink: 60 };
+  let cas = -1, sub = 0, wait = 40, sila = NORMAL, slow = false;
+  const lit = litTimer();
+  const bind = (id, k, f) => { const el = $('#' + id), upd = () => { S[k] = +el.value; setTxt($('#' + id + 'V'), f(S[k])); }; el.addEventListener('input', upd); upd(); };
+  bind('zpDel', 'del', v => `${v} snímků = ${+(v / 60).toFixed(2)} s`);
+  bind('zpDur', 'dur', v => `${v} snímků = ${+(v / 60).toFixed(2)} s`);
+  bind('zpBlink', 'blink', v => v ? `${v} snímků` : 'vypnuto');
+  const go = () => { cas = 0; sub = 0; sila = NORMAL; lit.hit('go', 30); };
+  $('#zpGo').onclick = go;
+  $('#zpSlow').addEventListener('change', e => slow = e.target.checked);
+  // o_player · Step: the same logic as the code window
+  function tick() {
+    if (cas < 0) return;
+    if (cas === S.del) { sila = SUPER; lit.hit('start', 30); beep('open'); }
+    if (cas < S.del + S.dur) { cas += 1; lit.hit('tick', 2); }
+    else { sila = NORMAL; cas = -1; wait = 90; lit.hit('end', 40); beep('end'); }
+  }
+  const look = () => {
+    let tint = false, alpha = 1;
+    if (cas >= S.del) { tint = true; if (S.del + S.dur - cas < S.blink && Math.floor(cas / 4) % 2 === 0) { alpha = .3; lit.hit('blink', 2); } }
+    return { tint, alpha };
+  };
+  widgets.push({
+    step() {
+      lit.tick();
+      if (cas < 0) { if (--wait <= 0) go(); return; }
+      sub += slow ? .25 : 1;
+      while (sub >= 1) { sub -= 1; tick(); if (cas < 0) break; }
+    },
+    draw(t) {
+      const total = S.del + S.dur + 40, x0 = 24, x1 = 540, y0 = 74, bh = 36;
+      const fx = f => x0 + (x1 - x0) * f / total;
+      ctx.fillStyle = TOK['surface-2']; ctx.fillRect(0, 0, Wd, Hd);
+      // segments: waiting, effect, blinking, done
+      const seg = (a, b, col) => { if (b > a) { ctx.fillStyle = col; ctx.fillRect(fx(a), y0, fx(b) - fx(a), bh); } };
+      seg(0, S.del, TOK.line);
+      const bStart = Math.max(S.del, S.del + S.dur - S.blink);
+      seg(S.del, bStart, '#40c057');
+      for (let f = bStart; f < S.del + S.dur; f++) seg(f, f + 1, Math.floor(f / 4) % 2 === 0 ? 'rgba(64,192,87,.3)' : '#40c057');
+      seg(S.del + S.dur, total, TOK['surface']);
+      ctx.strokeStyle = TOK['line-strong']; ctx.lineWidth = 1; ctx.strokeRect(x0 + .5, y0 + .5, x1 - x0, bh);
+      // labels inside the bar
+      ctx.font = '600 13px "Atkinson Hyperlegible Next", system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const lab = (a, b, s, col) => { if (fx(b) - fx(a) > ctx.measureText(s).width + 8) { ctx.fillStyle = col; ctx.fillText(s, (fx(a) + fx(b)) / 2, y0 + bh / 2); } };
+      lab(0, S.del, 'čekání', TOK.ink); lab(S.del, bStart, 'účinek', '#0b2e13'); lab(bStart, S.del + S.dur, 'bliká', '#0b2e13'); lab(S.del + S.dur, total, 'konec', TOK.muted);
+      ctx.textBaseline = 'alphabetic';
+      // the two moments the code checks
+      mono(ctx, 11, 600);
+      const mark = (f, s, up) => {
+        ctx.strokeStyle = TOK.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(fx(f), y0 - 6); ctx.lineTo(fx(f), y0 + bh + 6); ctx.stroke();
+        ctx.fillStyle = TOK.ink; ctx.fillText(s, clamp(fx(f), x0 + 60, x1 - 60), up ? y0 - 12 : y0 + bh + 20);
+      };
+      mark(S.del, `cas == zpozdeni (${S.del})`, true);
+      mark(S.del + S.dur, `cas == zpozdeni + trvani (${S.del + S.dur})`, false);
+      // seconds below
+      ctx.fillStyle = TOK.muted;
+      for (let f = 0; f <= total; f += 60) { ctx.fillRect(fx(f), y0 + bh + 26, 1, 5); ctx.fillText(`${f / 60} s`, fx(f), y0 + bh + 44); }
+      // playhead
+      if (cas >= 0) {
+        const px = fx(cas);
+        ctx.fillStyle = TOK['c-timer']; ctx.beginPath(); ctx.moveTo(px - 7, y0 - 30); ctx.lineTo(px + 7, y0 - 30); ctx.lineTo(px, y0 - 20); ctx.closePath(); ctx.fill();
+        ctx.fillRect(px - 1, y0 - 20, 2, bh + 20);
+        mono(ctx, 13, 700); ctx.fillText(`cas = ${cas}`, clamp(px, x0 + 40, x1 - 40), y0 - 36);
+      } else { mono(ctx, 13, 700); ctx.fillStyle = TOK.muted; ctx.fillText('cas = -1 (neběží)', (x0 + x1) / 2, y0 - 36); }
+      ctx.textAlign = 'start';
+      // the player on the right
+      const L = look(), gx = 572, gy = 150;
+      ctx.fillStyle = TOK.line; ctx.fillRect(gx - 10, gy, 140, 3);
+      drawImg(ctx, IMG.stone, gx - 10, gy + 3, 140, 20);
+      ctx.globalAlpha = L.alpha;
+      drawImg(ctx, (L.tint ? IMG.heroBoost : IMG.hero).walk[0], gx + 34, gy - 60, 48, 60);
+      ctx.globalAlpha = 1;
+      mono(ctx, 12, 700); ctx.fillStyle = TOK.ink; ctx.textAlign = 'center';
+      ctx.fillText(`sila_skoku = ${sila}`, gx + 58, 40);
+      ctx.fillStyle = TOK.muted; ctx.fillText(`image_alpha = ${L.alpha}`, gx + 58, 58);
+      ctx.textAlign = 'start';
+      const st = cas < 0 ? 'Časovač stojí, bedna ho spustí.' : cas < S.del ? 'Čeká se na začátek účinku.' : cas >= S.del + S.dur - S.blink ? 'Účinek končí, hráč bliká.' : 'Super skok běží.';
+      setTxt($('#zpState'), st);
+      litLines($('#zpGml'), lit.keys());
+    }
+  });
+  gmlView('zpGml', () => ({ obj: 'o_player', ran: true, ev: [
+    ['Create', [...G('ctx', C_PL_CTX + '\nnormalni_skok = sila_skoku;'), ...G('new', `cas = -1;   // -1 = časovač neběží\nzpozdeni = ${S.del};   // začne za ${+(S.del / 60).toFixed(2)} s\ntrvani = ${S.dur};   // vydrží ${+(S.dur / 60).toFixed(2)} s\nblikani = ${S.blink};   // tolik snímků před koncem bliká`)]],
+    ['Collision s o_player', [...G('ctx', 'if (o_game.klice_zelene > 0) {\n    o_game.klice_zelene -= 1;\n    ds_list_add(o_game.sebrane, id);'), ...GK('new', 'go', '    other.cas = 0;                      // spusť časovač hráče'), ...G('ctx', '    instance_destroy();\n}')], 'o_box_green'],
+    ['Step', [...G('ctx', C_STEP_CTX), ...G('new', '\n// časovač: zpoždění a trvání\nif (cas >= 0) {\n    if (cas == zpozdeni) {'), ...GK('new', 'start', '        sila_skoku = 14;              // začátek účinku'), ...G('new', '    }\n    if (cas < zpozdeni + trvani) {'), ...GK('new', 'tick', '        cas += 1;                     // běží dál'), ...G('new', '    } else {'), ...GK('new', 'end', '        sila_skoku = normalni_skok;   // konec účinku\n        cas = -1;                     // časovač stojí'), ...G('new', '    }\n}\n\n// vzhled podle časovače\nimage_blend = c_white;\nimage_alpha = 1;\nif (cas >= zpozdeni) {\n    image_blend = c_lime;             // účinek běží\n    if (zpozdeni + trvani - cas < blikani && (cas div 4) mod 2 == 0) {'), ...GK('new', 'blink', '        image_alpha = 0.3;            // 4 snímky skoro neviditelný, 4 ne'), ...G('new', '    }\n}')]]
+  ] }));
+})();
+
+/* =========================================================
+   6. SAVE AND LOAD
+   ========================================================= */
+// what ds_list_write makes of a list of numbers: a header, the count and every value as a double, in hex
+function dsListWrite(arr) {
+  const le32 = n => [0, 8, 16, 24].map(s => ((n >>> s) & 255).toString(16).padStart(2, '0')).join('').toUpperCase();
+  const dbl = v => { const b = new DataView(new ArrayBuffer(8)); b.setFloat64(0, v, true); return [...Array(8)].map((_, i) => b.getUint8(i).toString(16).padStart(2, '0')).join('').toUpperCase(); };
+  return '2D010000' + le32(arr.length) + arr.map(v => le32(0) + dbl(v)).join('');
+}
+(function saveLab() {
+  const cv = $('#ulCv'), ctx = cv.getContext('2d');
+  const inp = makeInput(cv, $('#ulFocus'), 'Řídíš ty: ← → pohyb, mezerník skok, F5 uloží');
+  let file = null, log = [], toast = 0, toastTxt = '';
+  const lit = litTimer(), ap = { dir: 1, t: 0 };
+  const MAP_B2 = MAP_B.map((r, j) => j === 6 ? '#D..S....o...k...o...#' : r);
+  const W = makeWorld(twoRooms(MAP_B2), {
+    onStart(W) {
+      // o_game · Create: load the save, if there is one
+      if (file) {
+        W.g.mince = file.mince; W.g.klice = file.klice; W.g.sebrane = file.list.slice();
+        pushLog(log, `o_game · Create → file_exists = true, načteno: ${file.mince} mincí, ${file.list.length} sebraných věcí`);
+        lit.hit('load', 90);
+      } else pushLog(log, 'o_game · Create → file_exists = false, nová hra');
+    },
+    onSkip(ks) { pushLog(log, `${ks.length}× (mince, klíček) · Create → id je v seznamu → instance_destroy()`); },
+    onTake(k) { pushLog(log, `${OBJ[k.t]} (id ${k.id}) · Collision → ds_list_add(sebrane, ${k.id})`); },
+    onDoor(d) { pushLog(log, `o_door → room_goto(${W.rooms[d.cil].name})`); }
+  });
+  function save() {
+    file = { mince: W.g.mince, klice: W.g.klice, list: W.g.sebrane.slice() };
+    pushLog(log, `o_game · Key Pressed F5 → uloženo do save.txt`);
+    lit.hit('save', 90); toast = 90; toastTxt = 'Uloženo'; beep('key');
+  }
+  const restart = () => { log = []; ap.dir = 1; ap.t = 0; W.start(); toast = 70; toastTxt = 'Hra spuštěna znovu'; };
+  restart();
+  $('#ulSave').onclick = save;
+  $('#ulRestart').onclick = restart;
+  $('#ulDel').onclick = () => { file = null; pushLog(log, 'file_delete("save.txt")'); toast = 70; toastTxt = 'save.txt smazán'; };
+  cv.addEventListener('keydown', e => { if (e.key === 'F5') { e.preventDefault(); save(); } });
+  widgets.push({
+    step() { lit.tick(); if (toast > 0) toast--; W.step(inp.ctl() || autoCtl(W, ap)); },
+    draw(t) {
+      W.draw(ctx, t, false);
+      if (toast > 0) {
+        ctx.globalAlpha = Math.min(1, toast / 20);
+        ctx.font = '700 16px "Pixelify Sans", monospace'; const w = ctx.measureText(toastTxt).width + 28;
+        ctx.fillStyle = 'rgba(16,20,28,.85)'; ctx.fillRect(W.R().W - w - 16, W.R().H - 82, w, 30);
+        ctx.fillStyle = '#fff'; ctx.fillText(toastTxt, W.R().W - w - 2, W.R().H - 61); ctx.globalAlpha = 1;
+      }
+      setTxt($('#ulRoom'), W.R().name);
+      setTxt($('#ulM'), String(W.g.mince));
+      setTxt($('#ulK'), String(W.g.klice));
+      setTxt($('#ulN'), String(W.g.sebrane.length));
+      setTxt($('#ulFile'), file ? `${file.mince}\n${file.klice}\n${dsListWrite(file.list)}` : '(soubor neexistuje)');
+      setHtml($('#ulLog'), logHtml(log));
+      litLines($('#ulGml'), lit.keys());
+    }
+  });
+  gmlView('ulGml', () => ({ obj: 'o_game', ran: true, ev: [
+    ['Create', [...G('ctx', C_GAME + '\n' + C_LIST + '\n' + C_KEYS), ...G('new', '\n// načtení uložené hry\nsoubor = "save.txt";\nif (file_exists(soubor)) {'), ...GK('new', 'load', '    var f = file_text_open_read(soubor);\n    mince = real(file_text_read_string(f));          // 1. řádek\n    file_text_readln(f);\n    klice_zelene = real(file_text_read_string(f));   // 2. řádek\n    file_text_readln(f);\n    ds_list_read(sebrane, file_text_read_string(f)); // 3. řádek: celý seznam\n    file_text_close(f);'), ...G('new', '}')]],
+    ['Key Pressed · F5', GK('new', 'save', '// uložení: stejné pořadí jako při čtení\nvar f = file_text_open_write(soubor);\nfile_text_write_string(f, string(mince));\nfile_text_writeln(f);\nfile_text_write_string(f, string(klice_zelene));\nfile_text_writeln(f);\nfile_text_write_string(f, ds_list_write(sebrane));\nfile_text_close(f);')]
+  ] }));
+})();
+
+/* =========================================================
+   QUIZ
+   ========================================================= */
+makeQuiz(4, [
+    ['Hráč prošel dveřmi do rm_level2 a jeho proměnná mince je zase 0. Proč?', ['room_goto smaže proměnné všech objektů', 'hráč v nové místnosti je nová instance a začíná z Create', 'mince se ukládají jen do souboru'], 1, 'Místnost se postaví znovu podle editoru, i s novým hráčem. Co se nemá zapomenout, patří do persistentního o_game.'],
+    ['Co udělá zaškrtnutí Persistent u objektu o_game?', ['jeho instance přežije přechod do jiné místnosti', 'uloží ho do souboru', 'nedá se zničit'], 0, 'Persistentní instance se při room_goto neničí. Do souboru ale nic neukládá, to musíš udělat sám.'],
+    ['Po návratu do první místnosti se hráč hned objeví ve druhé. Co je nejspíš špatně?', ['o_game není Persistent', 'chybí seznam sebrane', 'o_return_point leží na dveřích'], 2, 'Hráč se objeví na dveřích, v tom samém snímku se jich dotkne a odejde. Dej bod návratu kousek vedle.'],
+    ['Jak mince pozná, že už byla sebraná?', ['v Create hledá své id v seznamu o_game.sebrane', 'room_goto jí to řekne', 'zkontroluje svou image_alpha'], 0, 'Instance z Room Editoru mají při každém vstupu stejné id, takže se podle něj dají poznat.'],
+    ['Bedna se otevře, ale zapomeneš v ní instance_destroy(). Hráč má 3 klíčky. Co se stane?', ['spotřebuje se jeden klíček', 'spotřebují se všechny, Collision běží každý snímek', 'nic, bedna je už otevřená'], 1, 'Collision se spouští v každém snímku, kdy se hráč bedny dotýká. Bez zničení (nebo jiné pojistky) odečte klíček znovu a znovu.'],
+    ['Hra běží 60 snímků za sekundu. Kolik nastavíš do alarm[0], aby Alarm 0 přišel za 2,5 s?', ['25', '150', '2.5'], 1, '2,5 × 60 = 150 snímků. Alarm počítá snímky, ne sekundy.'],
+    ['Bedna nastaví alarm[0] = 180 a hned zavolá instance_destroy(). Co se stane?', ['Alarm 0 bedny se nikdy nespustí', 'Alarm 0 se spustí za 3 s', 'hra spadne'], 0, 'Alarm patří instanci a se zničenou instancí zmizí. Nastav ho hráči: other.alarm[0] = 180.'],
+    ['Proč nepsat alarm[0] = 60; přímo do Step?', ['ve Stepu alarm nefunguje', 'Alarm 0 by se spustil 60× za sekundu', 'pořád se natahuje zpátky na 60 a nikdy nedojde na nulu'], 2, 'Každý snímek ho GameMaker sníží o 1 a tvůj kód ho hned vrátí na 60.'],
+    ['zpozdeni = 30, trvani = 120. Kolik snímků po otevření bedny super skok skončí?', ['150', '120', '90'], 0, 'Začne v cas = 30 a trvá 120 snímků, takže končí v cas = 30 + 120 = 150.'],
+    ['Uložíš hru, pak sebereš dvě mince a hru vypneš. Co uvidíš po spuštění?', ['ty dvě mince budou zase na svém místě', 'ty dvě mince zůstanou sebrané', 'hra spadne'], 0, 'Načte se stav z doby uložení. Co se stalo potom, hra neví.'],
+    ['Ukládáš mince, pak klíčky, pak seznam. V jakém pořadí je musíš číst?', ['na pořadí nezáleží', 'v opačném', 've stejném: mince, klíčky, seznam'], 2, 'Textový soubor je jen řádky za sebou, neví, co je na kterém. Pořadí musí sedět.']
+  ]);
+
+requestAnimationFrame(loop);
+})();
+
 
 startGml();
 
